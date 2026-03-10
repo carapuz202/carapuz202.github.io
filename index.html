@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>World Weather — 500+ cities</title>
+<title>🌤️ World Weather — 500+ cities</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#f0f4f8;--card:#fff;--pri:#2563eb;--prid:#1d4ed8;--tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;
@@ -12,742 +12,384 @@
 --bor:#334155;--hov:#334155;--shadow:0 8px 30px rgba(0,0,0,.4)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:background .3s,color .3s}
-.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f 50%,#2563eb);color:#fff;padding:1.8rem 1rem;text-align:center}
-.hdr h1{font-size:2rem}.hdr p{opacity:.8;margin-top:.2rem;font-size:.95rem}
-.hdr-btns{position:absolute;top:.8rem;right:.8rem;display:flex;gap:.4rem;z-index:2}
-.hdr{position:relative}
-.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;height:36px;border-radius:18px;
-font-size:.85rem;cursor:pointer;transition:.2s;backdrop-filter:blur(4px);padding:0 .8rem;display:flex;align-items:center;gap:.3rem}
+.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f 50%,#2563eb);color:#fff;padding:1.8rem 1rem;text-align:center;position:relative}
+.hdr h1{font-size:1.8rem}.hdr p{opacity:.8;margin-top:.2rem;font-size:.9rem}
+.hdr-btns{position:absolute;top:.7rem;right:.7rem;display:flex;gap:.3rem;z-index:2}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;height:34px;border-radius:17px;font-size:.82rem;cursor:pointer;transition:.2s;backdrop-filter:blur(4px);padding:0 .7rem;display:flex;align-items:center;gap:.2rem;white-space:nowrap}
 .hdr-btn:hover{background:rgba(255,255,255,.3)}
-.wrap{max-width:980px;margin:0 auto;padding:0 1rem 2rem}
-/* SELECTORS */
-.sel-bar{background:var(--card);border-radius:var(--r);padding:.8rem 1rem;margin-top:-1.2rem;position:relative;z-index:60;
-box-shadow:var(--shadow);display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;transition:background .3s}
-.sel-bar label{font-weight:700;font-size:.9rem;white-space:nowrap}
-.sel-bar select{padding:.5rem .7rem;border:2px solid var(--bor);border-radius:8px;font-size:.88rem;
-background:var(--hov);color:var(--tx);cursor:pointer;min-width:140px}
+.wrap{max-width:960px;margin:0 auto;padding:0 1rem 2rem}
+.sel-bar{background:var(--card);border-radius:var(--r);padding:.8rem 1rem;margin-top:-1.2rem;position:relative;z-index:60;box-shadow:var(--shadow);display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;transition:background .3s}
+.sel-bar label{font-weight:700;font-size:.85rem;white-space:nowrap}
+.sel-bar select{padding:.45rem .6rem;border:2px solid var(--bor);border-radius:8px;font-size:.85rem;background:var(--hov);color:var(--tx);cursor:pointer;min-width:130px}
 .sel-bar select:focus{outline:none;border-color:var(--pri)}
-.sw{flex:1;min-width:180px;position:relative}
-.sw input{width:100%;padding:.5rem .7rem .5rem 2rem;border:2px solid var(--bor);border-radius:8px;
-font-size:.88rem;background:var(--hov);color:var(--tx)}
+.sw{flex:1;min-width:170px;position:relative}
+.sw input{width:100%;padding:.45rem .65rem .45rem 1.9rem;border:2px solid var(--bor);border-radius:8px;font-size:.85rem;background:var(--hov);color:var(--tx)}
 .sw input:focus{outline:none;border-color:var(--pri)}
-.sw::before{content:'🔍';position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none}
-.dd{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--card);border:2px solid var(--bor);
-border-radius:0 0 10px 10px;max-height:400px;overflow-y:auto;display:none;z-index:200;box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.sw::before{content:'🔍';position:absolute;left:.5rem;top:50%;transform:translateY(-50%);font-size:.78rem;pointer-events:none}
+.dd{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--card);border:2px solid var(--bor);border-radius:0 0 10px 10px;max-height:380px;overflow-y:auto;display:none;z-index:200;box-shadow:0 16px 40px rgba(0,0,0,.25)}
 .dd.open{display:block}
-.dd-cnt{padding:.3rem .6rem;font-size:.75rem;color:var(--tx3);text-align:center;border-bottom:1px solid var(--bor);background:var(--hov);position:sticky;top:0;z-index:2}
-.dd-r{padding:.25rem .6rem;font-size:.7rem;font-weight:700;color:var(--pri);background:var(--hov);position:sticky;top:24px;z-index:1}
-.dd-i{padding:.4rem .7rem;cursor:pointer;font-size:.85rem;transition:.12s;display:flex;justify-content:space-between}
-.dd-i:hover{background:#dbeafe;color:var(--pri)}
-[data-theme="dark"] .dd-i:hover{background:#1e3a5f}
-.dd-i.act{background:var(--pri);color:#fff}
-.dd-i span{font-size:.68rem;color:var(--tx3)}.dd-i.act span{color:rgba(255,255,255,.7)}
-.c-info{font-size:.78rem;color:var(--tx3);white-space:nowrap}
-/* TABS */
+.dd-cnt{padding:.3rem .6rem;font-size:.72rem;color:var(--tx3);text-align:center;border-bottom:1px solid var(--bor);background:var(--hov);position:sticky;top:0;z-index:2}
+.dd-r{padding:.2rem .6rem;font-size:.68rem;font-weight:700;color:var(--pri);background:var(--hov);position:sticky;top:22px;z-index:1}
+.dd-i{padding:.4rem .7rem;cursor:pointer;font-size:.83rem;transition:.1s;display:flex;justify-content:space-between}
+.dd-i:hover{background:#dbeafe;color:var(--pri)}[data-theme="dark"] .dd-i:hover{background:#1e3a5f}
+.dd-i.act{background:var(--pri);color:#fff}.dd-i span{font-size:.65rem;color:var(--tx3)}.dd-i.act span{color:rgba(255,255,255,.7)}
+.c-info{font-size:.75rem;color:var(--tx3);white-space:nowrap}
 .tabs{display:flex;gap:.25rem;margin-top:1rem;flex-wrap:wrap}
-.tbtn{padding:.55rem .9rem;border:none;background:var(--bor);border-radius:10px 10px 0 0;font-size:.85rem;
-font-weight:600;cursor:pointer;color:var(--tx3);transition:.2s}
-.tbtn:hover{background:#cbd5e1;color:var(--tx)}
+.tbtn{padding:.5rem .9rem;border:none;background:var(--bor);border-radius:10px 10px 0 0;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--tx3);transition:.2s}
+.tbtn:hover{background:#cbd5e1;color:var(--tx)}[data-theme="dark"] .tbtn:hover{background:#475569}
 .tbtn.on{background:var(--card);color:var(--pri);box-shadow:0 -2px 8px rgba(0,0,0,.05)}
-[data-theme="dark"] .tbtn:hover{background:#475569}
-.pnl{background:var(--card);border-radius:0 var(--r) var(--r) var(--r);padding:1.3rem;
-box-shadow:0 6px 24px rgba(0,0,0,.07);display:none;min-height:150px;transition:background .3s}
+.pnl{background:var(--card);border-radius:0 var(--r) var(--r) var(--r);padding:1.2rem;box-shadow:0 6px 24px rgba(0,0,0,.07);display:none;min-height:150px;transition:background .3s}
 .pnl.on{display:block;animation:fu .25s ease}
 @keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-/* CURRENT */
 .cw{text-align:center;padding:.3rem 0}
-.cw-ic{font-size:4.5rem}.cw-t{font-size:3.5rem;font-weight:800;letter-spacing:-2px}
-.cw-d{font-size:1.05rem;color:var(--tx3);margin-bottom:.2rem}
-.cw-time{font-size:.82rem;color:var(--tx3);margin-bottom:.8rem}
-.grd{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:.4rem;margin-bottom:.8rem}
-.gd{background:var(--hov);border-radius:10px;padding:.55rem;text-align:center;transition:transform .15s}
+.cw-ic{font-size:4rem}.cw-t{font-size:3.2rem;font-weight:800;letter-spacing:-2px}
+.cw-d{font-size:1rem;color:var(--tx3);margin-bottom:.15rem}.cw-time{font-size:.78rem;color:var(--tx3);margin-bottom:.7rem}
+.grd{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.4rem;margin-bottom:.7rem}
+.gd{background:var(--hov);border-radius:10px;padding:.5rem;text-align:center;transition:transform .15s}
 .gd:hover{transform:translateY(-2px)}
-.gd-i{font-size:1.2rem}.gd-l{font-size:.68rem;color:var(--tx3);margin:.03rem 0}.gd-v{font-size:.92rem;font-weight:700}
-.rec{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:.8rem;margin-bottom:.8rem;
-display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.gd-i{font-size:1.1rem}.gd-l{font-size:.65rem;color:var(--tx3);margin:.02rem 0}.gd-v{font-size:.88rem;font-weight:700}
+.rec{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:.7rem;margin-bottom:.7rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 [data-theme="dark"] .rec{background:linear-gradient(135deg,#1e3a5f,#14532d)}
-.rec-ic{font-size:2.2rem}.rec-txt h4{color:var(--tx2);font-size:.88rem;margin-bottom:.15rem}
-.rec-txt p{color:var(--tx3);font-size:.82rem;line-height:1.35}
-.hr-scroll{display:flex;gap:.4rem;overflow-x:auto;padding:.5rem 0;scrollbar-width:thin}
-.hr{text-align:center;min-width:50px;flex-shrink:0;padding:.35rem;border-radius:8px;background:var(--card);border:1px solid var(--bor)}
-.hr-t{font-size:.68rem;color:var(--tx3)}.hr-i{font-size:1.1rem;margin:.05rem 0}.hr-v{font-weight:700;font-size:.82rem}
-.hr-r{font-size:.62rem;color:#3b82f6}
-.cb{background:var(--hov);border-radius:12px;padding:.8rem;margin-bottom:.7rem}
-.cb h3{font-size:.88rem;color:var(--tx2);margin-bottom:.5rem}
-.cb canvas{max-height:200px;width:100%!important}
-/* FORECAST */
-.fc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:.4rem;margin-bottom:.7rem}
-.fc{background:linear-gradient(135deg,var(--hov),#eff6ff);border-radius:10px;padding:.5rem .3rem;text-align:center;
-cursor:pointer;transition:.2s;border:2px solid transparent;user-select:none}
+.rec-ic{font-size:2rem}.rec-txt h4{color:var(--tx2);font-size:.85rem;margin-bottom:.1rem}.rec-txt p{color:var(--tx3);font-size:.78rem;line-height:1.3}
+.hr-scroll{display:flex;gap:.4rem;overflow-x:auto;padding:.4rem 0;scrollbar-width:thin}
+.hr{text-align:center;min-width:48px;flex-shrink:0;padding:.3rem;border-radius:8px;background:var(--card);border:1px solid var(--bor)}
+.hr-t{font-size:.65rem;color:var(--tx3)}.hr-i{font-size:1rem;margin:.03rem 0}.hr-v{font-weight:700;font-size:.78rem}.hr-r{font-size:.6rem;color:#3b82f6}
+.cb{background:var(--hov);border-radius:12px;padding:.7rem;margin-bottom:.6rem}.cb h3{font-size:.85rem;color:var(--tx2);margin-bottom:.4rem}.cb canvas{max-height:180px;width:100%!important}
+.fc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:.4rem;margin-bottom:.6rem}
+.fc{background:linear-gradient(135deg,var(--hov),#eff6ff);border-radius:10px;padding:.5rem .3rem;text-align:center;cursor:pointer;transition:.2s;border:2px solid transparent;user-select:none}
 [data-theme="dark"] .fc{background:linear-gradient(135deg,#1e293b,#1e3a5f)}
 .fc:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
-.fc.sel{border-color:var(--pri);background:linear-gradient(135deg,#dbeafe,#eff6ff)}
-[data-theme="dark"] .fc.sel{background:linear-gradient(135deg,#1e3a5f,#2563eb30)}
-.fc-dt{font-size:.68rem;color:var(--tx2);font-weight:600;margin-bottom:.15rem}
-.fc-ic{font-size:1.7rem;margin:.05rem 0}.fc-hi{font-weight:800;font-size:.9rem}.fc-lo{color:var(--tx3);font-size:.78rem}
-.fc-rn{font-size:.65rem;color:#3b82f6;margin-top:.08rem}
-.ddet{background:linear-gradient(135deg,#fafbff,#f0f7ff);border-radius:var(--r);padding:1.3rem;margin-top:.5rem;border:1px solid #dbeafe;animation:fu .3s}
+.fc.sel{border-color:var(--pri)}
+.fc-dt{font-size:.65rem;color:var(--tx2);font-weight:600;margin-bottom:.15rem}
+.fc-ic{font-size:1.6rem;margin:.05rem 0}.fc-hi{font-weight:800;font-size:.88rem}.fc-lo{color:var(--tx3);font-size:.78rem}.fc-rn{font-size:.62rem;color:#3b82f6;margin-top:.05rem}
+.ddet{background:linear-gradient(135deg,#fafbff,#f0f7ff);border-radius:var(--r);padding:1.2rem;margin-top:.4rem;border:1px solid #dbeafe;animation:fu .3s}
 [data-theme="dark"] .ddet{background:linear-gradient(135deg,#1e293b,#1e3a5f);border-color:#334155}
 .ddet-hdr{text-align:center;margin-bottom:1rem}
-.ddet-hdr .ddi{font-size:4rem}.ddet-hdr .ddt{font-size:2.6rem;font-weight:800}
-.ddet-hdr .ddd{color:var(--tx2);font-size:1rem;margin:.15rem 0}
-.ddet-hdr .dds{color:var(--tx3);font-size:.82rem}
-.htbl{max-height:320px;overflow-y:auto;border:1px solid var(--bor);border-radius:8px;margin-top:.7rem;scrollbar-width:thin}
-table{width:100%;border-collapse:collapse}
-th,td{padding:.35rem .4rem;text-align:center;border-bottom:1px solid var(--bor);font-size:.78rem}
-th{background:var(--hov);font-weight:700;color:var(--tx2);position:sticky;top:0;z-index:2}
-tbody tr:hover{background:var(--hov)}
+.ddet-hdr .ddi{font-size:3.5rem}.ddet-hdr .ddt{font-size:2.4rem;font-weight:800}
+.ddet-hdr .ddd{color:var(--tx2);font-size:.95rem;margin:.15rem 0}.ddet-hdr .dds{color:var(--tx3);font-size:.78rem}
+.htbl{max-height:280px;overflow-y:auto;border:1px solid var(--bor);border-radius:8px;margin-top:.6rem;scrollbar-width:thin}
+table{width:100%;border-collapse:collapse}th,td{padding:.3rem .4rem;text-align:center;border-bottom:1px solid var(--bor);font-size:.75rem}
+th{background:var(--hov);font-weight:700;color:var(--tx2);position:sticky;top:0;z-index:2}tbody tr:hover{background:var(--hov)}
 .ctrl{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end;margin-bottom:.7rem}
-.fg{display:flex;flex-direction:column;gap:.1rem}
-.fg label{font-size:.72rem;font-weight:600;color:var(--tx2)}
-.fg input{padding:.4rem .55rem;border:2px solid var(--bor);border-radius:8px;font-size:.85rem;background:var(--hov);color:var(--tx)}
-.fg input:focus{outline:none;border-color:var(--pri)}
-.btn{padding:.45rem 1rem;background:var(--pri);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
-.btn:hover{background:var(--prid);transform:translateY(-1px)}
-.smry{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem}
-.sm{background:var(--hov);border-radius:10px;padding:.45rem .6rem;flex:1;min-width:75px;text-align:center}
-.sm-l{font-size:.65rem;color:var(--tx3)}.sm-v{font-size:1rem;font-weight:700}
-.pmain{text-align:center;background:linear-gradient(135deg,#faf5ff,#eff6ff);border-radius:var(--r);padding:1.2rem;margin-bottom:.8rem}
+.fg{display:flex;flex-direction:column;gap:.1rem}.fg label{font-size:.7rem;font-weight:600;color:var(--tx2)}
+.fg input{padding:.4rem .5rem;border:2px solid var(--bor);border-radius:8px;font-size:.82rem;background:var(--hov);color:var(--tx)}.fg input:focus{outline:none;border-color:var(--pri)}
+.btn{padding:.45rem 1rem;background:var(--pri);color:#fff;border:none;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}.btn:hover{background:var(--prid);transform:translateY(-1px)}
+.smry{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}.sm{background:var(--hov);border-radius:10px;padding:.4rem .6rem;flex:1;min-width:70px;text-align:center}.sm-l{font-size:.62rem;color:var(--tx3)}.sm-v{font-size:.95rem;font-weight:700}
+.pmain{text-align:center;background:linear-gradient(135deg,#faf5ff,#eff6ff);border-radius:var(--r);padding:1.2rem;margin-bottom:.7rem}
 [data-theme="dark"] .pmain{background:linear-gradient(135deg,#1e1b4b,#1e3a5f)}
-.pmain .pi{font-size:3.5rem}.pmain .pt{font-size:2.4rem;font-weight:800}
-.pmain .pd{color:var(--tx2);font-size:1rem;margin:.15rem 0}.pmain .pr{color:var(--tx3);font-size:.8rem}
-.badge{display:inline-block;color:#fff;padding:.2rem .7rem;border-radius:20px;font-size:.78rem;font-weight:600;margin-top:.4rem}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.5rem;margin-bottom:.8rem}
-.pg{background:var(--hov);border-radius:10px;padding:.7rem}
-.pg h4{color:var(--tx2);margin-bottom:.2rem;font-size:.85rem}
-.pg p{color:var(--tx3);font-size:.8rem;margin:.06rem 0}
-.comp{padding:.8rem;background:var(--hov);border-radius:12px;margin-top:.7rem}
-.comp h3{margin-bottom:.5rem;font-size:.92rem;color:var(--tx2)}
-.comp2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-.cc{text-align:center;padding:.6rem;background:var(--card);border-radius:10px}
-.cc h4{font-size:.75rem;color:var(--tx3);margin-bottom:.1rem}
-.note{margin-top:.8rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:.7rem;font-size:.78rem;color:#92400e;line-height:1.4}
+.pmain .pi{font-size:3rem}.pmain .pt{font-size:2.2rem;font-weight:800}.pmain .pd{color:var(--tx2);font-size:.95rem;margin:.1rem 0}.pmain .pr{color:var(--tx3);font-size:.78rem}
+.badge{display:inline-block;color:#fff;padding:.2rem .6rem;border-radius:20px;font-size:.75rem;font-weight:600;margin-top:.3rem}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem;margin-bottom:.7rem}
+.pg{background:var(--hov);border-radius:10px;padding:.65rem}.pg h4{color:var(--tx2);margin-bottom:.2rem;font-size:.82rem}.pg p{color:var(--tx3);font-size:.78rem;margin:.05rem 0}
+.comp{padding:.7rem;background:var(--hov);border-radius:12px;margin-top:.6rem}.comp h3{margin-bottom:.4rem;font-size:.88rem;color:var(--tx2)}
+.comp2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}.cc{text-align:center;padding:.5rem;background:var(--card);border-radius:10px}.cc h4{font-size:.72rem;color:var(--tx3);margin-bottom:.1rem}
+.note{margin-top:.7rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:.6rem;font-size:.75rem;color:#92400e;line-height:1.4}
 [data-theme="dark"] .note{background:#422006;border-color:#854d0e;color:#fbbf24}
-.ld{text-align:center;padding:2rem;color:var(--tx3)}
-.sp{display:inline-block;width:30px;height:30px;border:3px solid var(--bor);border-top-color:var(--pri);border-radius:50%;animation:rr .6s linear infinite;margin-bottom:.4rem}
+.ld{text-align:center;padding:1.8rem;color:var(--tx3)}.sp{display:inline-block;width:28px;height:28px;border:3px solid var(--bor);border-top-color:var(--pri);border-radius:50%;animation:rr .6s linear infinite;margin-bottom:.3rem}
 @keyframes rr{to{transform:rotate(360deg)}}
-.err{background:#fef2f2;color:#dc2626;padding:.7rem;border-radius:8px;border:1px solid #fecaca;font-size:.85rem}
+.err{background:#fef2f2;color:#dc2626;padding:.6rem;border-radius:8px;border:1px solid #fecaca;font-size:.82rem}
 [data-theme="dark"] .err{background:#450a0a;border-color:#991b1b;color:#fca5a5}
-.ftr{text-align:center;padding:1rem;color:var(--tx3);font-size:.75rem}
-.ftr a{color:#3b82f6;text-decoration:none}
-@media(max-width:600px){
-.hdr h1{font-size:1.3rem}.cw-t{font-size:2.5rem}.cw-ic{font-size:3.5rem}
-.tbtn{padding:.4rem .6rem;font-size:.75rem}.pnl{padding:.8rem}
-.fc-g{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
-.sel-bar{flex-direction:column;align-items:stretch}.comp2{grid-template-columns:1fr}
-.ddet-hdr .ddt{font-size:2rem}.ddet-hdr .ddi{font-size:3rem}
-.grd{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}.hdr-btns{top:.4rem;right:.4rem}
-}
+.ftr{text-align:center;padding:.8rem;color:var(--tx3);font-size:.72rem}.ftr a{color:#3b82f6;text-decoration:none}
+@media(max-width:600px){.hdr h1{font-size:1.3rem}.cw-t{font-size:2.4rem}.cw-ic{font-size:3rem}.tbtn{padding:.35rem .6rem;font-size:.75rem}.pnl{padding:.7rem}.fc-g{grid-template-columns:repeat(auto-fill,minmax(70px,1fr))}.sel-bar{flex-direction:column;align-items:stretch}.comp2{grid-template-columns:1fr}.ddet-hdr .ddt{font-size:1.8rem}.ddet-hdr .ddi{font-size:2.8rem}.grd{grid-template-columns:repeat(auto-fit,minmax(85px,1fr))}.hdr-btns{top:.4rem;right:.3rem;gap:.2rem}.hdr-btn{font-size:.72rem;height:30px;padding:0 .5rem}}
 </style>
 </head>
 <body>
 <div class="hdr">
 <div class="hdr-btns">
-<button class="hdr-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+<button class="hdr-btn" id="langBtn" onclick="nextLang()">🌐 EN</button>
 <button class="hdr-btn" onclick="toggleTheme()">🌓</button>
 </div>
-<h1 id="hdrTitle">🌤️ World Weather</h1>
-<p id="hdrSub">500+ cities · 30 countries · Forecast · Charts · History · Prediction</p>
+<h1 id="hdrT"></h1>
+<p id="hdrS"></p>
 </div>
 <div class="wrap">
 <div class="sel-bar">
-<label id="lblCountry">🌍</label>
-<select id="countrySel"></select>
-<label id="lblCity">📍</label>
-<div class="sw">
-<input type="text" id="si" autocomplete="off">
-<div class="dd" id="dd"></div>
-</div>
+<label id="lC">🌍</label>
+<select id="cSel"></select>
+<label id="lCi">📍</label>
+<div class="sw"><input type="text" id="si" autocomplete="off"><div class="dd" id="dd"></div></div>
 <div class="c-info" id="ci"></div>
 </div>
 <div class="tabs">
-<button class="tbtn on" data-t="cur" id="tabCur">🌡️</button>
-<button class="tbtn" data-t="fc" id="tabFc">📅</button>
-<button class="tbtn" data-t="hist" id="tabHist">📜</button>
-<button class="tbtn" data-t="pred" id="tabPred">🔮</button>
+<button class="tbtn on" data-t="cur" id="tCur"></button>
+<button class="tbtn" data-t="fc" id="tFc"></button>
+<button class="tbtn" data-t="hist" id="tHist"></button>
+<button class="tbtn" data-t="pred" id="tPred"></button>
 </div>
 <div class="pnl on" id="p-cur"><div id="o-cur"></div></div>
 <div class="pnl" id="p-fc"><div id="o-fc"></div></div>
 <div class="pnl" id="p-hist">
 <div class="ctrl">
-<div class="fg"><label id="lblFrom">From:</label><input type="date" id="hS"></div>
-<div class="fg"><label id="lblTo">To:</label><input type="date" id="hE"></div>
-<button class="btn" onclick="loadHist()" id="btnHist">📜</button>
-</div>
-<div id="o-hist"></div>
+<div class="fg"><label id="lF"></label><input type="date" id="hS"></div>
+<div class="fg"><label id="lT"></label><input type="date" id="hE"></div>
+<button class="btn" onclick="loadHist()" id="bH"></button>
+</div><div id="o-hist"></div>
 </div>
 <div class="pnl" id="p-pred">
-<p id="predDesc" style="color:var(--tx3);margin-bottom:.6rem;font-size:.85rem;line-height:1.4"></p>
+<p id="pDesc" style="color:var(--tx3);margin-bottom:.5rem;font-size:.82rem;line-height:1.4"></p>
 <div class="ctrl">
-<div class="fg"><label id="lblPredDate">Date:</label><input type="date" id="pD"></div>
-<button class="btn" onclick="loadPred()" id="btnPred">🔮</button>
+<div class="fg"><label id="lPD"></label><input type="date" id="pD"></div>
+<button class="btn" onclick="loadPred()" id="bP"></button>
+</div><div id="o-pred"></div>
 </div>
-<div id="o-pred"></div>
 </div>
-</div>
-<div class="ftr">
-Data: <a href="https://open-meteo.com/" target="_blank">Open-Meteo.com</a> — free API ·
-<span id="totalCities"></span>
-</div>
+<div class="ftr">Data: <a href="https://open-meteo.com/" target="_blank">Open-Meteo.com</a> — free API · <span id="tCities"></span></div>
+
 <script>
-/* ═══════════════════════════════════════════════
-   TRANSLATIONS
-   ═══════════════════════════════════════════════ */
-const LANG_DATA={
-en:{title:'🌤️ World Weather',sub:'500+ cities · Forecast · History · Prediction',country:'🌍 Country:',city:'📍 City:',search:'Search city...',tabCur:'🌡️ Now',tabFc:'📅 14 Days',tabHist:'📜 History',tabPred:'🔮 Prediction',from:'From:',to:'To:',btnHist:'📜 Show',btnPred:'🔮 Predict',predDesc:'Select a date — algorithm analyzes 8 years of data.',loading:'Loading...',errLoad:'Loading error.',errDates:'Select both dates.',errDateOrder:'Start must be before end.',errHistApi:'Archive error.',errNoData:'No data.',errPredData:'Not enough data.',errPredCalc:'Calculation error.',feelsLike:'Feels like',humidity:'Humidity',wind:'Wind',windDir:'Direction',precip:'Precipitation',pressure:'Pressure',clouds:'Cloudiness',uvIndex:'UV Index',sunrise:'Sunrise',sunset:'Sunset',dayLength:'Day length',timeOfDay:'Time',day:'Day',night:'Night',updated:'Updated',hourly:'Hourly',max:'Max',min:'Min',feelsMax:'Feels max',feelsMin:'Feels min',rainProb:'Rain %',windMax:'Wind max',uvMax:'UV max',clickDay:'👆 Click day for details',tempChart:'Temperature',precipChart:'Precipitation',windChart:'Wind',pressChart:'Pressure',humidChart:'Humidity',cloudChart:'Cloudiness',fullTable:'Hourly table',time:'Time',weather:'Weather',avgMax:'Avg max',avgMin:'Avg min',recHi:'Record ↑',recLo:'Record ↓',totalPrecip:'Σ Precip',days:'Days',predFor:'Prediction for',histRange:'Historical range',confidence:'Confidence',high:'High',medium:'Medium',low:'Low',expectedPrecip:'Expected',rainSnowProb:'Rain/snow %',trend:'Trend',warming:'Warming',cooling:'Cooling',stable:'Stable',spread:'Spread',analyzedYears:'years',perYear:'/year',precipPerYear:'mm/yr',compTitle:'Comparison',ourPred:'Our prediction',officialFc:'Official',algoTitle:'Algorithm:',algoDesc:'Gaussian weighting ±10 days · 8 years · Ensemble method',algoNote:'Statistical prediction, not official forecast.',found:'Found',of:'of',cities:'cities',byYears:'By years',trendReg:'Trend',precipByYears:'Precip by years',windowChart:'±10 days comparison',
-recCold:'Very cold! Warm jacket, hat, gloves.',recCool:'Cold. Warm jacket needed.',recMild:'Cool. Jacket recommended.',recComf:'Comfortable. Light jacket.',recWarm:'Warm. Light clothes, sunscreen.',recHot:'Hot! Drink water, avoid sun.',recRain:' Umbrella!',recSnow:' Careful on roads!',recStorm:' Stay inside.',recWind:' Strong wind!',
-mo:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],mof:['January','February','March','April','May','June','July','August','September','October','November','December'],dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],dnf:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']},
-
-uk:{title:'🌤️ Погода у Світі',sub:'500+ міст · Прогноз · Історія · Передбачення',country:'🌍 Країна:',city:'📍 Місто:',search:'Пошук міста...',tabCur:'🌡️ Зараз',tabFc:'📅 14 днів',tabHist:'📜 Історія',tabPred:'🔮 Передбачення',from:'Від:',to:'До:',btnHist:'📜 Показати',btnPred:'🔮 Передбачити',predDesc:'Оберіть дату — алгоритм аналізує 8 років.',loading:'Завантаження...',errLoad:'Помилка.',errDates:'Оберіть дати.',errDateOrder:'Початок раніше кінця.',errHistApi:'Помилка архіву.',errNoData:'Немає даних.',errPredData:'Мало даних.',errPredCalc:'Помилка.',feelsLike:'Відчувається',humidity:'Вологість',wind:'Вітер',windDir:'Напрямок',precip:'Опади',pressure:'Тиск',clouds:'Хмарність',uvIndex:'UV індекс',sunrise:'Схід',sunset:'Захід',dayLength:'Тривалість дня',timeOfDay:'Доба',day:'День',night:'Ніч',updated:'Оновлено',hourly:'По годинах',max:'Макс',min:'Мін',feelsMax:'Відч. макс',feelsMin:'Відч. мін',rainProb:'Ймов. %',windMax:'Вітер макс',uvMax:'UV макс',clickDay:'👆 Натисніть для деталей',tempChart:'Температура',precipChart:'Опади',windChart:'Вітер',pressChart:'Тиск',humidChart:'Вологість',cloudChart:'Хмарність',fullTable:'Погодинна таблиця',time:'Час',weather:'Погода',avgMax:'Сер. макс',avgMin:'Сер. мін',recHi:'Рекорд ↑',recLo:'Рекорд ↓',totalPrecip:'Σ Опадів',days:'Днів',predFor:'Прогноз на',histRange:'Діапазон',confidence:'Впевненість',high:'Висока',medium:'Середня',low:'Низька',expectedPrecip:'Очікувано',rainSnowProb:'Дощ/сніг %',trend:'Тренд',warming:'Потепління',cooling:'Похолодання',stable:'Стабільно',spread:'Розкид',analyzedYears:'років',perYear:'/рік',precipPerYear:'мм/рік',compTitle:'Порівняння',ourPred:'Наше',officialFc:'Офіційний',algoTitle:'Алгоритм:',algoDesc:'Гаусове зважування ±10 днів · 8 років · Ансамбль',algoNote:'Статистика, не офіційний прогноз.',found:'Знайдено',of:'з',cities:'міст',byYears:'По роках',trendReg:'Тренд',precipByYears:'Опади по роках',windowChart:'±10 днів',
-recCold:'Дуже холодно! Куртка, шапка, рукавиці.',recCool:'Холодно. Тепла куртка.',recMild:'Прохолодно. Куртка.',recComf:'Комфортно. Легка куртка.',recWarm:'Тепло. Легкий одяг, крем.',recHot:'Спекотно! Вода, тінь.',recRain:' Парасолька!',recSnow:' Обережно!',recStorm:' Залишайтесь вдома.',recWind:' Сильний вітер!',
-mo:['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'],mof:['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'],dn:['Нд','Пн','Вт','Ср','Чт','Пт','Сб'],dnf:['Неділя','Понеділок','Вівторок','Середа','Четвер','П\'ятниця','Субота']},
-
-de:{title:'🌤️ Weltwetter',sub:'500+ Städte · Vorhersage · Verlauf · Prognose',country:'🌍 Land:',city:'📍 Stadt:',search:'Stadt suchen...',tabCur:'🌡️ Jetzt',tabFc:'📅 14 Tage',tabHist:'📜 Verlauf',tabPred:'🔮 Prognose',from:'Von:',to:'Bis:',btnHist:'📜 Anzeigen',btnPred:'🔮 Vorhersagen',predDesc:'Datum wählen — Algorithmus analysiert 8 Jahre.',loading:'Laden...',errLoad:'Ladefehler.',errDates:'Daten wählen.',errDateOrder:'Start vor Ende.',errHistApi:'Archivfehler.',errNoData:'Keine Daten.',errPredData:'Zu wenig Daten.',errPredCalc:'Berechnungsfehler.',feelsLike:'Gefühlt',humidity:'Feuchtigkeit',wind:'Wind',windDir:'Richtung',precip:'Niederschlag',pressure:'Druck',clouds:'Bewölkung',uvIndex:'UV-Index',sunrise:'Aufgang',sunset:'Untergang',dayLength:'Tageslänge',timeOfDay:'Tageszeit',day:'Tag',night:'Nacht',updated:'Aktualisiert',hourly:'Stündlich',max:'Max',min:'Min',feelsMax:'Gefühlt max',feelsMin:'Gefühlt min',rainProb:'Regen %',windMax:'Wind max',uvMax:'UV max',clickDay:'👆 Tag anklicken',tempChart:'Temperatur',precipChart:'Niederschlag',windChart:'Wind',pressChart:'Druck',humidChart:'Feuchtigkeit',cloudChart:'Bewölkung',fullTable:'Stundentabelle',time:'Zeit',weather:'Wetter',avgMax:'Ø Max',avgMin:'Ø Min',recHi:'Rekord ↑',recLo:'Rekord ↓',totalPrecip:'Σ Nieders.',days:'Tage',predFor:'Prognose für',histRange:'Bereich',confidence:'Konfidenz',high:'Hoch',medium:'Mittel',low:'Niedrig',expectedPrecip:'Erwartet',rainSnowProb:'Regen/Schnee %',trend:'Trend',warming:'Erwärmung',cooling:'Abkühlung',stable:'Stabil',spread:'Streuung',analyzedYears:'Jahre',perYear:'/Jahr',precipPerYear:'mm/J',compTitle:'Vergleich',ourPred:'Unsere',officialFc:'Offiziell',algoTitle:'Algorithmus:',algoDesc:'Gauß-Gewichtung ±10 Tage · 8 Jahre · Ensemble',algoNote:'Statistik, keine offizielle Vorhersage.',found:'Gefunden',of:'von',cities:'Städte',byYears:'Nach Jahren',trendReg:'Trend',precipByYears:'Niederschlag',windowChart:'±10 Tage',
-recCold:'Sehr kalt! Warme Jacke, Mütze, Handschuhe.',recCool:'Kalt. Warme Jacke.',recMild:'Kühl. Jacke empfohlen.',recComf:'Angenehm. Leichte Jacke.',recWarm:'Warm. Leichte Kleidung.',recHot:'Heiß! Wasser trinken.',recRain:' Regenschirm!',recSnow:' Vorsicht Glätte!',recStorm:' Drinnen bleiben.',recWind:' Starker Wind!',
-mo:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],mof:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],dn:['So','Mo','Di','Mi','Do','Fr','Sa'],dnf:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag']},
-
-fr:{title:'🌤️ Météo Mondiale',sub:'500+ villes · Prévisions · Historique · Prédiction',country:'🌍 Pays:',city:'📍 Ville:',search:'Chercher...',tabCur:'🌡️ Actuel',tabFc:'📅 14 jours',tabHist:'📜 Historique',tabPred:'🔮 Prédiction',from:'De:',to:'À:',btnHist:'📜 Afficher',btnPred:'🔮 Prédire',predDesc:'Choisir une date — analyse de 8 ans.',loading:'Chargement...',errLoad:'Erreur.',feelsLike:'Ressenti',humidity:'Humidité',wind:'Vent',windDir:'Direction',precip:'Précipitations',pressure:'Pression',clouds:'Nébulosité',uvIndex:'Indice UV',sunrise:'Lever',sunset:'Coucher',dayLength:'Durée du jour',day:'Jour',night:'Nuit',updated:'Mis à jour',hourly:'Horaire',max:'Max',min:'Min',clickDay:'👆 Cliquer pour détails',tempChart:'Température',precipChart:'Précipitations',windChart:'Vent',pressChart:'Pression',fullTable:'Tableau horaire',time:'Heure',avgMax:'Moy max',avgMin:'Moy min',totalPrecip:'Σ Précip',days:'Jours',confidence:'Confiance',high:'Haute',medium:'Moyenne',low:'Faible',trend:'Tendance',warming:'Réchauffement',cooling:'Refroidissement',stable:'Stable',found:'Trouvé',of:'sur',cities:'villes',
-recCold:'Très froid! Manteau chaud.',recCool:'Froid. Veste chaude.',recMild:'Frais. Veste légère.',recComf:'Agréable.',recWarm:'Chaud. Vêtements légers.',recHot:'Très chaud! Boire de l\'eau.',recRain:' Parapluie!',recSnow:' Attention verglas!',recStorm:' Restez à l\'intérieur.',recWind:' Vent fort!',
-mo:['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'],mof:['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],dn:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],dnf:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']},
-
-es:{title:'🌤️ Clima Mundial',sub:'500+ ciudades · Pronóstico · Historial · Predicción',country:'🌍 País:',city:'📍 Ciudad:',search:'Buscar...',tabCur:'🌡️ Ahora',tabFc:'📅 14 días',tabHist:'📜 Historial',tabPred:'🔮 Predicción',from:'Desde:',to:'Hasta:',btnHist:'📜 Mostrar',btnPred:'🔮 Predecir',predDesc:'Seleccione fecha — análisis de 8 años.',loading:'Cargando...',errLoad:'Error.',feelsLike:'Sensación',humidity:'Humedad',wind:'Viento',windDir:'Dirección',precip:'Precipitación',pressure:'Presión',clouds:'Nubosidad',uvIndex:'Índice UV',sunrise:'Amanecer',sunset:'Atardecer',dayLength:'Duración',day:'Día',night:'Noche',updated:'Actualizado',hourly:'Por hora',max:'Máx',min:'Mín',clickDay:'👆 Clic para detalles',tempChart:'Temperatura',precipChart:'Precipitación',windChart:'Viento',pressChart:'Presión',fullTable:'Tabla horaria',time:'Hora',confidence:'Confianza',high:'Alta',medium:'Media',low:'Baja',trend:'Tendencia',warming:'Calentamiento',cooling:'Enfriamiento',stable:'Estable',found:'Encontrado',of:'de',cities:'ciudades',
-recCold:'¡Muy frío! Abrigo grueso.',recCool:'Frío. Abrigo necesario.',recMild:'Fresco. Chaqueta ligera.',recComf:'Agradable.',recWarm:'Cálido. Ropa ligera.',recHot:'¡Caluroso! Beber agua.',recRain:' ¡Paraguas!',recSnow:' ¡Cuidado hielo!',recStorm:' Quedarse dentro.',recWind:' ¡Viento fuerte!',
-mo:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],mof:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],dn:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],dnf:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']},
-
-it:{title:'🌤️ Meteo Mondiale',sub:'500+ città · Previsioni · Storico · Predizione',country:'🌍 Paese:',city:'📍 Città:',search:'Cerca...',tabCur:'🌡️ Ora',tabFc:'📅 14 giorni',tabHist:'📜 Storico',tabPred:'🔮 Predizione',from:'Da:',to:'A:',btnHist:'📜 Mostra',btnPred:'🔮 Predici',loading:'Caricamento...',errLoad:'Errore.',feelsLike:'Percepita',humidity:'Umidità',wind:'Vento',precip:'Precipitazioni',pressure:'Pressione',clouds:'Nuvolosità',sunrise:'Alba',sunset:'Tramonto',dayLength:'Durata',day:'Giorno',night:'Notte',updated:'Aggiornato',hourly:'Orario',max:'Max',min:'Min',clickDay:'👆 Clicca per dettagli',tempChart:'Temperatura',precipChart:'Precipitazioni',fullTable:'Tabella oraria',time:'Ora',confidence:'Affidabilità',high:'Alta',medium:'Media',low:'Bassa',trend:'Tendenza',warming:'Riscaldamento',cooling:'Raffreddamento',stable:'Stabile',found:'Trovato',of:'di',cities:'città',
-mo:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],mof:['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],dn:['Dom','Lun','Mar','Mer','Gio','Ven','Sab'],dnf:['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato']},
-
-pl:{title:'🌤️ Pogoda na Świecie',sub:'500+ miast · Prognoza · Historia · Predykcja',country:'🌍 Kraj:',city:'📍 Miasto:',search:'Szukaj...',tabCur:'🌡️ Teraz',tabFc:'📅 14 dni',tabHist:'📜 Historia',tabPred:'🔮 Predykcja',from:'Od:',to:'Do:',btnHist:'📜 Pokaż',btnPred:'🔮 Przewiduj',loading:'Ładowanie...',errLoad:'Błąd.',feelsLike:'Odczuwalna',humidity:'Wilgotność',wind:'Wiatr',precip:'Opady',pressure:'Ciśnienie',clouds:'Zachmurzenie',sunrise:'Wschód',sunset:'Zachód',dayLength:'Długość dnia',day:'Dzień',night:'Noc',updated:'Zaktualizowano',hourly:'Godzinowo',max:'Maks',min:'Min',clickDay:'👆 Kliknij dzień',tempChart:'Temperatura',precipChart:'Opady',fullTable:'Tabela godzinowa',time:'Czas',confidence:'Pewność',high:'Wysoka',medium:'Średnia',low:'Niska',trend:'Trend',warming:'Ocieplenie',cooling:'Ochłodzenie',stable:'Stabilnie',found:'Znaleziono',of:'z',cities:'miast',
-mo:['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'],mof:['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'],dn:['Nd','Pn','Wt','Śr','Cz','Pt','So'],dnf:['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota']},
-
-pt:{title:'🌤️ Clima Mundial',sub:'500+ cidades · Previsão · Histórico · Predição',country:'🌍 País:',city:'📍 Cidade:',search:'Pesquisar...',tabCur:'🌡️ Agora',tabFc:'📅 14 dias',tabHist:'📜 Histórico',tabPred:'🔮 Predição',from:'De:',to:'Até:',btnHist:'📜 Mostrar',btnPred:'🔮 Prever',loading:'Carregando...',feelsLike:'Sensação',humidity:'Umidade',wind:'Vento',precip:'Precipitação',pressure:'Pressão',sunrise:'Nascer',sunset:'Pôr do sol',day:'Dia',night:'Noite',updated:'Atualizado',max:'Máx',min:'Mín',clickDay:'👆 Clique para detalhes',tempChart:'Temperatura',precipChart:'Precipitação',time:'Hora',confidence:'Confiança',high:'Alta',medium:'Média',low:'Baixa',trend:'Tendência',warming:'Aquecimento',cooling:'Resfriamento',stable:'Estável',found:'Encontrado',of:'de',cities:'cidades',
-mo:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],mof:['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'],dn:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],dnf:['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']},
-
-nl:{title:'🌤️ Wereldweer',sub:'500+ steden · Voorspelling · Geschiedenis',country:'🌍 Land:',city:'📍 Stad:',search:'Zoeken...',tabCur:'🌡️ Nu',tabFc:'📅 14 dagen',tabHist:'📜 Geschiedenis',tabPred:'🔮 Voorspelling',from:'Van:',to:'Tot:',loading:'Laden...',feelsLike:'Gevoels',humidity:'Vochtigheid',wind:'Wind',precip:'Neerslag',pressure:'Druk',sunrise:'Zonsopgang',sunset:'Zonsondergang',day:'Dag',night:'Nacht',updated:'Bijgewerkt',max:'Max',min:'Min',tempChart:'Temperatuur',precipChart:'Neerslag',time:'Tijd',confidence:'Betrouwbaarheid',high:'Hoog',medium:'Gemiddeld',low:'Laag',found:'Gevonden',of:'van',cities:'steden',
-mo:['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'],mof:['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'],dn:['Zo','Ma','Di','Wo','Do','Vr','Za'],dnf:['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag']},
-
-ro:{title:'🌤️ Meteo Global',country:'🌍 Țara:',city:'📍 Oraș:',search:'Caută...',tabCur:'🌡️ Acum',tabFc:'📅 14 zile',tabHist:'📜 Istoric',tabPred:'🔮 Predicție',from:'De la:',to:'Până la:',loading:'Se încarcă...',feelsLike:'Se simte',humidity:'Umiditate',wind:'Vânt',precip:'Precipitații',pressure:'Presiune',sunrise:'Răsărit',sunset:'Apus',day:'Zi',night:'Noapte',max:'Max',min:'Min',tempChart:'Temperatură',time:'Ora',found:'Găsite',of:'din',cities:'orașe',
-mo:['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','nov','dec'],mof:['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'],dn:['Dum','Lun','Mar','Mie','Joi','Vin','Sâm'],dnf:['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă']},
-
-cs:{title:'🌤️ Světové Počasí',country:'🌍 Země:',city:'📍 Město:',search:'Hledat...',tabCur:'🌡️ Nyní',tabFc:'📅 14 dní',tabHist:'📜 Historie',tabPred:'🔮 Predikce',from:'Od:',to:'Do:',loading:'Načítání...',feelsLike:'Pocitově',humidity:'Vlhkost',wind:'Vítr',precip:'Srážky',pressure:'Tlak',sunrise:'Východ',sunset:'Západ',day:'Den',night:'Noc',max:'Max',min:'Min',tempChart:'Teplota',time:'Čas',found:'Nalezeno',of:'z',cities:'měst',
-mo:['led','úno','bře','dub','kvě','čvn','čvc','srp','zář','říj','lis','pro'],mof:['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'],dn:['Ne','Po','Út','St','Čt','Pá','So'],dnf:['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota']},
-
-sv:{title:'🌤️ Världsväder',country:'🌍 Land:',city:'📍 Stad:',search:'Sök...',tabCur:'🌡️ Nu',tabFc:'📅 14 dagar',tabHist:'📜 Historik',tabPred:'🔮 Prognos',from:'Från:',to:'Till:',loading:'Laddar...',feelsLike:'Känns som',humidity:'Fuktighet',wind:'Vind',precip:'Nederbörd',pressure:'Tryck',sunrise:'Soluppgång',sunset:'Solnedgång',day:'Dag',night:'Natt',max:'Max',min:'Min',tempChart:'Temperatur',time:'Tid',found:'Hittade',of:'av',cities:'städer',
-mo:['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],mof:['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],dn:['Sön','Mån','Tis','Ons','Tor','Fre','Lör'],dnf:['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag']},
-
-hu:{title:'🌤️ Világidőjárás',country:'🌍 Ország:',city:'📍 Város:',search:'Keresés...',tabCur:'🌡️ Most',tabFc:'📅 14 nap',tabHist:'📜 Előzmények',tabPred:'🔮 Előrejelzés',from:'Ettől:',to:'Eddig:',loading:'Betöltés...',feelsLike:'Hőérzet',humidity:'Páratartalom',wind:'Szél',precip:'Csapadék',pressure:'Légnyomás',sunrise:'Napkelte',sunset:'Napnyugta',day:'Nap',night:'Éjszaka',max:'Max',min:'Min',tempChart:'Hőmérséklet',time:'Idő',found:'Találat',of:'/',cities:'város',
-mo:['jan','feb','már','ápr','máj','jún','júl','aug','sze','okt','nov','dec'],mof:['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'],dn:['V','H','K','Sze','Cs','P','Szo'],dnf:['Vasárnap','Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat']},
-
-el:{title:'🌤️ Παγκόσμιος Καιρός',country:'🌍 Χώρα:',city:'📍 Πόλη:',search:'Αναζήτηση...',tabCur:'🌡️ Τώρα',tabFc:'📅 14 μέρες',tabHist:'📜 Ιστορικό',tabPred:'🔮 Πρόβλεψη',from:'Από:',to:'Έως:',loading:'Φόρτωση...',feelsLike:'Αίσθηση',humidity:'Υγρασία',wind:'Άνεμος',precip:'Βροχόπτωση',pressure:'Πίεση',sunrise:'Ανατολή',sunset:'Δύση',day:'Μέρα',night:'Νύχτα',max:'Μέγ',min:'Ελάχ',tempChart:'Θερμοκρασία',time:'Ώρα',found:'Βρέθηκαν',of:'από',cities:'πόλεις',
-mo:['Ιαν','Φεβ','Μάρ','Απρ','Μάι','Ιού','Ιούλ','Αύγ','Σεπ','Οκτ','Νοέ','Δεκ'],mof:['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'],dn:['Κυ','Δε','Τρ','Τε','Πέ','Πα','Σά'],dnf:['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο']}
+/* ═══════════════════════════════════════
+   FULL TRANSLATION DATA — 14 LANGUAGES
+   All keys present, English as base
+   ═══════════════════════════════════════ */
+const BASE={
+title:'🌤️ World Weather',sub:'500+ cities · Forecast · History · Prediction',
+country:'🌍 Country:',city:'📍 City:',search:'Search city...',
+tabCur:'🌡️ Now',tabFc:'📅 14 Days',tabHist:'📜 History',tabPred:'🔮 Prediction',
+from:'From:',to:'To:',btnHist:'📜 Show',btnPred:'🔮 Predict',
+predDesc:'Select a date — algorithm analyzes 8 years of data and calculates prediction with climate trends.',
+loading:'Loading...',errLoad:'Loading error. Check connection.',errDates:'Select both dates.',errOrder:'Start before end.',errHist:'Archive error.',errNoData:'No data.',errPredD:'Not enough data (min 2 years).',errPredC:'Calculation error.',
+feels:'Feels like',humidity:'Humidity',wind:'Wind',wdir:'Direction',precip:'Precipitation',
+pressure:'Pressure',clouds:'Cloudiness',uv:'UV Index',sunrise:'Sunrise',sunset:'Sunset',
+dayLen:'Day length',tod:'Time of day',day:'Day',night:'Night',updated:'Updated',hourly:'Hourly',
+max:'Max',min:'Min',fmax:'Feels max',fmin:'Feels min',rprob:'Rain %',wmax:'Wind max',uvmax:'UV max',
+click:'👆 Click day for details',temp:'Temperature',prec:'Precipitation',windC:'Wind',pressC:'Pressure',
+humC:'Humidity',cloudC:'Cloudiness',table:'Hourly table',time:'Time',weather:'Weather',
+amax:'Avg max',amin:'Avg min',rhi:'Record ↑',rlo:'Record ↓',tprec:'Σ Precip',days:'Days',
+pfor:'Prediction for',hrange:'Hist. range',conf:'Confidence',
+hi:'High',med:'Medium',lo:'Low',
+eprec:'Expected',rsprob:'Rain/snow %',trend:'Trend',
+warm:'Warming',cool:'Cooling',stable:'Stable',
+spread:'Spread',ayears:'years analyzed',
+yr:'/year',mmyr:'mm/yr',
+comp:'Comparison with official forecast',ours:'Our prediction',offic:'Official',
+algo:'Algorithm:',algoD:'Gaussian ±10 days · 8 years · Ensemble: 60% avg + 40% regression',
+algoN:'Statistical prediction, not official forecast.',
+found:'Found',of:'of',cities:'cities',
+byY:'By years',treg:'Trend + regression',pby:'Precip by years',wch:'±10 days comparison',
+cold:'Very cold! Warm jacket, hat, gloves.',cool2:'Cold. Warm jacket.',mild:'Cool. Jacket recommended.',
+comf:'Comfortable. Light jacket.',warm2:'Warm. Light clothes, sunscreen.',hot:'Hot! Drink water, avoid sun.',
+rain:' Umbrella!',snow:' Careful on roads!',storm:' Stay inside.',wwind:' Strong wind!',
+mo:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+mof:['January','February','March','April','May','June','July','August','September','October','November','December'],
+dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+dnf:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 };
 
-// Функція отримання перекладу з fallback на English:
-const LANGS=Object.keys(LANG_DATA);
-function t(key){return(LANG_DATA[lang]&&LANG_DATA[lang][key])||LANG_DATA.en[key]||key}
+const TR={
+uk:{title:'🌤️ Погода у Світі',sub:'500+ міст · Прогноз · Історія · Передбачення',country:'🌍 Країна:',city:'📍 Місто:',search:'Пошук міста...',tabCur:'🌡️ Зараз',tabFc:'📅 14 днів',tabHist:'📜 Історія',tabPred:'🔮 Передбачення',from:'Від:',to:'До:',btnHist:'📜 Показати',btnPred:'🔮 Передбачити',predDesc:'Оберіть дату — алгоритм аналізує 8 років метеоданих та розрахує прогноз з кліматичними трендами.',loading:'Завантаження...',errLoad:'Помилка завантаження.',errDates:'Оберіть дати.',errOrder:'Початок раніше кінця.',errHist:'Помилка архіву.',errNoData:'Немає даних.',errPredD:'Мало даних (мін 2 роки).',errPredC:'Помилка розрахунку.',feels:'Відчувається',humidity:'Вологість',wind:'Вітер',wdir:'Напрямок',precip:'Опади',pressure:'Тиск',clouds:'Хмарність',uv:'UV індекс',sunrise:'Схід',sunset:'Захід',dayLen:'Тривалість дня',tod:'Доба',day:'День',night:'Ніч',updated:'Оновлено',hourly:'По годинах',max:'Макс',min:'Мін',fmax:'Відч. макс',fmin:'Відч. мін',rprob:'Ймов. %',wmax:'Вітер макс',uvmax:'UV макс',click:'👆 Натисніть для деталей',temp:'Температура',prec:'Опади',windC:'Вітер',pressC:'Тиск',humC:'Вологість',cloudC:'Хмарність',table:'Погодинна таблиця',time:'Час',amax:'Сер. макс',amin:'Сер. мін',rhi:'Рекорд ↑',rlo:'Рекорд ↓',tprec:'Σ Опадів',days:'Днів',pfor:'Прогноз на',hrange:'Діапазон',conf:'Впевненість',hi:'Висока',med:'Середня',lo:'Низька',eprec:'Очікувано',rsprob:'Дощ/сніг %',trend:'Тренд',warm:'Потепління',cool:'Похолодання',stable:'Стабільно',spread:'Розкид',ayears:'років',yr:'/рік',mmyr:'мм/рік',comp:'Порівняння з прогнозом',ours:'Наше',offic:'Офіційний',algo:'Алгоритм:',algoD:'Гаус ±10 днів · 8 років · Ансамбль',algoN:'Статистика, не офіційний прогноз.',found:'Знайдено',of:'з',cities:'міст',byY:'По роках',treg:'Тренд',pby:'Опади по роках',wch:'±10 днів',cold:'Дуже холодно! Куртка, шапка, рукавиці.',cool2:'Холодно. Тепла куртка.',mild:'Прохолодно. Куртка.',comf:'Комфортно.',warm2:'Тепло. Легкий одяг.',hot:'Спекотно! Вода, тінь.',rain:' Парасолька!',snow:' Обережно!',storm:' Вдома.',wwind:' Вітер!',mo:['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'],mof:['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'],dn:['Нд','Пн','Вт','Ср','Чт','Пт','Сб'],dnf:['Неділя','Понеділок','Вівторок','Середа','Четвер','П\'ятниця','Субота']},
+de:{title:'🌤️ Weltwetter',sub:'500+ Städte · Vorhersage · Verlauf · Prognose',country:'🌍 Land:',city:'📍 Stadt:',search:'Stadt suchen...',tabCur:'🌡️ Jetzt',tabFc:'📅 14 Tage',tabHist:'📜 Verlauf',tabPred:'🔮 Prognose',from:'Von:',to:'Bis:',btnHist:'📜 Anzeigen',btnPred:'🔮 Vorhersagen',loading:'Laden...',feels:'Gefühlt',humidity:'Feuchtigkeit',wind:'Wind',precip:'Niederschlag',pressure:'Druck',clouds:'Bewölkung',sunrise:'Aufgang',sunset:'Untergang',dayLen:'Tageslänge',day:'Tag',night:'Nacht',updated:'Aktualisiert',hourly:'Stündlich',max:'Max',min:'Min',click:'👆 Tag anklicken',temp:'Temperatur',table:'Stundentabelle',time:'Zeit',conf:'Konfidenz',hi:'Hoch',med:'Mittel',lo:'Niedrig',trend:'Trend',warm:'Erwärmung',cool:'Abkühlung',stable:'Stabil',found:'Gefunden',of:'von',cities:'Städte',cold:'Sehr kalt! Warme Jacke.',cool2:'Kalt.',mild:'Kühl. Jacke.',comf:'Angenehm.',warm2:'Warm.',hot:'Heiß! Wasser.',rain:' Schirm!',snow:' Glätte!',storm:' Drinnen.',wwind:' Wind!',mo:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],mof:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],dn:['So','Mo','Di','Mi','Do','Fr','Sa'],dnf:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag']},
+fr:{title:'🌤️ Météo Mondiale',sub:'500+ villes · Prévisions · Historique',country:'🌍 Pays:',city:'📍 Ville:',search:'Chercher...',tabCur:'🌡️ Actuel',tabFc:'📅 14 jours',tabHist:'📜 Historique',tabPred:'🔮 Prédiction',from:'De:',to:'À:',btnHist:'📜 Afficher',btnPred:'🔮 Prédire',loading:'Chargement...',feels:'Ressenti',humidity:'Humidité',wind:'Vent',precip:'Précipitations',pressure:'Pression',sunrise:'Lever',sunset:'Coucher',dayLen:'Durée du jour',day:'Jour',night:'Nuit',updated:'Mis à jour',hourly:'Horaire',max:'Max',min:'Min',click:'👆 Cliquer pour détails',temp:'Température',table:'Tableau',time:'Heure',conf:'Confiance',hi:'Haute',med:'Moyenne',lo:'Faible',trend:'Tendance',warm:'Réchauffement',cool:'Refroidissement',stable:'Stable',found:'Trouvé',of:'sur',cities:'villes',cold:'Très froid! Manteau.',cool2:'Froid.',mild:'Frais.',comf:'Agréable.',warm2:'Chaud.',hot:'Très chaud!',rain:' Parapluie!',snow:' Verglas!',storm:' Intérieur.',wwind:' Vent!',mo:['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'],mof:['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],dn:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],dnf:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']},
+es:{title:'🌤️ Clima Mundial',sub:'500+ ciudades · Pronóstico · Historial',country:'🌍 País:',city:'📍 Ciudad:',search:'Buscar...',tabCur:'🌡️ Ahora',tabFc:'📅 14 días',tabHist:'📜 Historial',tabPred:'🔮 Predicción',from:'Desde:',to:'Hasta:',loading:'Cargando...',feels:'Sensación',humidity:'Humedad',wind:'Viento',precip:'Precipitación',pressure:'Presión',sunrise:'Amanecer',sunset:'Atardecer',day:'Día',night:'Noche',updated:'Actualizado',max:'Máx',min:'Mín',click:'👆 Clic para detalles',temp:'Temperatura',time:'Hora',conf:'Confianza',hi:'Alta',med:'Media',lo:'Baja',trend:'Tendencia',warm:'Calentamiento',cool:'Enfriamiento',stable:'Estable',found:'Encontrado',of:'de',cities:'ciudades',mo:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],mof:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],dn:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],dnf:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']},
+it:{title:'🌤️ Meteo Mondiale',country:'🌍 Paese:',city:'📍 Città:',search:'Cerca...',tabCur:'🌡️ Ora',tabFc:'📅 14 giorni',tabHist:'📜 Storico',tabPred:'🔮 Predizione',from:'Da:',to:'A:',loading:'Caricamento...',feels:'Percepita',humidity:'Umidità',wind:'Vento',precip:'Precipitazioni',pressure:'Pressione',sunrise:'Alba',sunset:'Tramonto',day:'Giorno',night:'Notte',updated:'Aggiornato',max:'Max',min:'Min',click:'👆 Clicca',temp:'Temperatura',time:'Ora',conf:'Affidabilità',hi:'Alta',med:'Media',lo:'Bassa',trend:'Tendenza',warm:'Riscaldamento',cool:'Raffreddamento',stable:'Stabile',found:'Trovato',of:'di',cities:'città',mo:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],mof:['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],dn:['Dom','Lun','Mar','Mer','Gio','Ven','Sab'],dnf:['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato']},
+pl:{title:'🌤️ Pogoda Świata',country:'🌍 Kraj:',city:'📍 Miasto:',search:'Szukaj...',tabCur:'🌡️ Teraz',tabFc:'📅 14 dni',tabHist:'📜 Historia',tabPred:'🔮 Predykcja',from:'Od:',to:'Do:',loading:'Ładowanie...',feels:'Odczuwalna',humidity:'Wilgotność',wind:'Wiatr',precip:'Opady',pressure:'Ciśnienie',sunrise:'Wschód',sunset:'Zachód',day:'Dzień',night:'Noc',updated:'Zaktualizowano',max:'Maks',min:'Min',click:'👆 Kliknij',temp:'Temperatura',time:'Czas',conf:'Pewność',hi:'Wysoka',med:'Średnia',lo:'Niska',trend:'Trend',warm:'Ocieplenie',cool:'Ochłodzenie',stable:'Stabilnie',found:'Znaleziono',of:'z',cities:'miast',mo:['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'],mof:['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'],dn:['Nd','Pn','Wt','Śr','Cz','Pt','So'],dnf:['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota']},
+pt:{title:'🌤️ Clima Mundial',country:'🌍 País:',city:'📍 Cidade:',search:'Pesquisar...',tabCur:'🌡️ Agora',tabFc:'📅 14 dias',tabHist:'📜 Histórico',tabPred:'🔮 Predição',from:'De:',to:'Até:',loading:'Carregando...',feels:'Sensação',humidity:'Umidade',wind:'Vento',precip:'Precipitação',pressure:'Pressão',sunrise:'Nascer',sunset:'Pôr do sol',day:'Dia',night:'Noite',updated:'Atualizado',max:'Máx',min:'Mín',temp:'Temperatura',time:'Hora',conf:'Confiança',hi:'Alta',med:'Média',lo:'Baixa',trend:'Tendência',warm:'Aquecimento',cool:'Resfriamento',stable:'Estável',found:'Encontrado',of:'de',cities:'cidades',mo:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],mof:['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'],dn:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],dnf:['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']},
+nl:{title:'🌤️ Wereldweer',country:'🌍 Land:',city:'📍 Stad:',search:'Zoeken...',tabCur:'🌡️ Nu',tabFc:'📅 14 dagen',tabHist:'📜 Geschiedenis',tabPred:'🔮 Voorspelling',from:'Van:',to:'Tot:',loading:'Laden...',feels:'Gevoels',humidity:'Vochtigheid',wind:'Wind',precip:'Neerslag',pressure:'Druk',sunrise:'Zonsopgang',sunset:'Zonsondergang',day:'Dag',night:'Nacht',max:'Max',min:'Min',temp:'Temperatuur',time:'Tijd',found:'Gevonden',of:'van',cities:'steden',mo:['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'],mof:['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'],dn:['Zo','Ma','Di','Wo','Do','Vr','Za'],dnf:['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag']},
+ro:{title:'🌤️ Meteo Global',country:'🌍 Țara:',city:'📍 Oraș:',search:'Caută...',tabCur:'🌡️ Acum',tabFc:'📅 14 zile',tabHist:'📜 Istoric',tabPred:'🔮 Predicție',from:'De la:',to:'Până:',loading:'Încărcare...',feels:'Se simte',humidity:'Umiditate',wind:'Vânt',precip:'Precipitații',sunrise:'Răsărit',sunset:'Apus',day:'Zi',night:'Noapte',max:'Max',min:'Min',temp:'Temperatură',time:'Ora',found:'Găsite',of:'din',cities:'orașe',mo:['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','nov','dec'],mof:['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'],dn:['Dum','Lun','Mar','Mie','Joi','Vin','Sâm'],dnf:['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă']},
+sv:{title:'🌤️ Världsväder',country:'🌍 Land:',city:'📍 Stad:',search:'Sök...',tabCur:'🌡️ Nu',tabFc:'📅 14 dagar',tabHist:'📜 Historik',tabPred:'🔮 Prognos',from:'Från:',to:'Till:',loading:'Laddar...',feels:'Känns som',humidity:'Fuktighet',wind:'Vind',precip:'Nederbörd',pressure:'Tryck',sunrise:'Soluppgång',sunset:'Solnedgång',day:'Dag',night:'Natt',max:'Max',min:'Min',temp:'Temperatur',time:'Tid',found:'Hittade',of:'av',cities:'städer',mo:['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],mof:['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],dn:['Sön','Mån','Tis','Ons','Tor','Fre','Lör'],dnf:['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag']},
+cs:{title:'🌤️ Světové Počasí',country:'🌍 Země:',city:'📍 Město:',search:'Hledat...',tabCur:'🌡️ Nyní',tabFc:'📅 14 dní',tabHist:'📜 Historie',tabPred:'🔮 Predikce',from:'Od:',to:'Do:',loading:'Načítání...',feels:'Pocitově',humidity:'Vlhkost',wind:'Vítr',precip:'Srážky',pressure:'Tlak',sunrise:'Východ',sunset:'Západ',day:'Den',night:'Noc',max:'Max',min:'Min',temp:'Teplota',time:'Čas',found:'Nalezeno',of:'z',cities:'měst',mo:['led','úno','bře','dub','kvě','čvn','čvc','srp','zář','říj','lis','pro'],mof:['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'],dn:['Ne','Po','Út','St','Čt','Pá','So'],dnf:['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota']},
+hu:{title:'🌤️ Világidőjárás',country:'🌍 Ország:',city:'📍 Város:',search:'Keresés...',tabCur:'🌡️ Most',tabFc:'📅 14 nap',tabHist:'📜 Előzmények',tabPred:'🔮 Előrejelzés',from:'Ettől:',to:'Eddig:',loading:'Betöltés...',feels:'Hőérzet',humidity:'Páratartalom',wind:'Szél',precip:'Csapadék',pressure:'Légnyomás',sunrise:'Napkelte',sunset:'Napnyugta',day:'Nap',night:'Éjszaka',max:'Max',min:'Min',temp:'Hőmérséklet',time:'Idő',found:'Találat',of:'/',cities:'város',mo:['jan','feb','már','ápr','máj','jún','júl','aug','sze','okt','nov','dec'],mof:['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'],dn:['V','H','K','Sze','Cs','P','Szo'],dnf:['Vasárnap','Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat']},
+el:{title:'🌤️ Παγκόσμιος Καιρός',country:'🌍 Χώρα:',city:'📍 Πόλη:',search:'Αναζήτηση...',tabCur:'🌡️ Τώρα',tabFc:'📅 14 μέρες',tabHist:'📜 Ιστορικό',tabPred:'🔮 Πρόβλεψη',from:'Από:',to:'Έως:',loading:'Φόρτωση...',feels:'Αίσθηση',humidity:'Υγρασία',wind:'Άνεμος',precip:'Βροχόπτωση',pressure:'Πίεση',sunrise:'Ανατολή',sunset:'Δύση',day:'Μέρα',night:'Νύχτα',max:'Μέγ',min:'Ελάχ',temp:'Θερμοκρασία',time:'Ώρα',found:'Βρέθηκαν',of:'από',cities:'πόλεις',mo:['Ιαν','Φεβ','Μάρ','Απρ','Μάι','Ιού','Ιούλ','Αύγ','Σεπ','Οκτ','Νοέ','Δεκ'],mof:['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'],dn:['Κυ','Δε','Τρ','Τε','Πέ','Πα','Σά'],dnf:['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο']}
+};
 
-const WMO_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',
-61:'🌦️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'❄️',75:'❄️',77:'❄️',80:'🌦️',81:'🌧️',82:'🌧️',
-85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const LANGS=['en','uk','de','fr','es','it','pl','pt','nl','ro','sv','cs','hu','el'];
+const LANG_NAMES={en:'EN',uk:'UK',de:'DE',fr:'FR',es:'ES',it:'IT',pl:'PL',pt:'PT',nl:'NL',ro:'RO',sv:'SV',cs:'CS',hu:'HU',el:'EL'};
+let lang='en';
 
-/* ═══════════════════════════════════════════════
-   COUNTRIES & CITIES DATA (compact)
-   Format: [code, flag, nameEN, nameUK, {region: "city,lat,lon;city,lat,lon;..."}]
-   ═══════════════════════════════════════════════ */
-const RAW_DATA=[
-["UA","🇺🇦","Ukraine","Україна",{"Київська":"Київ,50.45,30.52;Біла Церква,49.8,30.11;Бориспіль,50.35,30.95;Бровари,50.51,30.79;Фастів,50.08,29.92;Ірпінь,50.52,30.25;Обухів,50.11,30.62;Переяслав,50.07,31.45;Славутич,51.52,30.75;Буча,50.55,30.35;Боярка,50.32,30.29;Вишгород,50.59,30.49",
-"Харківська":"Харків,49.99,36.23;Ізюм,49.21,37.26;Лозова,48.89,36.31;Чугуїв,49.84,36.69;Куп'янськ,49.71,37.61;Мерефа,49.82,36.05;Балаклія,49.46,36.86;Вовчанськ,50.29,36.94;Дергачі,50.11,36.12;Люботин,49.95,35.93;Зміїв,49.68,36.35",
-"Одеська":"Одеса,46.48,30.72;Ізмаїл,45.35,28.84;Білгород-Дністровський,46.2,30.35;Чорноморськ,46.3,30.65;Южне,46.62,31.1;Подільськ,47.74,29.53;Рені,45.46,28.28;Балта,47.94,29.62",
-"Дніпропетровська":"Дніпро,48.46,35.05;Кривий Ріг,47.91,33.39;Кам'янське,48.68,34.59;Нікополь,47.57,34.4;Павлоград,48.53,35.87;Новомосковськ,48.63,35.23;Марганець,47.65,34.63;Синельникове,48.32,35.52;Жовті Води,48.35,33.5;Покров,47.66,34.08",
-"Львівська":"Львів,49.84,24.03;Дрогобич,49.35,23.51;Червоноград,50.39,24.23;Стрий,49.26,23.85;Самбір,49.52,23.2;Борислав,49.29,23.43;Трускавець,49.28,23.51;Золочів,49.81,24.9;Яворів,49.95,23.39;Городок,49.79,23.65;Моршин,49.16,23.87",
-"Запорізька":"Запоріжжя,47.84,35.14;Мелітополь,46.84,35.37;Бердянськ,46.76,36.78;Енергодар,47.5,34.66;Токмак,47.25,35.71;Пологи,47.47,36.27",
-"Вінницька":"Вінниця,49.23,28.47;Жмеринка,49.04,28.11;Могилів-Подільський,48.45,27.8;Козятин,49.71,28.84;Ладижин,48.68,29.24;Хмільник,49.56,27.96;Бар,49.08,27.68;Немирів,48.97,28.84",
-"Миколаївська":"Миколаїв,46.97,31.99;Первомайськ,48.04,30.85;Вознесенськ,47.57,31.33;Южноукраїнськ,47.82,31.18;Очаків,46.62,31.55",
-"Полтавська":"Полтава,49.59,34.55;Кременчук,49.07,33.42;Горішні Плавні,49,33.83;Лубни,50.02,33;Миргород,49.97,33.6;Гадяч,50.37,34;Пирятин,50.24,32.51",
-"Чернігівська":"Чернігів,51.5,31.29;Ніжин,51.05,31.88;Прилуки,50.59,32.39;Бахмач,51.18,32.82;Новгород-Сіверський,52,33.26",
-"Черкаська":"Черкаси,49.44,32.06;Умань,48.75,30.22;Сміла,49.23,31.87;Золотоноша,49.67,32.03;Канів,49.75,31.46",
-"Сумська":"Суми,50.91,34.8;Шостка,51.87,33.48;Конотоп,51.24,33.2;Ромни,50.75,33.47;Охтирка,50.31,34.88;Глухів,51.68,33.91",
-"Рівненська":"Рівне,50.62,26.25;Дубно,50.42,25.74;Вараш,51.35,25.84;Сарни,51.34,26.6;Костопіль,50.89,26.45",
-"Тернопільська":"Тернопіль,49.55,25.59;Чортків,49.02,25.8;Бережани,49.45,24.94;Кременець,50.1,25.73;Бучач,49.06,25.39",
-"Волинська":"Луцьк,50.75,25.33;Ковель,51.22,24.72;Нововолинськ,50.73,24.17;Володимир,50.85,24.32;Ківерці,50.84,25.46",
-"Івано-Франківська":"Івано-Франківськ,48.92,24.71;Калуш,49.01,24.37;Коломия,48.53,25.04;Надвірна,48.63,24.58;Яремче,48.45,24.56;Долина,48.97,24.01;Галич,49.12,24.73",
-"Закарпатська":"Ужгород,48.62,22.29;Мукачево,48.44,22.72;Хуст,48.18,23.3;Берегове,48.21,22.64;Рахів,48.05,24.22;Свалява,48.55,22.98;Тячів,48.01,23.57",
-"Хмельницька":"Хмельницький,49.42,26.99;Кам'янець-Подільський,48.68,26.58;Шепетівка,50.18,27.06;Старокостянтинів,49.75,27.21;Нетішин,50.33,26.64;Славута,50.3,26.87",
-"Житомирська":"Житомир,50.25,28.66;Бердичів,49.9,28.59;Коростень,50.95,28.65;Звягель,50.6,27.77;Малін,50.77,29.24;Овруч,51.33,28.8",
-"Кіровоградська":"Кропивницький,48.51,32.26;Олександрія,48.67,33.11;Світловодськ,49.05,33.24;Знам'янка,48.71,32.67",
-"Чернівецька":"Чернівці,48.29,25.94;Новодністровськ,48.59,27.56;Сторожинець,48.16,25.71;Вижниця,48.25,25.18",
-"Херсонська":"Херсон,46.64,32.62;Нова Каховка,46.76,33.35;Генічеськ,46.17,34.8;Скадовськ,46.11,32.91;Олешки,46.62,32.77",
-"Донецька":"Краматорськ,48.72,37.56;Слов'янськ,48.85,37.62;Покровськ,48.28,37.18;Костянтинівка,48.53,37.7;Дружківка,48.62,37.53;Мирноград,48.3,37.27;Торецьк,48.4,37.85",
-"Луганська":"Сєвєродонецьк,48.95,38.49;Лисичанськ,48.9,38.44;Старобільськ,49.28,38.91;Сватове,49.41,38.16;Рубіжне,49.01,38.38"}],
-["US","🇺🇸","United States","США",{"Northeast":"New York,40.71,-74.01;Boston,42.36,-71.06;Philadelphia,39.95,-75.17;Washington DC,38.91,-77.04;Pittsburgh,40.44,-79.99;Baltimore,39.29,-76.61",
-"Southeast":"Miami,25.76,-80.19;Atlanta,33.75,-84.39;Charlotte,35.23,-80.84;Nashville,36.16,-86.78;Orlando,28.54,-81.38;Tampa,27.95,-82.46;New Orleans,29.95,-90.07;Jacksonville,30.33,-81.66",
-"Midwest":"Chicago,41.88,-87.63;Detroit,42.33,-83.05;Minneapolis,44.98,-93.27;Cleveland,41.5,-81.69;Columbus,39.96,-82.99;Indianapolis,39.77,-86.16;Milwaukee,43.04,-87.91;Kansas City,39.1,-94.58;St. Louis,38.63,-90.2",
-"South":"Houston,29.76,-95.37;Dallas,32.78,-96.8;San Antonio,29.42,-98.49;Austin,30.27,-97.74;Memphis,35.15,-90.05;Louisville,38.25,-85.76;Oklahoma City,35.47,-97.52",
-"West":"Los Angeles,34.05,-118.24;San Francisco,37.77,-122.42;Seattle,47.61,-122.33;Denver,39.74,-104.98;Phoenix,33.45,-112.07;Portland,45.51,-122.68;Las Vegas,36.17,-115.14;San Diego,32.72,-117.16;Salt Lake City,40.76,-111.89;Honolulu,21.31,-157.86;Anchorage,61.22,-149.9"}],
-["CA","🇨🇦","Canada","Канада",{"Ontario":"Toronto,43.65,-79.38;Ottawa,45.42,-75.7;Hamilton,43.26,-79.87;London,42.98,-81.25;Mississauga,43.59,-79.64",
-"Quebec":"Montreal,45.5,-73.57;Quebec City,46.81,-71.21;Laval,45.57,-73.69;Gatineau,45.48,-75.7",
-"British Columbia":"Vancouver,49.28,-123.12;Victoria,48.43,-123.37;Surrey,49.19,-122.85;Kelowna,49.89,-119.5",
-"Alberta":"Calgary,51.05,-114.07;Edmonton,53.55,-113.49;Red Deer,52.27,-113.81",
-"Other":"Winnipeg,49.9,-97.14;Halifax,44.65,-63.57;Regina,50.45,-104.62;Saskatoon,52.13,-106.67;St. John's,47.56,-52.71"}],
-["DE","🇩🇪","Germany","Німеччина",{"Germany":"Berlin,52.52,13.41;Hamburg,53.55,9.99;Munich,48.14,11.58;Cologne,50.94,6.96;Frankfurt,50.11,8.68;Stuttgart,48.78,9.18;Düsseldorf,51.23,6.78;Leipzig,51.34,12.37;Dortmund,51.51,7.47;Essen,51.46,7.01;Bremen,53.08,8.8;Dresden,51.05,13.74;Hannover,52.37,9.74;Nuremberg,49.45,11.08;Bonn,50.73,7.1"}],
-["FR","🇫🇷","France","Франція",{"France":"Paris,48.86,2.35;Marseille,43.3,5.37;Lyon,45.76,4.84;Toulouse,43.6,1.44;Nice,43.71,7.27;Nantes,47.22,-1.55;Strasbourg,48.57,7.75;Montpellier,43.61,3.88;Bordeaux,44.84,-0.58;Lille,50.63,3.06;Rennes,48.11,-1.68;Reims,49.25,3.88;Toulon,43.12,5.93;Grenoble,45.19,5.72;Dijon,47.32,5.04"}],
-["ES","🇪🇸","Spain","Іспанія",{"Spain":"Madrid,40.42,-3.7;Barcelona,41.39,2.17;Valencia,39.47,-0.38;Seville,37.39,-5.98;Zaragoza,41.65,-0.88;Málaga,36.72,-4.42;Murcia,37.98,-1.13;Palma,39.57,2.65;Las Palmas,28.1,-15.41;Bilbao,43.26,-2.93;Alicante,38.35,-0.48;Córdoba,37.89,-4.78;Granada,37.18,-3.6"}],
-["IT","🇮🇹","Italy","Італія",{"Italy":"Rome,41.9,12.5;Milan,45.46,9.19;Naples,40.85,14.27;Turin,45.07,7.69;Palermo,38.12,13.36;Genoa,44.41,8.93;Bologna,44.49,11.34;Florence,43.77,11.25;Venice,45.44,12.34;Verona,45.44,10.99;Catania,37.5,15.09;Bari,41.13,16.87;Trieste,45.65,13.78"}],
-["PL","🇵🇱","Poland","Польща",{"Poland":"Warsaw,52.23,21.01;Kraków,50.06,19.94;Łódź,51.75,19.47;Wrocław,51.11,17.04;Poznań,52.41,16.93;Gdańsk,54.35,18.65;Szczecin,53.43,14.55;Bydgoszcz,53.12,18.01;Lublin,51.25,22.57;Białystok,53.13,23.16;Katowice,50.26,19.03;Rzeszów,50.04,22;Toruń,53.01,18.61"}],
-["NL","🇳🇱","Netherlands","Нідерланди",{"Netherlands":"Amsterdam,52.37,4.9;Rotterdam,51.92,4.48;The Hague,52.08,4.3;Utrecht,52.09,5.12;Eindhoven,51.44,5.47;Groningen,53.22,6.57;Tilburg,51.56,5.09;Maastricht,50.85,5.69"}],
-["BE","🇧🇪","Belgium","Бельгія",{"Belgium":"Brussels,50.85,4.35;Antwerp,51.22,4.4;Ghent,51.05,3.72;Charleroi,50.41,4.44;Liège,50.63,5.57;Bruges,51.21,3.22;Namur,50.47,4.87"}],
-["SE","🇸🇪","Sweden","Швеція",{"Sweden":"Stockholm,59.33,18.07;Gothenburg,57.71,11.97;Malmö,55.61,13;Uppsala,59.86,17.64;Linköping,58.41,15.63;Örebro,59.27,15.21;Umeå,63.83,20.26"}],
-["AT","🇦🇹","Austria","Австрія",{"Austria":"Vienna,48.21,16.37;Graz,47.07,15.44;Linz,48.31,14.29;Salzburg,47.8,13.04;Innsbruck,47.26,11.39;Klagenfurt,46.62,14.31"}],
-["CZ","🇨🇿","Czech Republic","Чехія",{"Czech Republic":"Prague,50.08,14.44;Brno,49.2,16.61;Ostrava,49.84,18.29;Plzeň,49.75,13.38;Liberec,50.77,15.06;Olomouc,49.6,17.25"}],
-["RO","🇷🇴","Romania","Румунія",{"Romania":"Bucharest,44.43,26.1;Cluj-Napoca,46.77,23.6;Timișoara,45.76,21.23;Iași,47.16,27.59;Constanța,44.18,28.63;Brașov,45.66,25.61;Craiova,44.32,23.8;Sibiu,45.8,24.15;Oradea,47.07,21.92"}],
-["HU","🇭🇺","Hungary","Угорщина",{"Hungary":"Budapest,47.5,19.04;Debrecen,47.53,21.63;Szeged,46.25,20.15;Miskolc,48.1,20.78;Pécs,46.07,18.23;Győr,47.68,17.64;Nyíregyháza,47.95,21.72"}],
-["PT","🇵🇹","Portugal","Португалія",{"Portugal":"Lisbon,38.72,-9.14;Porto,41.15,-8.61;Braga,41.55,-8.43;Faro,37.02,-7.94;Coimbra,40.2,-8.43;Funchal,32.65,-16.91"}],
-["GR","🇬🇷","Greece","Греція",{"Greece":"Athens,37.98,23.73;Thessaloniki,40.64,22.94;Patras,38.25,21.73;Heraklion,35.34,25.13;Larissa,39.64,22.42;Volos,39.36,22.95;Rhodes,36.43,28.22"}],
-["BG","🇧🇬","Bulgaria","Болгарія",{"Bulgaria":"Sofia,42.7,23.32;Plovdiv,42.15,24.75;Varna,43.21,27.91;Burgas,42.5,27.47;Ruse,43.86,25.97;Stara Zagora,42.43,25.63"}],
-["HR","🇭🇷","Croatia","Хорватія",{"Croatia":"Zagreb,45.81,15.98;Split,43.51,16.44;Rijeka,45.33,14.44;Osijek,45.55,18.69;Zadar,44.12,15.23;Dubrovnik,42.65,18.09"}],
-["DK","🇩🇰","Denmark","Данія",{"Denmark":"Copenhagen,55.68,12.57;Aarhus,56.15,10.21;Odense,55.4,10.39;Aalborg,57.05,9.92;Esbjerg,55.47,8.45"}],
-["FI","🇫🇮","Finland","Фінляндія",{"Finland":"Helsinki,60.17,24.94;Espoo,60.21,24.66;Tampere,61.5,23.79;Turku,60.45,22.27;Oulu,65.01,25.47;Rovaniemi,66.5,25.72"}],
-["IE","🇮🇪","Ireland","Ірландія",{"Ireland":"Dublin,53.35,-6.26;Cork,51.9,-8.47;Limerick,52.66,-8.63;Galway,53.27,-9.06;Waterford,52.26,-7.11"}],
-["SK","🇸🇰","Slovakia","Словаччина",{"Slovakia":"Bratislava,48.15,17.11;Košice,48.72,21.26;Prešov,49,21.24;Žilina,49.22,18.74;Banská Bystrica,48.74,19.15"}],
-["SI","🇸🇮","Slovenia","Словенія",{"Slovenia":"Ljubljana,46.06,14.51;Maribor,46.56,15.65;Celje,46.23,15.26;Koper,45.55,13.73"}],
-["LT","🇱🇹","Lithuania","Литва",{"Lithuania":"Vilnius,54.69,25.28;Kaunas,54.9,23.9;Klaipėda,55.71,21.14;Šiauliai,55.93,23.31"}],
-["LV","🇱🇻","Latvia","Латвія",{"Latvia":"Riga,56.95,24.11;Daugavpils,55.87,26.54;Liepāja,56.51,21.01;Jelgava,56.65,23.71"}],
-["EE","🇪🇪","Estonia","Естонія",{"Estonia":"Tallinn,59.44,24.75;Tartu,58.38,26.72;Narva,59.38,28.19;Pärnu,58.39,24.5"}],
-["LU","🇱🇺","Luxembourg","Люксембург",{"Luxembourg":"Luxembourg City,49.61,6.13;Esch-sur-Alzette,49.5,5.98"}],
-["MT","🇲🇹","Malta","Мальта",{"Malta":"Valletta,35.9,14.51;Birkirkara,35.9,14.46"}],
-["CY","🇨🇾","Cyprus","Кіпр",{"Cyprus":"Nicosia,35.17,33.37;Limassol,34.68,33.04;Larnaca,34.92,33.63;Paphos,34.78,32.42"}]
+// KEY FUNCTION: always fallback to English BASE
+function t(k){
+  if(lang!=='en' && TR[lang] && TR[lang][k]!==undefined) return TR[lang][k];
+  return BASE[k]!==undefined ? BASE[k] : k;
+}
+
+const WI={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',61:'🌦️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'❄️',75:'❄️',77:'❄️',80:'🌦️',81:'🌧️',82:'🌧️',85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+const WD_EN={0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Rime fog',51:'Light drizzle',53:'Drizzle',55:'Dense drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Showers',81:'Heavy showers',82:'Violent showers',85:'Snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm+hail',99:'Severe thunderstorm'};
+const wIc=c=>WI[c]||'❓';
+const wDe=c=>WD_EN[c]||'?';
+
+/* ═══════ COUNTRIES & CITIES ═══════ */
+const RD=[
+["UA","🇺🇦","Ukraine","Україна",{"Київська":"Київ,50.45,30.52;Біла Церква,49.8,30.11;Бориспіль,50.35,30.95;Бровари,50.51,30.79;Ірпінь,50.52,30.25;Обухів,50.11,30.62;Переяслав,50.07,31.45;Буча,50.55,30.35;Боярка,50.32,30.29;Вишгород,50.59,30.49;Фастів,50.08,29.92;Славутич,51.52,30.75","Харківська":"Харків,49.99,36.23;Ізюм,49.21,37.26;Лозова,48.89,36.31;Чугуїв,49.84,36.69;Куп'янськ,49.71,37.61;Мерефа,49.82,36.05;Балаклія,49.46,36.86;Вовчанськ,50.29,36.94;Дергачі,50.11,36.12;Люботин,49.95,35.93","Одеська":"Одеса,46.48,30.72;Ізмаїл,45.35,28.84;Чорноморськ,46.3,30.65;Южне,46.62,31.1;Подільськ,47.74,29.53;Рені,45.46,28.28;Балта,47.94,29.62","Дніпропетровська":"Дніпро,48.46,35.05;Кривий Ріг,47.91,33.39;Кам'янське,48.68,34.59;Нікополь,47.57,34.4;Павлоград,48.53,35.87;Новомосковськ,48.63,35.23;Покров,47.66,34.08","Львівська":"Львів,49.84,24.03;Дрогобич,49.35,23.51;Червоноград,50.39,24.23;Стрий,49.26,23.85;Самбір,49.52,23.2;Трускавець,49.28,23.51;Золочів,49.81,24.9;Яворів,49.95,23.39","Запорізька":"Запоріжжя,47.84,35.14;Мелітополь,46.84,35.37;Бердянськ,46.76,36.78;Енергодар,47.5,34.66;Токмак,47.25,35.71","Вінницька":"Вінниця,49.23,28.47;Жмеринка,49.04,28.11;Козятин,49.71,28.84;Ладижин,48.68,29.24;Хмільник,49.56,27.96;Бар,49.08,27.68;Немирів,48.97,28.84","Миколаївська":"Миколаїв,46.97,31.99;Первомайськ,48.04,30.85;Вознесенськ,47.57,31.33;Очаків,46.62,31.55","Полтавська":"Полтава,49.59,34.55;Кременчук,49.07,33.42;Лубни,50.02,33;Миргород,49.97,33.6;Гадяч,50.37,34;Пирятин,50.24,32.51","Чернігівська":"Чернігів,51.5,31.29;Ніжин,51.05,31.88;Прилуки,50.59,32.39;Бахмач,51.18,32.82","Черкаська":"Черкаси,49.44,32.06;Умань,48.75,30.22;Сміла,49.23,31.87;Канів,49.75,31.46","Сумська":"Суми,50.91,34.8;Шостка,51.87,33.48;Конотоп,51.24,33.2;Ромни,50.75,33.47;Охтирка,50.31,34.88","Рівненська":"Рівне,50.62,26.25;Дубно,50.42,25.74;Вараш,51.35,25.84;Сарни,51.34,26.6","Тернопільська":"Тернопіль,49.55,25.59;Чортків,49.02,25.8;Бережани,49.45,24.94;Кременець,50.1,25.73","Волинська":"Луцьк,50.75,25.33;Ковель,51.22,24.72;Нововолинськ,50.73,24.17;Володимир,50.85,24.32","Івано-Франківська":"Івано-Франківськ,48.92,24.71;Калуш,49.01,24.37;Коломия,48.53,25.04;Надвірна,48.63,24.58;Яремче,48.45,24.56;Долина,48.97,24.01","Закарпатська":"Ужгород,48.62,22.29;Мукачево,48.44,22.72;Хуст,48.18,23.3;Берегове,48.21,22.64;Рахів,48.05,24.22;Свалява,48.55,22.98","Хмельницька":"Хмельницький,49.42,26.99;Кам'янець-Подільський,48.68,26.58;Шепетівка,50.18,27.06;Нетішин,50.33,26.64","Житомирська":"Житомир,50.25,28.66;Бердичів,49.9,28.59;Коростень,50.95,28.65;Звягель,50.6,27.77;Овруч,51.33,28.8","Кіровоградська":"Кропивницький,48.51,32.26;Олександрія,48.67,33.11;Світловодськ,49.05,33.24","Чернівецька":"Чернівці,48.29,25.94;Новодністровськ,48.59,27.56;Сторожинець,48.16,25.71","Херсонська":"Херсон,46.64,32.62;Нова Каховка,46.76,33.35;Генічеськ,46.17,34.8;Скадовськ,46.11,32.91;Олешки,46.62,32.77","Донецька":"Краматорськ,48.72,37.56;Слов'янськ,48.85,37.62;Покровськ,48.28,37.18;Костянтинівка,48.53,37.7;Дружківка,48.62,37.53;Торецьк,48.4,37.85","Луганська":"Сєвєродонецьк,48.95,38.49;Лисичанськ,48.9,38.44;Старобільськ,49.28,38.91;Сватове,49.41,38.16"}],
+["US","🇺🇸","United States","США",{"East":"New York,40.71,-74.01;Boston,42.36,-71.06;Philadelphia,39.95,-75.17;Washington DC,38.91,-77.04;Miami,25.76,-80.19;Atlanta,33.75,-84.39;Charlotte,35.23,-80.84;Orlando,28.54,-81.38;Tampa,27.95,-82.46;Baltimore,39.29,-76.61;Pittsburgh,40.44,-79.99;Nashville,36.16,-86.78","Midwest":"Chicago,41.88,-87.63;Detroit,42.33,-83.05;Minneapolis,44.98,-93.27;Cleveland,41.5,-81.69;Columbus,39.96,-82.99;Indianapolis,39.77,-86.16;Kansas City,39.1,-94.58;St. Louis,38.63,-90.2;Milwaukee,43.04,-87.91","South":"Houston,29.76,-95.37;Dallas,32.78,-96.8;San Antonio,29.42,-98.49;Austin,30.27,-97.74;New Orleans,29.95,-90.07;Memphis,35.15,-90.05;Oklahoma City,35.47,-97.52;Louisville,38.25,-85.76","West":"Los Angeles,34.05,-118.24;San Francisco,37.77,-122.42;Seattle,47.61,-122.33;Denver,39.74,-104.98;Phoenix,33.45,-112.07;Portland,45.51,-122.68;Las Vegas,36.17,-115.14;San Diego,32.72,-117.16;Salt Lake City,40.76,-111.89;Honolulu,21.31,-157.86"}],
+["CA","🇨🇦","Canada","Канада",{"Canada":"Toronto,43.65,-79.38;Ottawa,45.42,-75.7;Montreal,45.5,-73.57;Vancouver,49.28,-123.12;Calgary,51.05,-114.07;Edmonton,53.55,-113.49;Winnipeg,49.9,-97.14;Quebec City,46.81,-71.21;Halifax,44.65,-63.57;Victoria,48.43,-123.37;Hamilton,43.26,-79.87;Regina,50.45,-104.62"}],
+["DE","🇩🇪","Germany","Німеччина",{"Germany":"Berlin,52.52,13.41;Hamburg,53.55,9.99;Munich,48.14,11.58;Cologne,50.94,6.96;Frankfurt,50.11,8.68;Stuttgart,48.78,9.18;Düsseldorf,51.23,6.78;Leipzig,51.34,12.37;Dresden,51.05,13.74;Hannover,52.37,9.74;Nuremberg,49.45,11.08;Bremen,53.08,8.8"}],
+["FR","🇫🇷","France","Франція",{"France":"Paris,48.86,2.35;Marseille,43.3,5.37;Lyon,45.76,4.84;Toulouse,43.6,1.44;Nice,43.71,7.27;Nantes,47.22,-1.55;Strasbourg,48.57,7.75;Bordeaux,44.84,-0.58;Lille,50.63,3.06;Montpellier,43.61,3.88"}],
+["ES","🇪🇸","Spain","Іспанія",{"Spain":"Madrid,40.42,-3.7;Barcelona,41.39,2.17;Valencia,39.47,-0.38;Seville,37.39,-5.98;Zaragoza,41.65,-0.88;Málaga,36.72,-4.42;Bilbao,43.26,-2.93;Alicante,38.35,-0.48;Palma,39.57,2.65"}],
+["IT","🇮🇹","Italy","Італія",{"Italy":"Rome,41.9,12.5;Milan,45.46,9.19;Naples,40.85,14.27;Turin,45.07,7.69;Palermo,38.12,13.36;Genoa,44.41,8.93;Bologna,44.49,11.34;Florence,43.77,11.25;Venice,45.44,12.34;Bari,41.13,16.87"}],
+["PL","🇵🇱","Poland","Польща",{"Poland":"Warsaw,52.23,21.01;Kraków,50.06,19.94;Łódź,51.75,19.47;Wrocław,51.11,17.04;Poznań,52.41,16.93;Gdańsk,54.35,18.65;Szczecin,53.43,14.55;Lublin,51.25,22.57;Katowice,50.26,19.03;Białystok,53.13,23.16"}],
+["NL","🇳🇱","Netherlands","Нідерланди",{"Netherlands":"Amsterdam,52.37,4.9;Rotterdam,51.92,4.48;The Hague,52.08,4.3;Utrecht,52.09,5.12;Eindhoven,51.44,5.47;Groningen,53.22,6.57"}],
+["BE","🇧🇪","Belgium","Бельгія",{"Belgium":"Brussels,50.85,4.35;Antwerp,51.22,4.4;Ghent,51.05,3.72;Liège,50.63,5.57;Bruges,51.21,3.22"}],
+["SE","🇸🇪","Sweden","Швеція",{"Sweden":"Stockholm,59.33,18.07;Gothenburg,57.71,11.97;Malmö,55.61,13;Uppsala,59.86,17.64;Umeå,63.83,20.26"}],
+["AT","🇦🇹","Austria","Австрія",{"Austria":"Vienna,48.21,16.37;Graz,47.07,15.44;Linz,48.31,14.29;Salzburg,47.8,13.04;Innsbruck,47.26,11.39"}],
+["CZ","🇨🇿","Czechia","Чехія",{"Czechia":"Prague,50.08,14.44;Brno,49.2,16.61;Ostrava,49.84,18.29;Plzeň,49.75,13.38;Olomouc,49.6,17.25"}],
+["RO","🇷🇴","Romania","Румунія",{"Romania":"Bucharest,44.43,26.1;Cluj-Napoca,46.77,23.6;Timișoara,45.76,21.23;Iași,47.16,27.59;Constanța,44.18,28.63;Brașov,45.66,25.61"}],
+["HU","🇭🇺","Hungary","Угорщина",{"Hungary":"Budapest,47.5,19.04;Debrecen,47.53,21.63;Szeged,46.25,20.15;Miskolc,48.1,20.78;Pécs,46.07,18.23;Győr,47.68,17.64"}],
+["PT","🇵🇹","Portugal","Португалія",{"Portugal":"Lisbon,38.72,-9.14;Porto,41.15,-8.61;Braga,41.55,-8.43;Faro,37.02,-7.94;Coimbra,40.2,-8.43"}],
+["GR","🇬🇷","Greece","Греція",{"Greece":"Athens,37.98,23.73;Thessaloniki,40.64,22.94;Patras,38.25,21.73;Heraklion,35.34,25.13;Rhodes,36.43,28.22"}],
+["BG","🇧🇬","Bulgaria","Болгарія",{"Bulgaria":"Sofia,42.7,23.32;Plovdiv,42.15,24.75;Varna,43.21,27.91;Burgas,42.5,27.47;Ruse,43.86,25.97"}],
+["HR","🇭🇷","Croatia","Хорватія",{"Croatia":"Zagreb,45.81,15.98;Split,43.51,16.44;Rijeka,45.33,14.44;Dubrovnik,42.65,18.09"}],
+["DK","🇩🇰","Denmark","Данія",{"Denmark":"Copenhagen,55.68,12.57;Aarhus,56.15,10.21;Odense,55.4,10.39;Aalborg,57.05,9.92"}],
+["FI","🇫🇮","Finland","Фінляндія",{"Finland":"Helsinki,60.17,24.94;Tampere,61.5,23.79;Turku,60.45,22.27;Oulu,65.01,25.47;Rovaniemi,66.5,25.72"}],
+["IE","🇮🇪","Ireland","Ірландія",{"Ireland":"Dublin,53.35,-6.26;Cork,51.9,-8.47;Limerick,52.66,-8.63;Galway,53.27,-9.06"}],
+["SK","🇸🇰","Slovakia","Словаччина",{"Slovakia":"Bratislava,48.15,17.11;Košice,48.72,21.26;Prešov,49,21.24;Žilina,49.22,18.74"}],
+["SI","🇸🇮","Slovenia","Словенія",{"Slovenia":"Ljubljana,46.06,14.51;Maribor,46.56,15.65"}],
+["LT","🇱🇹","Lithuania","Литва",{"Lithuania":"Vilnius,54.69,25.28;Kaunas,54.9,23.9;Klaipėda,55.71,21.14"}],
+["LV","🇱🇻","Latvia","Латвія",{"Latvia":"Riga,56.95,24.11;Daugavpils,55.87,26.54;Liepāja,56.51,21.01"}],
+["EE","🇪🇪","Estonia","Естонія",{"Estonia":"Tallinn,59.44,24.75;Tartu,58.38,26.72"}],
+["LU","🇱🇺","Luxembourg","Люксембург",{"Luxembourg":"Luxembourg,49.61,6.13"}],
+["MT","🇲🇹","Malta","Мальта",{"Malta":"Valletta,35.9,14.51"}],
+["CY","🇨🇾","Cyprus","Кіпр",{"Cyprus":"Nicosia,35.17,33.37;Limassol,34.68,33.04;Larnaca,34.92,33.63"}]
 ];
 
-/* ═══════ PARSE DATA ═══════ */
-const COUNTRIES=[];
-const ALL_CITIES=[];
-RAW_DATA.forEach(([code,flag,nameEn,nameUk,regions])=>{
-  const country={code,flag,n:{en:nameEn,uk:nameUk},regions:[],cityStart:ALL_CITIES.length};
-  Object.entries(regions).forEach(([regName,citiesStr])=>{
-    const cities=citiesStr.split(';').map(s=>{const p=s.split(',');return{n:p[0],la:+p[1],lo:+p[2]}});
-    country.regions.push({name:regName,cities});
-    cities.forEach(c=>{ALL_CITIES.push({...c,r:regName,cc:code,flag})});
+const COUNTRIES=[],AC=[];
+RD.forEach(([code,flag,en,uk,regs])=>{
+  const c={code,flag,en,uk,regions:[],cs:AC.length};
+  Object.entries(regs).forEach(([rn,cs])=>{
+    const cities=cs.split(';').map(s=>{const p=s.split(',');return{n:p[0],la:+p[1],lo:+p[2]}});
+    c.regions.push({name:rn,cities});
+    cities.forEach(ci=>AC.push({...ci,r:rn,cc:code,flag}));
   });
-  country.cityEnd=ALL_CITIES.length;
-  COUNTRIES.push(country);
+  c.ce=AC.length;COUNTRIES.push(c);
 });
 
 /* ═══════ STATE ═══════ */
-let lang='en';
-let curCountry=COUNTRIES[0];
-let city=ALL_CITIES[0];
-let activeTab='cur';
-let _fcD=null,_fcH=null;
+let curC=COUNTRIES[0],city=AC[0],tab='cur',_fD=null,_fH=null;
 const CH={};
 
 /* ═══════ HELPERS ═══════ */
 const $=id=>document.getElementById(id);
-const t=k=>LANG[lang][k]||k;
-const wDesc=c=>(LANG[lang].wmo[c]||'?');
-const wIc=c=>(WMO_ICONS[c]||'❓');
 const iso=d=>d.toISOString().slice(0,10);
 const r1=n=>Math.round(n*10)/10;
 const fD=s=>{const d=new Date(s+'T00:00');return d.getDate()+' '+t('mof')[d.getMonth()]};
 const fDF=s=>{const d=new Date(s+'T00:00');return d.getDate()+' '+t('mof')[d.getMonth()]+' '+d.getFullYear()};
-const fDy=s=>{const d=new Date(s+'T00:00');return t('dn')[d.getDay()]+', '+d.getDate()+' '+t('mo')[d.getMonth()]};
+const fDy=s=>{const d=new Date(s+'T00:00');return t('dn')[d.getDay()]+' '+d.getDate()+' '+t('mo')[d.getMonth()]};
 const fDyF=s=>{const d=new Date(s+'T00:00');return t('dnf')[d.getDay()]+', '+d.getDate()+' '+t('mof')[d.getMonth()]};
 const wd=d=>['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];
-const dayLen=(a,b)=>{if(a==='—'||b==='—')return'—';const[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);const m=(h2*60+m2)-(h1*60+m1);return Math.floor(m/60)+'h '+m%60+'m'};
+const dayL=(a,b)=>{if(!a||!b||a==='—'||b==='—')return'—';const[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);const m=(h2*60+m2)-(h1*60+m1);return Math.floor(m/60)+'h '+m%60+'m'};
 function sL(el){el.innerHTML='<div class="ld"><div class="sp"></div><p>'+t('loading')+'</p></div>'}
 function sE(el,m){el.innerHTML='<div class="err">⚠️ '+m+'</div>'}
 async function api(u){const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()}
 function mc(id,cfg){if(CH[id]){CH[id].destroy();delete CH[id]}const cv=document.getElementById(id);if(!cv)return;CH[id]=new Chart(cv.getContext('2d'),cfg)}
-function cO(x={}){const dk=document.documentElement.getAttribute('data-theme')==='dark';
-return{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
-plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},color:dk?'#94a3b8':'#475569'}}},
-scales:{x:{ticks:{maxTicksLimit:12,font:{size:9},color:dk?'#64748b':'#475569'},grid:{color:dk?'rgba(148,163,184,.1)':'rgba(0,0,0,.06)'}},
-y:{ticks:{font:{size:9},color:dk?'#64748b':'#475569'},grid:{color:dk?'rgba(148,163,184,.1)':'rgba(0,0,0,.06)'}}},...x}}
+function cO(){const dk=document.documentElement.getAttribute('data-theme')==='dark';const gc=dk?'rgba(148,163,184,.1)':'rgba(0,0,0,.06)';const tc=dk?'#64748b':'#475569';
+return{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},color:tc}}},scales:{x:{ticks:{maxTicksLimit:12,font:{size:8},color:tc},grid:{color:gc}},y:{ticks:{font:{size:8},color:tc},grid:{color:gc}}}}}
+function getRec(tmp,code,wnd){let ic='👕',de;if(tmp<=-10){ic='🧥';de=t('cold')}else if(tmp<=0){ic='🧣';de=t('cool2')}else if(tmp<=10){ic='🧥';de=t('mild')}else if(tmp<=20){ic='👔';de=t('comf')}else if(tmp<=30){ic='👕';de=t('warm2')}else{ic='🥵';de=t('hot')}if(code>=61&&code<=67||code>=80&&code<=82)de+=t('rain');else if(code>=71&&code<=77||code>=85&&code<=86)de+=t('snow');else if(code>=95)de+=t('storm');if(wnd>50)de+=t('wwind');return{ic,de}}
 
-function getRec(temp,code,wind){
-  let ic='👕',ti,de;
-  if(temp<=-10){ic='🧥';ti='❄️';de=t('recCold')}
-  else if(temp<=0){ic='🧣';ti='🥶';de=t('recCool')}
-  else if(temp<=10){ic='🧥';ti='🌬️';de=t('recMild')}
-  else if(temp<=20){ic='👔';ti='👍';de=t('recComf')}
-  else if(temp<=30){ic='👕';ti='☀️';de=t('recWarm')}
-  else{ic='🥵';ti='🔥';de=t('recHot')}
-  if(code>=61&&code<=67||code>=80&&code<=82)de+=t('recRain');
-  else if(code>=71&&code<=77||code>=85&&code<=86)de+=t('recSnow');
-  else if(code>=95)de+=t('recStorm');
-  if(wind>50)de+=t('recWind');
-  return{ic,ti,de};
-}
+/* ═══════ THEME ═══════ */
+function toggleTheme(){const h=document.documentElement;h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'':'dark');localStorage.setItem('theme',h.getAttribute('data-theme')||'light')}
 
 /* ═══════ LANGUAGE ═══════ */
-function toggleLang(){
-  const idx=LANGS.indexOf(lang);
-  lang=LANGS[(idx+1)%LANGS.length];
-  localStorage.setItem('lang',lang);
-  updateUI();loadCurrentTab();
+function nextLang(){const i=LANGS.indexOf(lang);lang=LANGS[(i+1)%LANGS.length];localStorage.setItem('lang',lang);applyUI();loadTab()}
+function applyUI(){
+  $('langBtn').textContent='🌐 '+LANG_NAMES[lang];
+  $('hdrT').textContent=t('title');$('hdrS').textContent=t('sub');
+  $('lC').textContent=t('country');$('lCi').textContent=t('city');$('si').placeholder=t('search');
+  $('tCur').textContent=t('tabCur');$('tFc').textContent=t('tabFc');$('tHist').textContent=t('tabHist');$('tPred').textContent=t('tabPred');
+  $('lF').textContent=t('from');$('lT').textContent=t('to');$('bH').textContent=t('btnHist');$('bP').textContent=t('btnPred');
+  $('pDesc').textContent=t('predDesc');$('tCities').textContent=AC.length+' '+t('cities');
+  const sel=$('cSel');COUNTRIES.forEach((c,i)=>{if(sel.options[i])sel.options[i].textContent=c.flag+' '+(lang==='uk'?c.uk:c.en)});
+  $('ci').textContent=curC.flag+' '+(lang==='uk'?curC.uk:curC.en)+' · '+city.la.toFixed(2)+'°, '+city.lo.toFixed(2)+'°';
 }
 
-function updateUI(){
-  $('langBtn').textContent='🌐 '+(lang==='en'?'UK':'EN');
-  $('hdrTitle').textContent=t('title');
-  $('hdrSub').textContent=t('sub');
-  $('lblCountry').textContent=t('country');
-  $('lblCity').textContent=t('city');
-  $('si').placeholder=t('search');
-  $('tabCur').textContent=t('tabCur');
-  $('tabFc').textContent=t('tabFc');
-  $('tabHist').textContent=t('tabHist');
-  $('tabPred').textContent=t('tabPred');
-  $('lblFrom').textContent=t('from');
-  $('lblTo').textContent=t('to');
-  $('btnHist').textContent=t('btnHist');
-  $('btnPred').textContent=t('btnPred');
-  $('predDesc').textContent=t('predDesc');
-  $('totalCities').textContent=ALL_CITIES.length+' '+t('cities');
-  // Update country selector names
-  const sel=$('countrySel');
-  COUNTRIES.forEach((c,i)=>{sel.options[i].textContent=c.flag+' '+c.n[lang]});
-  $('ci').innerHTML=curCountry.flag+' '+curCountry.n[lang]+' · <b>'+city.la.toFixed(2)+'°, '+city.lo.toFixed(2)+'°</b>';
-}
-
-/* ═══════ DARK MODE ═══════ */
-function toggleTheme(){
-  const h=document.documentElement;const dk=h.getAttribute('data-theme')==='dark';
-  h.setAttribute('data-theme',dk?'':'dark');localStorage.setItem('theme',dk?'light':'dark');
-}
-
-/* ═══════ COUNTRY & CITY SELECTION ═══════ */
-function buildCountrySel(){
-  const sel=$('countrySel');
-  COUNTRIES.forEach((c,i)=>{
-    const o=document.createElement('option');
-    o.value=i;o.textContent=c.flag+' '+c.n[lang];
-    sel.appendChild(o);
-  });
-  sel.addEventListener('change',()=>{
-    curCountry=COUNTRIES[+sel.value];
-    const firstCity=ALL_CITIES[curCountry.cityStart];
-    selectCity(curCountry.cityStart);
-  });
-}
-
-function buildDD(filter){
-  const dd=$('dd');const fl=(filter||'').toLowerCase().trim();
-  let h='',total=0;
-  const start=curCountry.cityStart, end=curCountry.cityEnd;
-  // Group by region
-  curCountry.regions.forEach(reg=>{
-    const matched=reg.cities.filter(c=>!fl||c.n.toLowerCase().includes(fl));
-    if(!matched.length)return;
-    total+=matched.length;
-    h+='<div class="dd-r">'+reg.name+' ('+matched.length+')</div>';
-    matched.forEach(c=>{
-      const idx=ALL_CITIES.findIndex(ac=>ac.n===c.n&&ac.r===reg.name&&ac.cc===curCountry.code);
-      const isAct=(city.n===c.n&&city.r===reg.name);
-      h+='<div class="dd-i'+(isAct?' act':'')+'" data-i="'+idx+'">'+c.n+'<span>'+reg.name+'</span></div>';
-    });
-  });
-  h='<div class="dd-cnt">'+t('found')+': <b>'+total+'</b> '+t('of')+' '+(end-start)+' '+t('cities')+'</div>'+h;
-  if(!total)h='<div style="padding:1rem;text-align:center;color:var(--tx3)">😕</div>';
-  dd.innerHTML=h;
-}
-
-function selectCity(idx){
-  city=ALL_CITIES[idx];
-  $('si').value=city.n;
-  $('ci').innerHTML=curCountry.flag+' '+curCountry.n[lang]+' · <b>'+city.la.toFixed(2)+'°, '+city.lo.toFixed(2)+'°</b>';
-  $('dd').classList.remove('open');
-  _fcD=null;_fcH=null;
-  loadCurrentTab();
-}
-
-function initCitySearch(){
-  const si=$('si'),dd=$('dd');
-  si.addEventListener('focus',()=>{si.value='';buildDD('');dd.classList.add('open')});
-  si.addEventListener('input',()=>{buildDD(si.value);dd.classList.add('open')});
-  dd.addEventListener('mousedown',e=>{const it=e.target.closest('.dd-i');if(it&&it.dataset.i!=null){e.preventDefault();selectCity(+it.dataset.i)}});
-  document.addEventListener('click',e=>{if(!e.target.closest('.sw')){dd.classList.remove('open');si.value=city.n}});
-  si.addEventListener('keydown',e=>{if(e.key==='Escape'){dd.classList.remove('open');si.value=city.n;si.blur()}});
-}
+/* ═══════ CITY SELECTION ═══════ */
+function buildCSel(){const sel=$('cSel');COUNTRIES.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c.flag+' '+c.en;sel.appendChild(o)});sel.addEventListener('change',()=>{curC=COUNTRIES[+sel.value];selCity(curC.cs)})}
+function buildDD(f){const dd=$('dd');const fl=(f||'').toLowerCase();let h='',n=0;
+curC.regions.forEach(r=>{const m=r.cities.filter(c=>!fl||c.n.toLowerCase().includes(fl));if(!m.length)return;n+=m.length;
+h+='<div class="dd-r">'+r.name+' ('+m.length+')</div>';
+m.forEach(c=>{const i=AC.findIndex(a=>a.n===c.n&&a.r===r.name&&a.cc===curC.code);const act=city.n===c.n&&city.r===r.name;
+h+='<div class="dd-i'+(act?' act':'')+'" data-i="'+i+'">'+c.n+'<span>'+r.name+'</span></div>'})});
+h='<div class="dd-cnt">'+t('found')+': <b>'+n+'</b> '+t('of')+' '+(curC.ce-curC.cs)+' '+t('cities')+'</div>'+h;
+if(!n)h='<div style="padding:1rem;text-align:center;color:var(--tx3)">😕</div>';dd.innerHTML=h}
+function selCity(i){city=AC[i];$('si').value=city.n;$('ci').textContent=curC.flag+' '+(lang==='uk'?curC.uk:curC.en)+' · '+city.la.toFixed(2)+'°, '+city.lo.toFixed(2)+'°';$('dd').classList.remove('open');_fD=null;_fH=null;loadTab()}
+function initSearch(){const si=$('si'),dd=$('dd');
+si.addEventListener('focus',()=>{si.value='';buildDD('');dd.classList.add('open')});
+si.addEventListener('input',()=>{buildDD(si.value);dd.classList.add('open')});
+dd.addEventListener('mousedown',e=>{const it=e.target.closest('.dd-i');if(it&&it.dataset.i!=null){e.preventDefault();selCity(+it.dataset.i)}});
+document.addEventListener('click',e=>{if(!e.target.closest('.sw')){dd.classList.remove('open');si.value=city.n}});
+si.addEventListener('keydown',e=>{if(e.key==='Escape'){dd.classList.remove('open');si.value=city.n;si.blur()}})}
 
 /* ═══════ TABS ═══════ */
-function switchTab(t){
-  activeTab=t;
-  document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
-  document.querySelectorAll('.pnl').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));
-  loadCurrentTab();
-}
-function loadCurrentTab(){if(activeTab==='cur')loadCur();else if(activeTab==='fc')loadFc()}
+function switchTab(t2){tab=t2;document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t2));document.querySelectorAll('.pnl').forEach(p=>p.classList.toggle('on',p.id==='p-'+t2));loadTab()}
+function loadTab(){if(tab==='cur')loadCur();else if(tab==='fc')loadFc()}
 
 /* ═══════ CURRENT ═══════ */
-async function loadCur(){
-  const el=$('o-cur');sL(el);
-  try{
-    const d=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+
-      '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl,cloud_cover,uv_index,is_day'+
-      '&hourly=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover,pressure_msl'+
-      '&daily=sunrise,sunset&timezone=auto&forecast_days=2');
-    rendCur(d,el);
-  }catch(e){sE(el,t('errLoad'))}
-}
-function rendCur(d,el){
-  const c=d.current,w=wDesc(c.weather_code),wi=wIc(c.weather_code),hr=d.hourly;
-  const sr=d.daily.sunrise[0]?d.daily.sunrise[0].slice(11,16):'—';
-  const ss=d.daily.sunset[0]?d.daily.sunset[0].slice(11,16):'—';
-  const rec=getRec(c.temperature_2m,c.weather_code,c.wind_speed_10m);
-  const now=new Date(),ts=now.toLocaleTimeString(lang==='uk'?'uk-UA':'en-US',{hour:'2-digit',minute:'2-digit'});
-  const lb=[],tmp=[],fl=[],pr=[],hm=[],wn=[],cl=[],ps=[];
-  for(let i=0;i<Math.min(48,hr.time.length);i++){
-    lb.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');
-    tmp.push(hr.temperature_2m[i]);fl.push(hr.apparent_temperature[i]);
-    pr.push(hr.precipitation[i]);hm.push(hr.relative_humidity_2m[i]);
-    wn.push(hr.wind_speed_10m[i]);cl.push(hr.cloud_cover[i]);ps.push(hr.pressure_msl[i]);
-  }
-  const ch=now.getHours();
-  let hs='<div class="hr-scroll">';
-  for(let i=ch;i<Math.min(ch+24,hr.time.length);i++){
-    const hw=wIc(hr.weather_code[i]);
-    hs+=`<div class="hr"><div class="hr-t">${new Date(hr.time[i]).getHours().toString().padStart(2,'0')}:00</div><div class="hr-i">${hw}</div><div class="hr-v">${Math.round(hr.temperature_2m[i])}°</div>${hr.precipitation[i]>0?'<div class="hr-r">💧'+r1(hr.precipitation[i])+'</div>':''}</div>`;
-  }
-  hs+='</div>';
-  el.innerHTML=`<div class="cw"><div class="cw-ic">${wi}</div><div class="cw-t">${Math.round(c.temperature_2m)}°C</div>
-<div class="cw-d">${w} · ${city.n}</div><div class="cw-time">🕐 ${t('updated')}: ${ts}</div>
-<div class="grd">
-<div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('feelsLike')}</div><div class="gd-v">${Math.round(c.apparent_temperature)}°C</div></div>
-<div class="gd"><div class="gd-i">💧</div><div class="gd-l">${t('humidity')}</div><div class="gd-v">${c.relative_humidity_2m}%</div></div>
-<div class="gd"><div class="gd-i">💨</div><div class="gd-l">${t('wind')}</div><div class="gd-v">${c.wind_speed_10m} km/h</div></div>
-<div class="gd"><div class="gd-i">🧭</div><div class="gd-l">${t('windDir')}</div><div class="gd-v">${wd(c.wind_direction_10m)}</div></div>
-<div class="gd"><div class="gd-i">🌧️</div><div class="gd-l">${t('precip')}</div><div class="gd-v">${c.precipitation} mm</div></div>
-<div class="gd"><div class="gd-i">📊</div><div class="gd-l">${t('pressure')}</div><div class="gd-v">${Math.round(c.pressure_msl)} hPa</div></div>
-<div class="gd"><div class="gd-i">☁️</div><div class="gd-l">${t('clouds')}</div><div class="gd-v">${c.cloud_cover}%</div></div>
-<div class="gd"><div class="gd-i">☀️</div><div class="gd-l">${t('uvIndex')}</div><div class="gd-v">${c.uv_index!=null?c.uv_index:'—'}</div></div>
-<div class="gd"><div class="gd-i">🌅</div><div class="gd-l">${t('sunrise')}</div><div class="gd-v">${sr}</div></div>
-<div class="gd"><div class="gd-i">🌇</div><div class="gd-l">${t('sunset')}</div><div class="gd-v">${ss}</div></div>
-<div class="gd"><div class="gd-i">⏱️</div><div class="gd-l">${t('dayLength')}</div><div class="gd-v">${dayLen(sr,ss)}</div></div>
-<div class="gd"><div class="gd-i">${c.is_day?'🌞':'🌙'}</div><div class="gd-l">${t('timeOfDay')}</div><div class="gd-v">${c.is_day?t('day'):t('night')}</div></div>
-</div></div>
-<div class="rec"><div class="rec-ic">${rec.ic}</div><div class="rec-txt"><h4>${rec.ti}</h4><p>${rec.de}</p></div></div>
-<h3 style="margin:.4rem 0;font-size:.9rem;color:var(--tx2)">⏱️ ${t('hourly')}</h3>${hs}
-<div class="cb"><h3>🌡️ ${t('tempChart')} — 48h</h3><canvas id="c1"></canvas></div>
-<div class="cb"><h3>🌧️ ${t('precipChart')} · 💧 ${t('humidChart')}</h3><canvas id="c2"></canvas></div>
-<div class="cb"><h3>💨 ${t('windChart')} · ☁️ ${t('cloudChart')}</h3><canvas id="c3"></canvas></div>
-<div class="cb"><h3>📊 ${t('pressChart')}</h3><canvas id="c4"></canvas></div>`;
-  mc('c1',{type:'line',data:{labels:lb,datasets:[
-    {label:'°C',data:tmp,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:0},
-    {label:t('feelsLike'),data:fl,borderColor:'#f97316',borderDash:[5,3],backgroundColor:'transparent',tension:.3,pointRadius:0}
-  ]},options:cO()});
-  mc('c2',{type:'bar',data:{labels:lb,datasets:[
-    {label:'mm',data:pr,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},
-    {label:'%',data:hm,type:'line',borderColor:'#22c55e',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}
-  ]},options:cO({scales:{x:{ticks:{maxTicksLimit:12,font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
-  mc('c3',{type:'line',data:{labels:lb,datasets:[
-    {label:'km/h',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},
-    {label:'%',data:cl,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}
-  ]},options:cO({scales:{x:{ticks:{maxTicksLimit:12,font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
-  mc('c4',{type:'line',data:{labels:lb,datasets:[
-    {label:'hPa',data:ps,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:0}
-  ]},options:cO()});
-}
+async function loadCur(){const el=$('o-cur');sL(el);try{const d=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+'&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl,cloud_cover,uv_index,is_day&hourly=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover,pressure_msl&daily=sunrise,sunset&timezone=auto&forecast_days=2');rCur(d,el)}catch(e){sE(el,t('errLoad'))}}
+function rCur(d,el){const c=d.current,w=wDe(c.weather_code),wi=wIc(c.weather_code),hr=d.hourly;const sr=d.daily.sunrise[0]?d.daily.sunrise[0].slice(11,16):'—';const ss=d.daily.sunset[0]?d.daily.sunset[0].slice(11,16):'—';const rec=getRec(c.temperature_2m,c.weather_code,c.wind_speed_10m);const now=new Date(),ts=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const lb=[],tmp=[],fl=[],pr=[],hm=[],wn=[],cl=[],ps=[];for(let i=0;i<Math.min(48,hr.time.length);i++){lb.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');tmp.push(hr.temperature_2m[i]);fl.push(hr.apparent_temperature[i]);pr.push(hr.precipitation[i]);hm.push(hr.relative_humidity_2m[i]);wn.push(hr.wind_speed_10m[i]);cl.push(hr.cloud_cover[i]);ps.push(hr.pressure_msl[i])}
+const ch=now.getHours();let hs='<div class="hr-scroll">';for(let i=ch;i<Math.min(ch+24,hr.time.length);i++){hs+=`<div class="hr"><div class="hr-t">${new Date(hr.time[i]).getHours().toString().padStart(2,'0')}:00</div><div class="hr-i">${wIc(hr.weather_code[i])}</div><div class="hr-v">${Math.round(hr.temperature_2m[i])}°</div>${hr.precipitation[i]>0?'<div class="hr-r">💧'+r1(hr.precipitation[i])+'</div>':''}</div>`}hs+='</div>';
+el.innerHTML=`<div class="cw"><div class="cw-ic">${wi}</div><div class="cw-t">${Math.round(c.temperature_2m)}°C</div><div class="cw-d">${w} · ${city.n}</div><div class="cw-time">🕐 ${t('updated')}: ${ts}</div><div class="grd"><div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('feels')}</div><div class="gd-v">${Math.round(c.apparent_temperature)}°C</div></div><div class="gd"><div class="gd-i">💧</div><div class="gd-l">${t('humidity')}</div><div class="gd-v">${c.relative_humidity_2m}%</div></div><div class="gd"><div class="gd-i">💨</div><div class="gd-l">${t('wind')}</div><div class="gd-v">${c.wind_speed_10m} km/h</div></div><div class="gd"><div class="gd-i">🧭</div><div class="gd-l">${t('wdir')}</div><div class="gd-v">${wd(c.wind_direction_10m)}</div></div><div class="gd"><div class="gd-i">🌧️</div><div class="gd-l">${t('precip')}</div><div class="gd-v">${c.precipitation}mm</div></div><div class="gd"><div class="gd-i">📊</div><div class="gd-l">${t('pressure')}</div><div class="gd-v">${Math.round(c.pressure_msl)}hPa</div></div><div class="gd"><div class="gd-i">☁️</div><div class="gd-l">${t('clouds')}</div><div class="gd-v">${c.cloud_cover}%</div></div><div class="gd"><div class="gd-i">☀️</div><div class="gd-l">${t('uv')}</div><div class="gd-v">${c.uv_index!=null?c.uv_index:'—'}</div></div><div class="gd"><div class="gd-i">🌅</div><div class="gd-l">${t('sunrise')}</div><div class="gd-v">${sr}</div></div><div class="gd"><div class="gd-i">🌇</div><div class="gd-l">${t('sunset')}</div><div class="gd-v">${ss}</div></div><div class="gd"><div class="gd-i">⏱️</div><div class="gd-l">${t('dayLen')}</div><div class="gd-v">${dayL(sr,ss)}</div></div><div class="gd"><div class="gd-i">${c.is_day?'🌞':'🌙'}</div><div class="gd-l">${t('tod')}</div><div class="gd-v">${c.is_day?t('day'):t('night')}</div></div></div></div><div class="rec"><div class="rec-ic">${rec.ic}</div><div class="rec-txt"><p>${rec.de}</p></div></div><h3 style="margin:.3rem 0;font-size:.85rem;color:var(--tx2)">⏱️ ${t('hourly')}</h3>${hs}<div class="cb"><h3>🌡️ ${t('temp')} 48h</h3><canvas id="c1"></canvas></div><div class="cb"><h3>🌧️ ${t('prec')} · 💧 ${t('humC')}</h3><canvas id="c2"></canvas></div><div class="cb"><h3>💨 ${t('windC')} · ☁️ ${t('cloudC')}</h3><canvas id="c3"></canvas></div><div class="cb"><h3>📊 ${t('pressC')}</h3><canvas id="c4"></canvas></div>`;
+mc('c1',{type:'line',data:{labels:lb,datasets:[{label:'°C',data:tmp,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:0},{label:t('feels'),data:fl,borderColor:'#f97316',borderDash:[5,3],backgroundColor:'transparent',tension:.3,pointRadius:0}]},options:cO()});
+mc('c2',{type:'bar',data:{labels:lb,datasets:[{label:'mm',data:pr,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},{label:'%',data:hm,type:'line',borderColor:'#22c55e',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}]},options:{...cO(),scales:{x:{ticks:{maxTicksLimit:12,font:{size:8}}},y:{position:'left',min:0,ticks:{font:{size:8}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:8}}}}}});
+mc('c3',{type:'line',data:{labels:lb,datasets:[{label:'km/h',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},{label:'%',data:cl,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:{...cO(),scales:{x:{ticks:{maxTicksLimit:12,font:{size:8}}},y:{position:'left',min:0,ticks:{font:{size:8}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:8}}}}}});
+mc('c4',{type:'line',data:{labels:lb,datasets:[{label:'hPa',data:ps,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:0}]},options:cO()})}
 
 /* ═══════ FORECAST ═══════ */
-async function loadFc(){
-  const el=$('o-fc');sL(el);
-  try{
-    const d=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+
-      '&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max'+
-      '&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,relative_humidity_2m,pressure_msl,cloud_cover'+
-      '&timezone=auto&forecast_days=14');
-    _fcD=d.daily;_fcH=d.hourly;rendFc(el);
-  }catch(e){sE(el,t('errLoad'))}
-}
-function rendFc(el){
-  const dl=_fcD;
-  let h='<p style="text-align:center;color:var(--tx3);margin-bottom:.5rem;font-size:.82rem">'+t('clickDay')+'</p><div class="fc-g">';
-  for(let i=0;i<dl.time.length;i++){
-    const wi=wIc(dl.weather_code[i]);
-    h+=`<div class="fc${i===0?' sel':''}" data-d="${i}"><div class="fc-dt">${fDy(dl.time[i])}</div><div class="fc-ic">${wi}</div><div class="fc-hi">${Math.round(dl.temperature_2m_max[i])}°</div><div class="fc-lo">${Math.round(dl.temperature_2m_min[i])}°</div>${dl.precipitation_sum[i]>0?'<div class="fc-rn">💧'+r1(dl.precipitation_sum[i])+'mm</div>':''}${dl.precipitation_probability_max[i]>0?'<div class="fc-rn">☔'+dl.precipitation_probability_max[i]+'%</div>':''}</div>`;
-  }
-  h+='</div><div class="cb"><h3>📈 '+t('tempChart')+' 14d</h3><canvas id="f1"></canvas></div>';
-  h+='<div class="cb"><h3>🌧️ '+t('precipChart')+' 14d</h3><canvas id="f2"></canvas></div><div id="ddc"></div>';
-  el.innerHTML=h;
-  const lb=dl.time.map(fDy);
-  mc('f1',{type:'line',data:{labels:lb,datasets:[
-    {label:t('max'),data:dl.temperature_2m_max,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:3,pointBackgroundColor:'#ef4444'},
-    {label:t('min'),data:dl.temperature_2m_min,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:3,pointBackgroundColor:'#3b82f6'}
-  ]},options:cO()});
-  mc('f2',{type:'bar',data:{labels:lb,datasets:[
-    {label:'mm',data:dl.precipitation_sum,backgroundColor:dl.precipitation_sum.map(v=>v>5?'rgba(239,68,68,.7)':v>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}
-  ]},options:{...cO(),plugins:{legend:{display:false}}}});
-  el.querySelectorAll('.fc').forEach(c=>c.addEventListener('click',()=>{
-    el.querySelectorAll('.fc').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');showDay(+c.dataset.d);}));
-  showDay(0);
-}
-function showDay(idx){
-  const el=$('ddc'),dl=_fcD,hr=_fcH,date=dl.time[idx],wi=wIc(dl.weather_code[idx]),wd2=wDesc(dl.weather_code[idx]);
-  const hL=[],hT=[],hF=[],hP=[],hPP=[],hW=[],hWD=[],hH=[],hPS=[],hC=[],hWC=[];
-  for(let i=0;i<hr.time.length;i++){
-    if(!hr.time[i].startsWith(date))continue;
-    hL.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');
-    hT.push(hr.temperature_2m[i]);hF.push(hr.apparent_temperature[i]);
-    hP.push(hr.precipitation[i]);hPP.push(hr.precipitation_probability[i]);
-    hW.push(hr.wind_speed_10m[i]);hWD.push(hr.wind_direction_10m[i]);
-    hH.push(hr.relative_humidity_2m[i]);hPS.push(hr.pressure_msl[i]);hC.push(hr.cloud_cover[i]);hWC.push(hr.weather_code[i]);
-  }
-  const sr=dl.sunrise[idx]?dl.sunrise[idx].slice(11,16):'—',ss=dl.sunset[idx]?dl.sunset[idx].slice(11,16):'—';
-  const rec=getRec(dl.temperature_2m_max[idx],dl.weather_code[idx],dl.wind_speed_10m_max[idx]);
-  let hs='<div class="hr-scroll">';
-  for(let i=0;i<hL.length;i++){hs+=`<div class="hr"><div class="hr-t">${hL[i]}</div><div class="hr-i">${wIc(hWC[i])}</div><div class="hr-v">${Math.round(hT[i])}°</div>${hP[i]>0?'<div class="hr-r">'+r1(hP[i])+'mm</div>':''}</div>`}
-  hs+='</div>';
-  el.innerHTML=`<div class="ddet"><div class="ddet-hdr"><div class="ddi">${wi}</div><div class="ddt">${Math.round(dl.temperature_2m_max[idx])}° / ${Math.round(dl.temperature_2m_min[idx])}°</div><div class="ddd">${wd2}</div><div class="dds">${fDyF(date)} · ${city.n}</div></div>
-<div class="grd">
-<div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('max')}</div><div class="gd-v" style="color:#ef4444">${Math.round(dl.temperature_2m_max[idx])}°</div></div>
-<div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('min')}</div><div class="gd-v" style="color:#3b82f6">${Math.round(dl.temperature_2m_min[idx])}°</div></div>
-<div class="gd"><div class="gd-i">🤗</div><div class="gd-l">${t('feelsMax')}</div><div class="gd-v">${Math.round(dl.apparent_temperature_max[idx])}°</div></div>
-<div class="gd"><div class="gd-i">🥶</div><div class="gd-l">${t('feelsMin')}</div><div class="gd-v">${Math.round(dl.apparent_temperature_min[idx])}°</div></div>
-<div class="gd"><div class="gd-i">🌧️</div><div class="gd-l">${t('precip')}</div><div class="gd-v">${r1(dl.precipitation_sum[idx])}mm</div></div>
-<div class="gd"><div class="gd-i">☔</div><div class="gd-l">${t('rainProb')}</div><div class="gd-v">${dl.precipitation_probability_max[idx]}%</div></div>
-<div class="gd"><div class="gd-i">💨</div><div class="gd-l">${t('windMax')}</div><div class="gd-v">${dl.wind_speed_10m_max[idx]}km/h</div></div>
-<div class="gd"><div class="gd-i">🧭</div><div class="gd-l">${t('windDir')}</div><div class="gd-v">${wd(dl.wind_direction_10m_dominant[idx])}</div></div>
-<div class="gd"><div class="gd-i">☀️</div><div class="gd-l">${t('uvMax')}</div><div class="gd-v">${dl.uv_index_max[idx]!=null?dl.uv_index_max[idx]:'—'}</div></div>
-<div class="gd"><div class="gd-i">🌅</div><div class="gd-l">${t('sunrise')}</div><div class="gd-v">${sr}</div></div>
-<div class="gd"><div class="gd-i">🌇</div><div class="gd-l">${t('sunset')}</div><div class="gd-v">${ss}</div></div>
-<div class="gd"><div class="gd-i">⏱️</div><div class="gd-l">${t('dayLength')}</div><div class="gd-v">${dayLen(sr,ss)}</div></div>
-</div>
-<div class="rec"><div class="rec-ic">${rec.ic}</div><div class="rec-txt"><h4>${rec.ti}</h4><p>${rec.de}</p></div></div>
-<h3 style="margin:.6rem 0 .2rem;font-size:.88rem;color:var(--tx2)">⏱️ ${t('hourly')}</h3>${hs}
-<div class="cb"><h3>🌡️ ${t('tempChart')}</h3><canvas id="d1"></canvas></div>
-<div class="cb"><h3>🌧️ ${t('precipChart')} · ☔ ${t('rainProb')}</h3><canvas id="d2"></canvas></div>
-<div class="cb"><h3>💨 ${t('windChart')} · 💧 ${t('humidChart')}</h3><canvas id="d3"></canvas></div>
-<div class="cb"><h3>📊 ${t('pressChart')} · ☁️ ${t('cloudChart')}</h3><canvas id="d4"></canvas></div>
-<h3 style="margin:.7rem 0 .2rem;font-size:.88rem;color:var(--tx2)">📋 ${t('fullTable')}</h3>
-<div class="htbl"><table><thead><tr><th>${t('time')}</th><th></th><th>°C</th><th>${t('feelsLike')}</th><th>mm</th><th>☔%</th><th>💨</th><th>🧭</th><th>💧%</th><th>☁️%</th><th>hPa</th></tr></thead><tbody>
-${hL.map((l,i)=>`<tr><td>${l}</td><td>${wIc(hWC[i])}</td><td><b>${r1(hT[i])}°</b></td><td>${r1(hF[i])}°</td><td>${hP[i]>0?r1(hP[i]):'—'}</td><td>${hPP[i]||0}</td><td>${r1(hW[i])}</td><td>${wd(hWD[i])}</td><td>${hH[i]}</td><td>${hC[i]}</td><td>${Math.round(hPS[i])}</td></tr>`).join('')}
-</tbody></table></div></div>`;
-  el.scrollIntoView({behavior:'smooth',block:'nearest'});
-  const co=()=>cO();
-  mc('d1',{type:'line',data:{labels:hL,datasets:[{label:'°C',data:hT,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:2},{label:t('feelsLike'),data:hF,borderColor:'#f97316',borderDash:[4,3],backgroundColor:'transparent',tension:.3,pointRadius:0}]},options:co()});
-  mc('d2',{type:'bar',data:{labels:hL,datasets:[{label:'mm',data:hP,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},{label:'%',data:hPP,type:'line',borderColor:'#f97316',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}]},options:cO({scales:{x:{ticks:{font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
-  mc('d3',{type:'line',data:{labels:hL,datasets:[{label:'km/h',data:hW,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},{label:'%',data:hH,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:cO({scales:{x:{ticks:{font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
-  mc('d4',{type:'line',data:{labels:hL,datasets:[{label:'hPa',data:hPS,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:0},{label:'%',data:hC,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:cO({scales:{x:{ticks:{font:{size:9}}},y:{position:'left',ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
-}
+async function loadFc(){const el=$('o-fc');sL(el);try{const d=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+'&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,relative_humidity_2m,pressure_msl,cloud_cover&timezone=auto&forecast_days=14');_fD=d.daily;_fH=d.hourly;rFc(el)}catch(e){sE(el,t('errLoad'))}}
+function rFc(el){const dl=_fD;let h='<p style="text-align:center;color:var(--tx3);margin-bottom:.4rem;font-size:.78rem">'+t('click')+'</p><div class="fc-g">';
+for(let i=0;i<dl.time.length;i++){h+=`<div class="fc${i===0?' sel':''}" data-d="${i}"><div class="fc-dt">${fDy(dl.time[i])}</div><div class="fc-ic">${wIc(dl.weather_code[i])}</div><div class="fc-hi">${Math.round(dl.temperature_2m_max[i])}°</div><div class="fc-lo">${Math.round(dl.temperature_2m_min[i])}°</div>${dl.precipitation_sum[i]>0?'<div class="fc-rn">💧'+r1(dl.precipitation_sum[i])+'</div>':''}${dl.precipitation_probability_max[i]>0?'<div class="fc-rn">☔'+dl.precipitation_probability_max[i]+'%</div>':''}</div>`}
+h+='</div><div class="cb"><h3>📈 '+t('temp')+' 14d</h3><canvas id="f1"></canvas></div><div class="cb"><h3>🌧️ '+t('prec')+' 14d</h3><canvas id="f2"></canvas></div><div id="ddc"></div>';
+el.innerHTML=h;const lb=dl.time.map(fDy);
+mc('f1',{type:'line',data:{labels:lb,datasets:[{label:t('max'),data:dl.temperature_2m_max,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:3,pointBackgroundColor:'#ef4444'},{label:t('min'),data:dl.temperature_2m_min,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:3,pointBackgroundColor:'#3b82f6'}]},options:cO()});
+mc('f2',{type:'bar',data:{labels:lb,datasets:[{label:'mm',data:dl.precipitation_sum,backgroundColor:dl.precipitation_sum.map(v=>v>5?'rgba(239,68,68,.7)':v>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}]},options:{...cO(),plugins:{legend:{display:false}}}});
+el.querySelectorAll('.fc').forEach(c=>c.addEventListener('click',()=>{el.querySelectorAll('.fc').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');showDay(+c.dataset.d)}));showDay(0)}
+function showDay(idx){const el=$('ddc'),dl=_fD,hr=_fH,date=dl.time[idx];const hL=[],hT=[],hF=[],hP=[],hPP=[],hW=[],hWD=[],hH=[],hPS=[],hC=[],hWC=[];
+for(let i=0;i<hr.time.length;i++){if(!hr.time[i].startsWith(date))continue;hL.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');hT.push(hr.temperature_2m[i]);hF.push(hr.apparent_temperature[i]);hP.push(hr.precipitation[i]);hPP.push(hr.precipitation_probability[i]);hW.push(hr.wind_speed_10m[i]);hWD.push(hr.wind_direction_10m[i]);hH.push(hr.relative_humidity_2m[i]);hPS.push(hr.pressure_msl[i]);hC.push(hr.cloud_cover[i]);hWC.push(hr.weather_code[i])}
+const sr=dl.sunrise[idx]?dl.sunrise[idx].slice(11,16):'—',ss=dl.sunset[idx]?dl.sunset[idx].slice(11,16):'—';const rec=getRec(dl.temperature_2m_max[idx],dl.weather_code[idx],dl.wind_speed_10m_max[idx]);
+let hs='<div class="hr-scroll">';for(let i=0;i<hL.length;i++){hs+=`<div class="hr"><div class="hr-t">${hL[i]}</div><div class="hr-i">${wIc(hWC[i])}</div><div class="hr-v">${Math.round(hT[i])}°</div>${hP[i]>0?'<div class="hr-r">'+r1(hP[i])+'mm</div>':''}</div>`}hs+='</div>';
+el.innerHTML=`<div class="ddet"><div class="ddet-hdr"><div class="ddi">${wIc(dl.weather_code[idx])}</div><div class="ddt">${Math.round(dl.temperature_2m_max[idx])}° / ${Math.round(dl.temperature_2m_min[idx])}°</div><div class="ddd">${wDe(dl.weather_code[idx])}</div><div class="dds">${fDyF(date)} · ${city.n}</div></div><div class="grd"><div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('max')}</div><div class="gd-v" style="color:#ef4444">${Math.round(dl.temperature_2m_max[idx])}°</div></div><div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('min')}</div><div class="gd-v" style="color:#3b82f6">${Math.round(dl.temperature_2m_min[idx])}°</div></div><div class="gd"><div class="gd-i">🤗</div><div class="gd-l">${t('fmax')}</div><div class="gd-v">${Math.round(dl.apparent_temperature_max[idx])}°</div></div><div class="gd"><div class="gd-i">🥶</div><div class="gd-l">${t('fmin')}</div><div class="gd-v">${Math.round(dl.apparent_temperature_min[idx])}°</div></div><div class="gd"><div class="gd-i">🌧️</div><div class="gd-l">${t('precip')}</div><div class="gd-v">${r1(dl.precipitation_sum[idx])}mm</div></div><div class="gd"><div class="gd-i">☔</div><div class="gd-l">${t('rprob')}</div><div class="gd-v">${dl.precipitation_probability_max[idx]}%</div></div><div class="gd"><div class="gd-i">💨</div><div class="gd-l">${t('wmax')}</div><div class="gd-v">${dl.wind_speed_10m_max[idx]}km/h</div></div><div class="gd"><div class="gd-i">🧭</div><div class="gd-l">${t('wdir')}</div><div class="gd-v">${wd(dl.wind_direction_10m_dominant[idx])}</div></div><div class="gd"><div class="gd-i">☀️</div><div class="gd-l">${t('uvmax')}</div><div class="gd-v">${dl.uv_index_max[idx]!=null?dl.uv_index_max[idx]:'—'}</div></div><div class="gd"><div class="gd-i">🌅</div><div class="gd-l">${t('sunrise')}</div><div class="gd-v">${sr}</div></div><div class="gd"><div class="gd-i">🌇</div><div class="gd-l">${t('sunset')}</div><div class="gd-v">${ss}</div></div><div class="gd"><div class="gd-i">⏱️</div><div class="gd-l">${t('dayLen')}</div><div class="gd-v">${dayL(sr,ss)}</div></div></div><div class="rec"><div class="rec-ic">${rec.ic}</div><div class="rec-txt"><p>${rec.de}</p></div></div><h3 style="margin:.5rem 0 .2rem;font-size:.82rem;color:var(--tx2)">⏱️ ${t('hourly')}</h3>${hs}<div class="cb"><h3>🌡️ ${t('temp')}</h3><canvas id="d1"></canvas></div><div class="cb"><h3>🌧️ ${t('prec')} · ☔</h3><canvas id="d2"></canvas></div><div class="cb"><h3>💨 ${t('windC')} · 💧 ${t('humC')}</h3><canvas id="d3"></canvas></div><div class="cb"><h3>📊 ${t('pressC')} · ☁️ ${t('cloudC')}</h3><canvas id="d4"></canvas></div><h3 style="margin:.5rem 0 .2rem;font-size:.82rem;color:var(--tx2)">📋 ${t('table')}</h3><div class="htbl"><table><thead><tr><th>${t('time')}</th><th></th><th>°C</th><th>${t('feels')}</th><th>mm</th><th>☔%</th><th>💨</th><th>💧%</th><th>hPa</th></tr></thead><tbody>${hL.map((l,i)=>`<tr><td>${l}</td><td>${wIc(hWC[i])}</td><td><b>${r1(hT[i])}°</b></td><td>${r1(hF[i])}°</td><td>${hP[i]>0?r1(hP[i]):'—'}</td><td>${hPP[i]||0}</td><td>${r1(hW[i])}</td><td>${hH[i]}</td><td>${Math.round(hPS[i])}</td></tr>`).join('')}</tbody></table></div></div>`;
+el.scrollIntoView({behavior:'smooth',block:'nearest'});
+mc('d1',{type:'line',data:{labels:hL,datasets:[{label:'°C',data:hT,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:2},{label:t('feels'),data:hF,borderColor:'#f97316',borderDash:[4,3],backgroundColor:'transparent',tension:.3,pointRadius:0}]},options:cO()});
+mc('d2',{type:'bar',data:{labels:hL,datasets:[{label:'mm',data:hP,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},{label:'%',data:hPP,type:'line',borderColor:'#f97316',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}]},options:{...cO(),scales:{x:{ticks:{font:{size:8}}},y:{position:'left',min:0,ticks:{font:{size:8}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:8}}}}}});
+mc('d3',{type:'line',data:{labels:hL,datasets:[{label:'km/h',data:hW,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},{label:'%',data:hH,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:{...cO(),scales:{x:{ticks:{font:{size:8}}},y:{position:'left',min:0,ticks:{font:{size:8}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:8}}}}}});
+mc('d4',{type:'line',data:{labels:hL,datasets:[{label:'hPa',data:hPS,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:0},{label:'%',data:hC,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:{...cO(),scales:{x:{ticks:{font:{size:8}}},y:{position:'left',ticks:{font:{size:8}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:8}}}}}})}
 
 /* ═══════ HISTORY ═══════ */
-async function loadHist(){
-  const el=$('o-hist'),s=$('hS').value,e=$('hE').value;
-  if(!s||!e){sE(el,t('errDates'));return}if(s>e){sE(el,t('errDateOrder'));return}sL(el);
-  try{
-    const d=await api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+'&start_date='+s+'&end_date='+e+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto');
-    rendHist(d,el);
-  }catch(e){sE(el,t('errHistApi'))}
-}
-function rendHist(d,el){
-  const dl=d.daily;if(!dl||!dl.time||!dl.time.length){sE(el,t('errNoData'));return}
-  const mx=dl.temperature_2m_max,mn=dl.temperature_2m_min,pr=dl.precipitation_sum,wn=dl.wind_speed_10m_max;
-  const vx=mx.filter(v=>v!=null),vn=mn.filter(v=>v!=null),vp=pr.filter(v=>v!=null);
-  const avg=a=>r1(a.reduce((s,v)=>s+v,0)/a.length);
-  let h=`<div class="smry"><div class="sm"><div class="sm-l">${t('avgMax')}</div><div class="sm-v" style="color:#ef4444">${avg(vx)}°</div></div><div class="sm"><div class="sm-l">${t('avgMin')}</div><div class="sm-v" style="color:#3b82f6">${avg(vn)}°</div></div><div class="sm"><div class="sm-l">${t('recHi')}</div><div class="sm-v">${r1(Math.max(...vx))}°</div></div><div class="sm"><div class="sm-l">${t('recLo')}</div><div class="sm-v">${r1(Math.min(...vn))}°</div></div><div class="sm"><div class="sm-l">${t('totalPrecip')}</div><div class="sm-v">${r1(vp.reduce((a,b)=>a+b,0))}mm</div></div><div class="sm"><div class="sm-l">${t('days')}</div><div class="sm-v">${dl.time.length}</div></div></div>`;
-  h+=`<div class="cb"><h3>🌡️ ${t('tempChart')}</h3><canvas id="h1"></canvas></div><div class="cb"><h3>🌧️ ${t('precipChart')}</h3><canvas id="h2"></canvas></div><div class="cb"><h3>💨 ${t('windChart')}</h3><canvas id="h3"></canvas></div>`;
-  h+='<div class="htbl"><table><thead><tr><th>'+t('time')+'</th><th></th><th>'+t('max')+'</th><th>'+t('min')+'</th><th>'+t('precip')+'</th><th>'+t('wind')+'</th></tr></thead><tbody>';
-  for(let i=0;i<dl.time.length;i++){h+=`<tr><td>${fD(dl.time[i])}</td><td>${wIc(dl.weather_code[i])}</td><td>${mx[i]!=null?mx[i]+'°':'—'}</td><td>${mn[i]!=null?mn[i]+'°':'—'}</td><td>${pr[i]!=null?pr[i]+'mm':'—'}</td><td>${wn[i]!=null?wn[i]+'km/h':'—'}</td></tr>`}
-  h+='</tbody></table></div>';el.innerHTML=h;
-  const lb=dl.time.map(fD),nr=dl.time.length>60?0:2;
-  mc('h1',{type:'line',data:{labels:lb,datasets:[{label:t('max'),data:mx,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:nr},{label:t('min'),data:mn,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:nr}]},options:cO()});
-  mc('h2',{type:'bar',data:{labels:lb,datasets:[{label:'mm',data:pr,backgroundColor:pr.map(v=>v>10?'rgba(239,68,68,.7)':v>3?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:2}]},options:{...cO(),plugins:{legend:{display:false}}}});
-  mc('h3',{type:'line',data:{labels:lb,datasets:[{label:'km/h',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:nr}]},options:cO()});
-}
+async function loadHist(){const el=$('o-hist'),s=$('hS').value,e=$('hE').value;if(!s||!e){sE(el,t('errDates'));return}if(s>e){sE(el,t('errOrder'));return}sL(el);try{const d=await api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+'&start_date='+s+'&end_date='+e+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto');rHist(d,el)}catch(e){sE(el,t('errHist'))}}
+function rHist(d,el){const dl=d.daily;if(!dl||!dl.time||!dl.time.length){sE(el,t('errNoData'));return}const mx=dl.temperature_2m_max,mn=dl.temperature_2m_min,pr=dl.precipitation_sum,wn=dl.wind_speed_10m_max;const vx=mx.filter(v=>v!=null),vn=mn.filter(v=>v!=null),vp=pr.filter(v=>v!=null);const avg=a=>r1(a.reduce((s,v)=>s+v,0)/a.length);
+let h=`<div class="smry"><div class="sm"><div class="sm-l">${t('amax')}</div><div class="sm-v" style="color:#ef4444">${avg(vx)}°</div></div><div class="sm"><div class="sm-l">${t('amin')}</div><div class="sm-v" style="color:#3b82f6">${avg(vn)}°</div></div><div class="sm"><div class="sm-l">${t('rhi')}</div><div class="sm-v">${r1(Math.max(...vx))}°</div></div><div class="sm"><div class="sm-l">${t('rlo')}</div><div class="sm-v">${r1(Math.min(...vn))}°</div></div><div class="sm"><div class="sm-l">${t('tprec')}</div><div class="sm-v">${r1(vp.reduce((a,b)=>a+b,0))}mm</div></div><div class="sm"><div class="sm-l">${t('days')}</div><div class="sm-v">${dl.time.length}</div></div></div>`;
+h+=`<div class="cb"><h3>🌡️ ${t('temp')}</h3><canvas id="ht"></canvas></div><div class="cb"><h3>🌧️ ${t('prec')}</h3><canvas id="hp"></canvas></div><div class="cb"><h3>💨 ${t('windC')}</h3><canvas id="hw"></canvas></div>`;
+h+='<div class="htbl"><table><thead><tr><th>'+t('time')+'</th><th></th><th>'+t('max')+'</th><th>'+t('min')+'</th><th>'+t('precip')+'</th><th>'+t('wind')+'</th></tr></thead><tbody>';
+for(let i=0;i<dl.time.length;i++){h+=`<tr><td>${fD(dl.time[i])}</td><td>${wIc(dl.weather_code[i])}</td><td>${mx[i]!=null?mx[i]+'°':'—'}</td><td>${mn[i]!=null?mn[i]+'°':'—'}</td><td>${pr[i]!=null?pr[i]+'mm':'—'}</td><td>${wn[i]!=null?wn[i]+'km/h':'—'}</td></tr>`}
+h+='</tbody></table></div>';el.innerHTML=h;const lb=dl.time.map(fD),nr=dl.time.length>60?0:2;
+mc('ht',{type:'line',data:{labels:lb,datasets:[{label:t('max'),data:mx,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:nr},{label:t('min'),data:mn,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:nr}]},options:cO()});
+mc('hp',{type:'bar',data:{labels:lb,datasets:[{label:'mm',data:pr,backgroundColor:pr.map(v=>v>10?'rgba(239,68,68,.7)':v>3?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:2}]},options:{...cO(),plugins:{legend:{display:false}}}});
+mc('hw',{type:'line',data:{labels:lb,datasets:[{label:'km/h',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:nr}]},options:cO()})}
 
 /* ═══════ PREDICTION ═══════ */
 function linR(x,y){const n=x.length,sx=x.reduce((a,b)=>a+b,0),sy=y.reduce((a,b)=>a+b,0),sxy=x.reduce((s,xi,i)=>s+xi*y[i],0),sx2=x.reduce((s,xi)=>s+xi*xi,0),dn=n*sx2-sx*sx;if(!dn)return{s:0,i:sy/n};const sl=(n*sxy-sx*sy)/dn;return{s:sl,i:(sy-sl*sx)/n}}
 function stdev(a){const m=a.reduce((s,v)=>s+v,0)/a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length)}
-async function loadPred(){
-  const el=$('o-pred'),ds=$('pD').value;if(!ds){sE(el,t('errDates'));return}sL(el);
-  try{
-    const tgt=new Date(ds+'T00:00'),mo=tgt.getMonth()+1,dy=tgt.getDate(),tY=tgt.getFullYear();
-    const now=new Date(),cY=now.getFullYear(),yrs=[];for(let y=cY-8;y<=cY-1;y++)yrs.push(y);
-    const pad=n=>String(n).padStart(2,'0');
-    const ps=yrs.map(y=>{const c=new Date(y,mo-1,dy),s=new Date(c),e=new Date(c);s.setDate(s.getDate()-10);e.setDate(e.getDate()+10);
-      return api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+'&start_date='+iso(s)+'&end_date='+iso(e)+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto').then(d=>({year:y,data:d})).catch(()=>null)});
-    let fc=null;const diff=Math.ceil((tgt-now)/864e5);
-    if(diff>=0&&diff<=14){try{const fd=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=15');const ix=fd.daily.time.indexOf(ds);if(ix>=0)fc={mx:fd.daily.temperature_2m_max[ix],mn:fd.daily.temperature_2m_min[ix],pr:fd.daily.precipitation_sum[ix],wc:fd.daily.weather_code[ix]};}catch(e){}}
-    const res=(await Promise.all(ps)).filter(Boolean);if(res.length<2){sE(el,t('errPredData'));return}
-    const pred=calcP(res,mo,dy,tY);rendPred(pred,fc,ds,el);
-  }catch(e){sE(el,t('errPredCalc'))}
-}
-function calcP(res,mo,dy,tY){
-  const pad=n=>String(n).padStart(2,'0'),gauss=(d,sig)=>Math.exp(-(d*d)/(2*sig*sig));
-  const yearly=res.map(({year,data})=>{const dl=data.daily,tgt=`${year}-${pad(mo)}-${pad(dy)}`;
-    let wm=0,wn=0,wp=0,ww=0,tw=0,wdw=0;const days=[];
-    for(let i=0;i<dl.time.length;i++){const diff=Math.abs(new Date(dl.time[i]+'T00:00')-new Date(tgt+'T00:00'))/864e5;const w=gauss(diff,3);
-      if(w>0.01&&dl.temperature_2m_max[i]!=null){tw+=w;wm+=dl.temperature_2m_max[i]*w;wn+=dl.temperature_2m_min[i]*w;wp+=(dl.precipitation_sum[i]||0)*w;if(dl.wind_speed_10m_max[i]!=null){ww+=dl.wind_speed_10m_max[i]*w;wdw+=w;}}
-      days.push({date:dl.time[i],tmax:dl.temperature_2m_max[i],tmin:dl.temperature_2m_min[i],precip:dl.precipitation_sum[i],off:Math.round((new Date(dl.time[i]+'T00:00')-new Date(tgt+'T00:00'))/864e5)});}
-    if(!tw)return null;return{year,tmax:wm/tw,tmin:wn/tw,precip:wp/tw,wind:wdw?ww/wdw:null,days};}).filter(Boolean);
-  if(!yearly.length)throw new Error('no data');
-  const n=yearly.length;let TW=0,sm=0,sn=0,sp=0,sw=0,sww=0;
-  yearly.forEach((d,i)=>{const w=Math.pow(1.5,i);TW+=w;sm+=d.tmax*w;sn+=d.tmin*w;sp+=d.precip*w;if(d.wind!=null){sw+=d.wind*w;sww+=w;}});
-  const bM=sm/TW,bN=sn/TW,bP=sp/TW,bW=sww?sw/sww:null;
-  const ys=yearly.map(d=>d.year),tmA=yearly.map(d=>d.tmax),tnA=yearly.map(d=>d.tmin),prA=yearly.map(d=>d.precip);
-  const trM=linR(ys,tmA),trN=linR(ys,tnA),trP=linR(ys,prA);
-  const pM=bM*.6+(trM.s*tY+trM.i)*.4,pN=bN*.6+(trN.s*tY+trN.i)*.4,pP=Math.max(0,bP*.6+(trP.s*tY+trP.i)*.4);
-  const sdM=stdev(tmA),sdN=stdev(tnA),aSD=(sdM+sdN)/2;
-  let conf;if(aSD<1.5&&n>=5)conf={t:t('high'),c:'#16a34a'};else if(aSD<3)conf={t:t('medium'),c:'#ca8a04'};else conf={t:t('low'),c:'#dc2626'};
-  const rainy=yearly.filter(d=>d.precip>.5).length,rP=Math.round(rainy/n*100);
-  let code;if(pP>8)code=pM<0?75:65;else if(pP>3)code=pM<0?73:63;else if(pP>.5)code=pM<0?71:61;else if(pP>.1)code=3;else code=mo>=5&&mo<=9?1:2;
-  return{tmax:r1(pM),tmin:r1(pN),precip:r1(pP),wind:bW!=null?r1(bW):null,code,conf,rP,
-    trend:{mx:r1(trM.s),mn:r1(trN.s),pr:r1(trP.s)},sd:{mx:r1(sdM),mn:r1(sdN)},yearly,trM,trN,
-    range:{mx:[r1(Math.min(...tmA)),r1(Math.max(...tmA))],mn:[r1(Math.min(...tnA)),r1(Math.max(...tnA))]}};
-}
-function rendPred(p,fc,ds,el){
-  const wi=wIc(p.code),wd2=wDesc(p.code);
-  const trI=p.trend.mx>0.1?'📈':p.trend.mx<-0.1?'📉':'➡️';
-  const trT=p.trend.mx>0.1?t('warming'):p.trend.mx<-0.1?t('cooling'):t('stable');
-  let compH='';
-  if(fc){compH=`<div class="comp"><h3>📊 ${t('compTitle')}</h3><div class="comp2"><div class="cc"><h4>🔮 ${t('ourPred')}</h4><div style="font-size:1.8rem">${wi}</div><div style="font-weight:700">${p.tmax}°/${p.tmin}°</div><div style="font-size:.75rem;color:var(--tx3)">${p.precip}mm</div></div><div class="cc"><h4>🌐 ${t('officialFc')}</h4><div style="font-size:1.8rem">${wIc(fc.wc)}</div><div style="font-weight:700">${Math.round(fc.mx)}°/${Math.round(fc.mn)}°</div><div style="font-size:.75rem;color:var(--tx3)">${fc.pr}mm</div></div></div></div>`}
-  el.innerHTML=`<h3 style="text-align:center;margin-bottom:.7rem">${city.n} · ${fDF(ds)}</h3>
-<div class="pmain"><div class="pi">${wi}</div><div class="pt">${p.tmax}° / ${p.tmin}°</div><div class="pd">${wd2}</div><div class="pr">${t('histRange')}: ${p.range.mn[0]}°…${p.range.mx[1]}°</div><div class="badge" style="background:${p.conf.c}">${t('confidence')}: ${p.conf.t}</div></div>
-<div class="pgrid">
-<div class="pg"><h4>🌧️ ${t('precip')}</h4><p>~${p.precip} mm</p><p>${t('rainSnowProb')}: <b>${p.rP}%</b></p><p>${t('trend')}: ${p.trend.pr>0?'+':''}${p.trend.pr} ${t('precipPerYear')}</p></div>
-<div class="pg"><h4>${trI} ${t('trend')}</h4><p><b>${trT}</b></p><p>${t('max')}: ${p.trend.mx>0?'+':''}${p.trend.mx}°${t('perYear')}</p><p>${t('min')}: ${p.trend.mn>0?'+':''}${p.trend.mn}°${t('perYear')}</p></div>
-<div class="pg"><h4>📊 ${t('spread')}</h4><p>σ ${t('max')}: ±${p.sd.mx}°</p><p>σ ${t('min')}: ±${p.sd.mn}°</p><p>${p.yearly.length} ${t('analyzedYears')}</p></div>
-${p.wind!=null?`<div class="pg"><h4>💨 ${t('wind')}</h4><p>~${p.wind} km/h</p></div>`:''}</div>
-<div class="cb"><h3>🌡️ ${t('byYears')}</h3><canvas id="p1"></canvas></div>
-<div class="cb"><h3>📈 ${t('trendReg')}</h3><canvas id="p2"></canvas></div>
-<div class="cb"><h3>🌧️ ${t('precipByYears')}</h3><canvas id="p3"></canvas></div>
-<div class="cb"><h3>📅 ${t('windowChart')}</h3><canvas id="p4"></canvas></div>
-${compH}
-<div class="note">⚠️ <b>${t('algoTitle')}</b><br>${t('algoDesc').replace(/\n/g,'<br>')}<br><br>${t('algoNote')}</div>`;
-  const yL=p.yearly.map(d=>String(d.year)),yn=p.yearly.map(d=>d.year);
-  mc('p1',{type:'bar',data:{labels:yL,datasets:[{label:t('max'),data:p.yearly.map(d=>r1(d.tmax)),backgroundColor:'rgba(239,68,68,.7)',borderRadius:4},{label:t('min'),data:p.yearly.map(d=>r1(d.tmin)),backgroundColor:'rgba(59,130,246,.7)',borderRadius:4}]},options:cO()});
-  const rM=yn.map(y=>r1(p.trM.s*y+p.trM.i)),rN=yn.map(y=>r1(p.trN.s*y+p.trN.i));
-  mc('p2',{type:'scatter',data:{datasets:[{label:t('max'),data:p.yearly.map(d=>({x:d.year,y:r1(d.tmax)})),backgroundColor:'#ef4444',pointRadius:6},{label:t('min'),data:p.yearly.map(d=>({x:d.year,y:r1(d.tmin)})),backgroundColor:'#3b82f6',pointRadius:6},{label:t('trend')+' '+t('max'),data:yn.map((y,i)=>({x:y,y:rM[i]})),type:'line',borderColor:'#ef4444',borderDash:[5,3],pointRadius:0,fill:false},{label:t('trend')+' '+t('min'),data:yn.map((y,i)=>({x:y,y:rN[i]})),type:'line',borderColor:'#3b82f6',borderDash:[5,3],pointRadius:0,fill:false}]},options:cO({scales:{x:{type:'linear',ticks:{stepSize:1,callback:v=>v,font:{size:9}}},y:{ticks:{font:{size:9}}}}})});
-  mc('p3',{type:'bar',data:{labels:yL,datasets:[{label:'mm',data:p.yearly.map(d=>r1(d.precip)),backgroundColor:p.yearly.map(d=>d.precip>5?'rgba(239,68,68,.7)':d.precip>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}]},options:{...cO(),plugins:{legend:{display:false}}}});
-  const offs=[];for(let i=-10;i<=10;i++)offs.push(i);
-  const clr=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6'];
-  mc('p4',{type:'line',data:{labels:offs.map(o=>o===0?'📍':o>0?'+'+o:String(o)),datasets:p.yearly.map((yd,ix)=>({label:String(yd.year),data:offs.map(o=>{const f=yd.days.find(d=>d.off===o);return f&&f.tmax!=null?r1((f.tmax+f.tmin)/2):null}),borderColor:clr[ix%clr.length],tension:.3,pointRadius:1,fill:false,borderWidth:2}))},options:cO()});
-}
+async function loadPred(){const el=$('o-pred'),ds=$('pD').value;if(!ds){sE(el,t('errDates'));return}sL(el);try{const tgt=new Date(ds+'T00:00'),mo=tgt.getMonth()+1,dy=tgt.getDate(),tY=tgt.getFullYear(),now=new Date(),cY=now.getFullYear(),yrs=[];for(let y=cY-8;y<=cY-1;y++)yrs.push(y);const pad=n=>String(n).padStart(2,'0');
+const ps=yrs.map(y=>{const c=new Date(y,mo-1,dy),s=new Date(c),e=new Date(c);s.setDate(s.getDate()-10);e.setDate(e.getDate()+10);return api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+'&start_date='+iso(s)+'&end_date='+iso(e)+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto').then(d=>({year:y,data:d})).catch(()=>null)});
+let fc=null;const diff=Math.ceil((tgt-now)/864e5);if(diff>=0&&diff<=14){try{const fd=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=15');const ix=fd.daily.time.indexOf(ds);if(ix>=0)fc={mx:fd.daily.temperature_2m_max[ix],mn:fd.daily.temperature_2m_min[ix],pr:fd.daily.precipitation_sum[ix],wc:fd.daily.weather_code[ix]}}catch(e){}}
+const res=(await Promise.all(ps)).filter(Boolean);if(res.length<2){sE(el,t('errPredD'));return}const pred=calcP(res,mo,dy,tY);rPred(pred,fc,ds,el)}catch(e){sE(el,t('errPredC'))}}
+function calcP(res,mo,dy,tY){const pad=n=>String(n).padStart(2,'0'),gauss=(d,sig)=>Math.exp(-(d*d)/(2*sig*sig));
+const yearly=res.map(({year,data})=>{const dl=data.daily,tgt=`${year}-${pad(mo)}-${pad(dy)}`;let wm=0,wn=0,wp=0,ww=0,tw=0,wdw=0;const days=[];for(let i=0;i<dl.time.length;i++){const diff=Math.abs(new Date(dl.time[i]+'T00:00')-new Date(tgt+'T00:00'))/864e5;const w=gauss(diff,3);if(w>0.01&&dl.temperature_2m_max[i]!=null){tw+=w;wm+=dl.temperature_2m_max[i]*w;wn+=dl.temperature_2m_min[i]*w;wp+=(dl.precipitation_sum[i]||0)*w;if(dl.wind_speed_10m_max[i]!=null){ww+=dl.wind_speed_10m_max[i]*w;wdw+=w}}days.push({date:dl.time[i],tmax:dl.temperature_2m_max[i],tmin:dl.temperature_2m_min[i],off:Math.round((new Date(dl.time[i]+'T00:00')-new Date(tgt+'T00:00'))/864e5)})}if(!tw)return null;return{year,tmax:wm/tw,tmin:wn/tw,precip:wp/tw,wind:wdw?ww/wdw:null,days}}).filter(Boolean);
+if(!yearly.length)throw new Error('no data');const n=yearly.length;let TW=0,sm=0,sn=0,sp=0,sw=0,sww=0;yearly.forEach((d,i)=>{const w=Math.pow(1.5,i);TW+=w;sm+=d.tmax*w;sn+=d.tmin*w;sp+=d.precip*w;if(d.wind!=null){sw+=d.wind*w;sww+=w}});
+const bM=sm/TW,bN=sn/TW,bP=sp/TW,bW=sww?sw/sww:null;const ys=yearly.map(d=>d.year),tmA=yearly.map(d=>d.tmax),tnA=yearly.map(d=>d.tmin);const trM=linR(ys,tmA),trN=linR(ys,tnA);
+const pM=bM*.6+(trM.s*tY+trM.i)*.4,pN=bN*.6+(trN.s*tY+trN.i)*.4,pP=Math.max(0,bP);const sdM=stdev(tmA),sdN=stdev(tnA),aSD=(sdM+sdN)/2;
+let conf;if(aSD<1.5&&n>=5)conf={t:t('hi'),c:'#16a34a'};else if(aSD<3)conf={t:t('med'),c:'#ca8a04'};else conf={t:t('lo'),c:'#dc2626'};
+const rainy=yearly.filter(d=>d.precip>.5).length,rP=Math.round(rainy/n*100);let code;if(pP>8)code=pM<0?75:65;else if(pP>3)code=pM<0?73:63;else if(pP>.5)code=pM<0?71:61;else if(pP>.1)code=3;else code=mo>=5&&mo<=9?1:2;
+return{tmax:r1(pM),tmin:r1(pN),precip:r1(pP),wind:bW!=null?r1(bW):null,code,conf,rP,trend:{mx:r1(trM.s),mn:r1(trN.s)},sd:{mx:r1(sdM),mn:r1(sdN)},yearly,trM,trN,range:{mx:[r1(Math.min(...tmA)),r1(Math.max(...tmA))],mn:[r1(Math.min(...tnA)),r1(Math.max(...tnA))]}}}
+function rPred(p,fc,ds,el){const trI=p.trend.mx>0.1?'📈':p.trend.mx<-0.1?'📉':'➡️';const trT=p.trend.mx>0.1?t('warm'):p.trend.mx<-0.1?t('cool'):t('stable');
+let compH='';if(fc){compH=`<div class="comp"><h3>📊 ${t('comp')}</h3><div class="comp2"><div class="cc"><h4>🔮 ${t('ours')}</h4><div style="font-size:1.5rem">${wIc(p.code)}</div><div style="font-weight:700">${p.tmax}°/${p.tmin}°</div></div><div class="cc"><h4>🌐 ${t('offic')}</h4><div style="font-size:1.5rem">${wIc(fc.wc)}</div><div style="font-weight:700">${Math.round(fc.mx)}°/${Math.round(fc.mn)}°</div></div></div></div>`}
+el.innerHTML=`<h3 style="text-align:center;margin-bottom:.6rem">${city.n} · ${fDF(ds)}</h3><div class="pmain"><div class="pi">${wIc(p.code)}</div><div class="pt">${p.tmax}° / ${p.tmin}°</div><div class="pd">${wDe(p.code)}</div><div class="pr">${t('hrange')}: ${p.range.mn[0]}°…${p.range.mx[1]}°</div><div class="badge" style="background:${p.conf.c}">${t('conf')}: ${p.conf.t}</div></div>
+<div class="pgrid"><div class="pg"><h4>🌧️ ${t('precip')}</h4><p>~${p.precip}mm</p><p>${t('rsprob')}: <b>${p.rP}%</b></p></div><div class="pg"><h4>${trI} ${t('trend')}</h4><p><b>${trT}</b></p><p>${t('max')}: ${p.trend.mx>0?'+':''}${p.trend.mx}°${t('yr')}</p><p>${t('min')}: ${p.trend.mn>0?'+':''}${p.trend.mn}°${t('yr')}</p></div><div class="pg"><h4>📊 ${t('spread')}</h4><p>σ ${t('max')}: ±${p.sd.mx}°</p><p>σ ${t('min')}: ±${p.sd.mn}°</p><p>${p.yearly.length} ${t('ayears')}</p></div>${p.wind!=null?`<div class="pg"><h4>💨 ${t('wind')}</h4><p>~${p.wind} km/h</p></div>`:''}</div>
+<div class="cb"><h3>🌡️ ${t('byY')}</h3><canvas id="p1"></canvas></div><div class="cb"><h3>📈 ${t('treg')}</h3><canvas id="p2"></canvas></div><div class="cb"><h3>🌧️ ${t('pby')}</h3><canvas id="p3"></canvas></div><div class="cb"><h3>📅 ${t('wch')}</h3><canvas id="p4"></canvas></div>${compH}<div class="note">⚠️ <b>${t('algo')}</b> ${t('algoD')}<br>${t('algoN')}</div>`;
+const yL=p.yearly.map(d=>String(d.year)),yn=p.yearly.map(d=>d.year);
+mc('p1',{type:'bar',data:{labels:yL,datasets:[{label:t('max'),data:p.yearly.map(d=>r1(d.tmax)),backgroundColor:'rgba(239,68,68,.7)',borderRadius:4},{label:t('min'),data:p.yearly.map(d=>r1(d.tmin)),backgroundColor:'rgba(59,130,246,.7)',borderRadius:4}]},options:cO()});
+const rM=yn.map(y=>r1(p.trM.s*y+p.trM.i)),rN=yn.map(y=>r1(p.trN.s*y+p.trN.i));
+mc('p2',{type:'scatter',data:{datasets:[{label:t('max'),data:p.yearly.map(d=>({x:d.year,y:r1(d.tmax)})),backgroundColor:'#ef4444',pointRadius:6},{label:t('min'),data:p.yearly.map(d=>({x:d.year,y:r1(d.tmin)})),backgroundColor:'#3b82f6',pointRadius:6},{label:t('trend')+' '+t('max'),data:yn.map((y,i)=>({x:y,y:rM[i]})),type:'line',borderColor:'#ef4444',borderDash:[5,3],pointRadius:0,fill:false},{label:t('trend')+' '+t('min'),data:yn.map((y,i)=>({x:y,y:rN[i]})),type:'line',borderColor:'#3b82f6',borderDash:[5,3],pointRadius:0,fill:false}]},options:{...cO(),scales:{x:{type:'linear',ticks:{stepSize:1,callback:v=>v,font:{size:8}}},y:{ticks:{font:{size:8}}}}}});
+mc('p3',{type:'bar',data:{labels:yL,datasets:[{label:'mm',data:p.yearly.map(d=>r1(d.precip)),backgroundColor:p.yearly.map(d=>d.precip>5?'rgba(239,68,68,.7)':d.precip>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}]},options:{...cO(),plugins:{legend:{display:false}}}});
+const offs=[];for(let i=-10;i<=10;i++)offs.push(i);const clr=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6'];
+mc('p4',{type:'line',data:{labels:offs.map(o=>o===0?'📍':o>0?'+'+o:String(o)),datasets:p.yearly.map((yd,ix)=>({label:String(yd.year),data:offs.map(o=>{const f=yd.days.find(d=>d.off===o);return f&&f.tmax!=null?r1((f.tmax+f.tmin)/2):null}),borderColor:clr[ix%clr.length],tension:.3,pointRadius:1,fill:false,borderWidth:2}))},options:cO()})}
 
 /* ═══════ INIT ═══════ */
 document.addEventListener('DOMContentLoaded',()=>{
-  // Theme
-  if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');
-  // Language
-  lang=localStorage.getItem('lang')||'en';
-  // Build country selector
-  buildCountrySel();
-  // Init city
-  city=ALL_CITIES[0];
-  $('si').value=city.n;
-  // Init search
-  initCitySearch();
-  // Tabs
-  document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.t)));
-  // Date pickers
-  const now=new Date(),w1=new Date(now),w5=new Date(now);w1.setDate(w1.getDate()-7);w5.setDate(w5.getDate()-37);
-  $('hS').value=iso(w5);$('hE').value=iso(w1);
-  const m1=new Date(now);m1.setDate(m1.getDate()+30);$('pD').value=iso(m1);
-  // Update all UI text
-  updateUI();
-  // Load weather
-  loadCur();
-});
+if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');
+lang=localStorage.getItem('lang')||'en';
+buildCSel();city=AC[0];$('si').value=city.n;initSearch();
+document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.t)));
+const now=new Date(),w1=new Date(now),w5=new Date(now);w1.setDate(w1.getDate()-7);w5.setDate(w5.getDate()-37);
+$('hS').value=iso(w5);$('hE').value=iso(w1);
+const m1=new Date(now);m1.setDate(m1.getDate()+30);$('pD').value=iso(m1);
+applyUI();loadCur()});
 </script>
 </body>
 </html>
