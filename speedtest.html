@@ -260,7 +260,11 @@ async function testDownload(){
 
 async function testUpload(){
   const data=new Uint8Array(2000000); // 2MB
-  crypto.getRandomValues(data);
+// crypto.getRandomValues max 65536 bytes at a time
+for(let offset=0;offset<data.length;offset+=65536){
+  const size=Math.min(65536, data.length-offset);
+  crypto.getRandomValues(new Uint8Array(data.buffer, offset, size));
+}
   const blob=new Blob([data]);
   let totalBytes=0,totalTime=0;
   for(let i=0;i<3;i++){
