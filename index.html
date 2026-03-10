@@ -1,10 +1,707 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-    <title>Мой сайт на GitHub</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Погода в Україні — Прогноз, Історія, Передбачення</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}
+
+/* ===== HEADER ===== */
+.header{background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);color:#fff;padding:1.8rem 1rem;text-align:center}
+.header h1{font-size:2rem;margin-bottom:.3rem}
+.header p{opacity:.85;font-size:1rem}
+
+/* ===== CONTAINER ===== */
+.container{max-width:920px;margin:0 auto;padding:0 1rem 2rem}
+
+/* ===== CITY SELECTOR ===== */
+.city-card{background:#fff;border-radius:14px;padding:1.2rem 1.5rem;margin-top:-1.2rem;position:relative;z-index:5;
+  box-shadow:0 6px 24px rgba(0,0,0,.1);display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.city-card label{font-weight:700;font-size:1.05rem;white-space:nowrap}
+.city-card select{flex:1;min-width:180px;padding:.65rem .9rem;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;background:#f8fafc;cursor:pointer}
+.city-card select:focus{outline:none;border-color:#2563eb}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:.4rem;margin-top:1.4rem;flex-wrap:wrap}
+.tab-btn{padding:.7rem 1.3rem;border:none;background:#e2e8f0;border-radius:10px 10px 0 0;font-size:.95rem;font-weight:600;
+  cursor:pointer;color:#64748b;transition:.2s}
+.tab-btn:hover{background:#cbd5e1;color:#1e293b}
+.tab-btn.active{background:#fff;color:#2563eb;box-shadow:0 -2px 8px rgba(0,0,0,.05)}
+
+/* ===== PANELS ===== */
+.panel{background:#fff;border-radius:0 14px 14px 14px;padding:1.8rem;box-shadow:0 6px 24px rgba(0,0,0,.07);display:none}
+.panel.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CURRENT WEATHER ===== */
+.cur{text-align:center;padding:1rem 0}
+.cur-icon{font-size:5rem}
+.cur-temp{font-size:3.8rem;font-weight:800;letter-spacing:-2px}
+.cur-desc{font-size:1.2rem;color:#64748b;margin-bottom:1.2rem}
+.details{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem}
+.det{background:#f8fafc;border-radius:10px;padding:.9rem;text-align:center}
+.det-icon{font-size:1.4rem}
+.det-label{font-size:.78rem;color:#94a3b8;margin:.1rem 0}
+.det-val{font-size:1.15rem;font-weight:700}
+
+.hourly-scroll{display:flex;gap:.8rem;overflow-x:auto;padding:.8rem 0;margin-top:1.2rem}
+.hour{text-align:center;min-width:56px;flex-shrink:0}
+.hour-t{font-size:.78rem;color:#94a3b8}.hour-i{font-size:1.4rem;margin:.15rem 0}.hour-v{font-weight:700;font-size:.95rem}
+
+/* ===== FORECAST ===== */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:.8rem}
+.fc{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:.9rem;text-align:center;transition:transform .2s}
+.fc:hover{transform:translateY(-3px)}
+.fc-date{font-size:.8rem;color:#64748b;font-weight:600;margin-bottom:.4rem}
+.fc-icon{font-size:2.3rem;margin:.2rem 0}
+.fc-hi{font-weight:800;font-size:1.1rem}
+.fc-lo{color:#94a3b8;font-size:.9rem}
+.fc-rain{font-size:.78rem;color:#3b82f6;margin-top:.2rem}
+
+/* ===== HISTORY ===== */
+.hist-ctrl{display:flex;gap:.8rem;flex-wrap:wrap;align-items:end;margin-bottom:1.2rem}
+.fg{display:flex;flex-direction:column;gap:.2rem}
+.fg label{font-size:.8rem;font-weight:600;color:#64748b}
+.fg input{padding:.55rem .7rem;border:2px solid #e2e8f0;border-radius:8px;font-size:.95rem}
+.fg input:focus{outline:none;border-color:#2563eb}
+.btn{padding:.6rem 1.4rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+.btn:hover{background:#1d4ed8;transform:translateY(-1px)}
+
+.summary{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.sm{background:#f8fafc;border-radius:10px;padding:.7rem 1rem;flex:1;min-width:90px;text-align:center}
+.sm-l{font-size:.75rem;color:#94a3b8}.sm-v{font-size:1.2rem;font-weight:700}
+
+.tw{max-height:380px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.6rem;text-align:center;border-bottom:1px solid #f1f5f9;font-size:.88rem}
+th{background:#f8fafc;font-weight:700;color:#475569;position:sticky;top:0}
+tbody tr:hover{background:#f8fafc}
+
+/* ===== PREDICTION ===== */
+.pred-ctrl{margin-bottom:1.2rem}
+.pred-ctrl p{margin-bottom:.8rem;color:#64748b;line-height:1.5}
+
+.pred-main{text-align:center;background:linear-gradient(135deg,#faf5ff,#eff6ff);border-radius:14px;padding:1.8rem;margin-bottom:1.2rem}
+.pred-main .p-icon{font-size:4rem}
+.pred-main .p-temp{font-size:2.8rem;font-weight:800}
+.pred-main .p-desc{color:#64748b;font-size:1.1rem}
+.pred-main .p-range{color:#94a3b8;font-size:.9rem;margin-top:.3rem}
+.badge{display:inline-block;color:#fff;padding:.3rem .9rem;border-radius:20px;font-size:.85rem;font-weight:600;margin-top:.6rem}
+
+.pred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.pg{background:#f8fafc;border-radius:10px;padding:1rem}
+.pg h4{color:#475569;margin-bottom:.4rem;font-size:.95rem}
+.pg p{color:#64748b;font-size:.9rem;margin:.15rem 0}
+
+/* Year bars */
+.ybars{margin:1rem 0}
+.ybar{display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem}
+.ybar-lbl{width:42px;font-weight:700;font-size:.85rem;text-align:right;color:#475569}
+.ybar-bg{flex:1;height:28px;background:#e2e8f0;border-radius:6px;position:relative;overflow:hidden}
+.ybar-fill{position:absolute;top:2px;bottom:2px;border-radius:4px;display:flex;align-items:center;justify-content:center;min-width:70px;
+  background:linear-gradient(90deg,#60a5fa,#f97316)}
+.ybar-fill span{font-size:.72rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:nowrap}
+
+.scale{position:relative;height:18px;margin-top:.2rem}
+.scale span{position:absolute;transform:translateX(-50%);font-size:.7rem;color:#94a3b8}
+
+/* Comparison */
+.comp{margin-top:1.2rem;padding:1.2rem;background:#f8fafc;border-radius:12px}
+.comp h3{margin-bottom:.8rem;font-size:1rem;color:#475569}
+.comp-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.comp-card{text-align:center;padding:1rem;background:#fff;border-radius:10px}
+.comp-card h4{font-size:.85rem;color:#64748b;margin-bottom:.3rem}
+.comp-card .cc-icon{font-size:2.2rem}
+.comp-card .cc-temp{font-size:1.3rem;font-weight:700}
+.comp-card .cc-sub{font-size:.8rem;color:#94a3b8}
+
+.note{margin-top:1.2rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:1rem;font-size:.85rem;color:#92400e;line-height:1.5}
+
+/* ===== LOADING / ERROR ===== */
+.loading{text-align:center;padding:2.5rem;color:#94a3b8}
+.spinner{display:inline-block;width:36px;height:36px;border:4px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:.7rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error{background:#fef2f2;color:#dc2626;padding:1rem;border-radius:8px;border:1px solid #fecaca}
+
+/* ===== FOOTER ===== */
+.footer{text-align:center;padding:1.5rem;color:#94a3b8;font-size:.82rem}
+.footer a{color:#3b82f6;text-decoration:none}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  .header h1{font-size:1.4rem}
+  .cur-temp{font-size:2.8rem}
+  .tab-btn{padding:.5rem .8rem;font-size:.85rem}
+  .panel{padding:1.2rem}
+  .comp-row{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
-    <h1>Привет, мир!</h1>
-    <p>Это мой первый сайт, созданный через GitHub Pages.</p>
+
+<div class="header">
+  <h1>🌤️ Погода в Україні</h1>
+  <p>Поточна погода · Прогноз · Історія · Передбачення на основі даних</p>
+</div>
+
+<div class="container">
+
+  <!-- City selector -->
+  <div class="city-card">
+    <label for="citySelect">📍 Місто:</label>
+    <select id="citySelect"></select>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="current">🌡️ Зараз</button>
+    <button class="tab-btn" data-tab="forecast">📅 Прогноз 14 днів</button>
+    <button class="tab-btn" data-tab="history">📜 Історія</button>
+    <button class="tab-btn" data-tab="prediction">🔮 Передбачення</button>
+  </div>
+
+  <!-- Panel: Current -->
+  <div class="panel active" id="panel-current">
+    <div id="currentContent"></div>
+  </div>
+
+  <!-- Panel: Forecast -->
+  <div class="panel" id="panel-forecast">
+    <div id="forecastContent"></div>
+  </div>
+
+  <!-- Panel: History -->
+  <div class="panel" id="panel-history">
+    <div class="hist-ctrl">
+      <div class="fg"><label for="hStart">Від:</label><input type="date" id="hStart"></div>
+      <div class="fg"><label for="hEnd">До:</label><input type="date" id="hEnd"></div>
+      <button class="btn" id="btnHistory">📜 Показати</button>
+    </div>
+    <div id="historyContent"></div>
+  </div>
+
+  <!-- Panel: Prediction -->
+  <div class="panel" id="panel-prediction">
+    <div class="pred-ctrl">
+      <p>Оберіть будь-яку майбутню дату — система проаналізує погоду за останні 5 років
+         для цієї ж дати та розрахує передбачення з урахуванням трендів і статистики.</p>
+      <div class="hist-ctrl">
+        <div class="fg"><label for="pDate">Дата:</label><input type="date" id="pDate"></div>
+        <button class="btn" id="btnPredict">🔮 Передбачити</button>
+      </div>
+    </div>
+    <div id="predictionContent"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Дані: <a href="https://open-meteo.com/" target="_blank">Open-Meteo.com</a> (безкоштовний API, без ключа)
+  · Передбачення — статистичний метод, не є офіційним прогнозом
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const CITIES = [
+  {name:'Київ',lat:50.4501,lon:30.5234},
+  {name:'Харків',lat:49.9935,lon:36.2304},
+  {name:'Одеса',lat:46.4825,lon:30.7233},
+  {name:'Дніпро',lat:48.4647,lon:35.0462},
+  {name:'Львів',lat:49.8397,lon:24.0297},
+  {name:'Запоріжжя',lat:47.8388,lon:35.1396},
+  {name:'Вінниця',lat:49.2331,lon:28.4682},
+  {name:'Миколаїв',lat:46.975,lon:31.9946},
+  {name:'Полтава',lat:49.5883,lon:34.5514},
+  {name:'Чернігів',lat:51.4982,lon:31.2893},
+  {name:'Черкаси',lat:49.4444,lon:32.0598},
+  {name:'Суми',lat:50.9077,lon:34.7981},
+  {name:'Рівне',lat:50.6199,lon:26.2516},
+  {name:'Тернопіль',lat:49.5535,lon:25.5948},
+  {name:'Луцьк',lat:50.7472,lon:25.3254},
+  {name:'Івано-Франківськ',lat:48.9226,lon:24.7111},
+  {name:'Ужгород',lat:48.6208,lon:22.2879},
+  {name:'Хмельницький',lat:49.423,lon:26.9871},
+  {name:'Житомир',lat:50.2547,lon:28.6587},
+  {name:'Кропивницький',lat:48.5079,lon:32.2623},
+  {name:'Чернівці',lat:48.292,lon:25.9358},
+  {name:'Херсон',lat:46.6354,lon:32.6169},
+  {name:'Краматорськ',lat:48.7236,lon:37.5564},
+  {name:'Біла Церква',lat:49.7953,lon:30.1131},
+  {name:'Кременчук',lat:49.0659,lon:33.4201}
+];
+
+const WMO = {
+  0:{d:'Ясно',i:'☀️'},1:{d:'Переважно ясно',i:'🌤️'},2:{d:'Мінлива хмарність',i:'⛅'},
+  3:{d:'Похмуро',i:'☁️'},45:{d:'Туман',i:'🌫️'},48:{d:'Паморозний туман',i:'🌫️'},
+  51:{d:'Мряка слабка',i:'🌦️'},53:{d:'Мряка',i:'🌦️'},55:{d:'Мряка сильна',i:'🌧️'},
+  56:{d:'Крижана мряка',i:'🌧️'},57:{d:'Крижана мряка сильна',i:'🌧️'},
+  61:{d:'Дощ слабкий',i:'🌦️'},63:{d:'Дощ',i:'🌧️'},65:{d:'Дощ сильний',i:'🌧️'},
+  66:{d:'Крижаний дощ',i:'🌧️'},67:{d:'Крижаний дощ сильний',i:'🌧️'},
+  71:{d:'Сніг слабкий',i:'🌨️'},73:{d:'Сніг',i:'❄️'},75:{d:'Сніг сильний',i:'❄️'},
+  77:{d:'Снігові зерна',i:'❄️'},80:{d:'Злива слабка',i:'🌦️'},81:{d:'Злива',i:'🌧️'},
+  82:{d:'Злива сильна',i:'🌧️'},85:{d:'Снігопад слабкий',i:'🌨️'},86:{d:'Снігопад сильний',i:'❄️'},
+  95:{d:'Гроза',i:'⛈️'},96:{d:'Гроза з градом',i:'⛈️'},99:{d:'Гроза з сильним градом',i:'⛈️'}
+};
+
+const MONTHS=['січня','лютого','березня','квітня','травня','червня',
+  'липня','серпня','вересня','жовтня','листопада','грудня'];
+const DAYS_S=['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let city = CITIES[0];
+let activeTab = 'current';
+const loaded = {};  // cache which tabs have been loaded for current city
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const wmo = code => WMO[code] || {d:'Невідомо',i:'❓'};
+
+function isoDate(d){ return d.toISOString().slice(0,10); }
+
+function fmtDate(s){
+  const d = new Date(s+'T00:00:00');
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+function fmtDateFull(s){
+  const d = new Date(s+'T00:00:00');
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+function fmtDay(s){
+  const d = new Date(s+'T00:00:00');
+  return `${DAYS_S[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+}
+function windDir(deg){
+  const d=['Пн','ПнСх','Сх','ПдСх','Пд','ПдЗх','Зх','ПнЗх'];
+  return d[Math.round(deg/45)%8];
+}
+function r1(n){ return Math.round(n*10)/10; }
+
+function showLoad(el){ el.innerHTML='<div class="loading"><div class="spinner"></div><p>Завантаження...</p></div>'; }
+function showErr(el,m){ el.innerHTML=`<div class="error">⚠️ ${m}</div>`; }
+
+async function api(url){
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MATH
+// ═══════════════════════════════════════════════════════════
+function linReg(x,y){
+  const n=x.length, sx=x.reduce((a,b)=>a+b,0), sy=y.reduce((a,b)=>a+b,0);
+  const sxy=x.reduce((s,xi,i)=>s+xi*y[i],0), sx2=x.reduce((s,xi)=>s+xi*xi,0);
+  const den=n*sx2-sx*sx;
+  if(!den) return {slope:0,intercept:sy/n};
+  return {slope:(n*sxy-sx*sy)/den, intercept:(sy-((n*sxy-sx*sy)/den)*sx)/n};
+}
+function sd(a){
+  const m=a.reduce((s,v)=>s+v,0)/a.length;
+  return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);
+}
+
+// ═══════════════════════════════════════════════════════════
+// API LOADERS
+// ═══════════════════════════════════════════════════════════
+async function loadCurrent(){
+  const el=$('currentContent'); showLoad(el);
+  try{
+    const d=await api(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}`+
+      `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl,cloud_cover`+
+      `&hourly=temperature_2m,weather_code&timezone=auto&forecast_days=1`);
+    renderCurrent(d,el);
+  }catch(e){ showErr(el,'Не вдалося завантажити поточну погоду. Перевірте з\'єднання.'); }
+}
+
+async function loadForecast(){
+  const el=$('forecastContent'); showLoad(el);
+  try{
+    const d=await api(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}`+
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,wind_speed_10m_max`+
+      `&timezone=auto&forecast_days=14`);
+    renderForecast(d,el);
+  }catch(e){ showErr(el,'Не вдалося завантажити прогноз.'); }
+}
+
+async function loadHistory(){
+  const el=$('historyContent');
+  const s=$('hStart').value, e=$('hEnd').value;
+  if(!s||!e){ showErr(el,'Оберіть обидві дати.'); return; }
+  if(s>e){ showErr(el,'Початкова дата має бути раніше кінцевої.'); return; }
+  showLoad(el);
+  try{
+    const d=await api(`https://archive-api.open-meteo.com/v1/archive?latitude=${city.lat}&longitude=${city.lon}`+
+      `&start_date=${s}&end_date=${e}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto`);
+    renderHistory(d,el);
+  }catch(e){ showErr(el,'Не вдалося завантажити. Дані архіву доступні до 5 днів тому.'); }
+}
+
+async function loadPrediction(){
+  const el=$('predictionContent');
+  const ds=$('pDate').value;
+  if(!ds){ showErr(el,'Оберіть дату.'); return; }
+  showLoad(el);
+  try{
+    const target=new Date(ds+'T00:00:00');
+    const mo=target.getMonth()+1, day=target.getDate(), tYear=target.getFullYear();
+    const now=new Date(), curYear=now.getFullYear();
+
+    // Fetch 5 years of historical data around target day
+    const years=[];
+    for(let y=curYear-5;y<=curYear-1;y++) years.push(y);
+
+    const promises=years.map(y=>{
+      const c=new Date(y,mo-1,day);
+      const s=new Date(c); s.setDate(s.getDate()-5);
+      const e=new Date(c); e.setDate(e.getDate()+5);
+      return api(`https://archive-api.open-meteo.com/v1/archive?latitude=${city.lat}&longitude=${city.lon}`+
+        `&start_date=${isoDate(s)}&end_date=${isoDate(e)}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto`)
+        .then(d=>({year:y,data:d})).catch(()=>null);
+    });
+
+    // Also try forecast comparison
+    const diffDays=Math.ceil((target-now)/(864e5));
+    let fcData=null;
+    if(diffDays>=0 && diffDays<=14){
+      try{
+        const fc=await api(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}`+
+          `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=15`);
+        const idx=fc.daily.time.indexOf(ds);
+        if(idx>=0) fcData={
+          tmax:fc.daily.temperature_2m_max[idx],tmin:fc.daily.temperature_2m_min[idx],
+          precip:fc.daily.precipitation_sum[idx],code:fc.daily.weather_code[idx]
+        };
+      }catch(e){}
+    }
+
+    const results=(await Promise.all(promises)).filter(Boolean);
+    if(!results.length){ showErr(el,'Недостатньо історичних даних.'); return; }
+
+    const pred=calcPrediction(results,mo,day,tYear);
+    renderPrediction(pred,fcData,ds,el);
+  }catch(e){ showErr(el,'Помилка при розрахунку. Спробуйте іншу дату.'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PREDICTION ALGORITHM
+// ═══════════════════════════════════════════════════════════
+function calcPrediction(results, mo, day, tYear){
+  // Extract weighted averages per year
+  const pad=n=>String(n).padStart(2,'0');
+  const yearly=results.map(({year,data})=>{
+    const dl=data.daily, target=`${year}-${pad(mo)}-${pad(day)}`;
+    let wmx=0,wmn=0,wpr=0,wwd=0,tw=0,wdw=0;
+    for(let i=0;i<dl.time.length;i++){
+      const diff=Math.abs(new Date(dl.time[i]+'T00:00:00')-new Date(target+'T00:00:00'))/(864e5);
+      const w=Math.max(0,1-diff/6);
+      if(w>0 && dl.temperature_2m_max[i]!=null){
+        tw+=w;
+        wmx+=dl.temperature_2m_max[i]*w;
+        wmn+=dl.temperature_2m_min[i]*w;
+        wpr+=(dl.precipitation_sum[i]||0)*w;
+        if(dl.wind_speed_10m_max[i]!=null){wwd+=dl.wind_speed_10m_max[i]*w; wdw+=w;}
+      }
+    }
+    if(!tw) return null;
+    return {year, tmax:wmx/tw, tmin:wmn/tw, precip:wpr/tw, wind:wdw?wwd/wdw:null};
+  }).filter(Boolean);
+
+  if(!yearly.length) throw new Error('no data');
+
+  // Weighted average (recent years → more weight)
+  const n=yearly.length;
+  let TW=0,sm=0,sn=0,sp=0,sw=0,sww=0;
+  yearly.forEach((d,i)=>{
+    const w=i+1; TW+=w;
+    sm+=d.tmax*w; sn+=d.tmin*w; sp+=d.precip*w;
+    if(d.wind!=null){sw+=d.wind*w;sww+=w;}
+  });
+  const bMax=sm/TW, bMin=sn/TW, bPrecip=sp/TW, bWind=sww?sw/sww:null;
+
+  // Linear trend
+  const yrs=yearly.map(d=>d.year), tmxA=yearly.map(d=>d.tmax), tmnA=yearly.map(d=>d.tmin);
+  const trMax=linReg(yrs,tmxA), trMin=linReg(yrs,tmnA);
+  const lastY=yearly[yearly.length-1].year;
+  const adj=tYear-lastY;
+
+  const pMax=bMax+trMax.slope*adj, pMin=bMin+trMin.slope*adj;
+
+  // Confidence
+  const sdMx=sd(tmxA), sdMn=sd(tmnA), avgSd=(sdMx+sdMn)/2;
+  let conf;
+  if(avgSd<2) conf={t:'Висока',c:'#16a34a'};
+  else if(avgSd<4) conf={t:'Середня',c:'#ca8a04'};
+  else conf={t:'Низька',c:'#dc2626'};
+
+  // Rain probability
+  const rainy=yearly.filter(d=>d.precip>1).length;
+  const rainProb=Math.round(rainy/yearly.length*100);
+
+  // Weather code estimate
+  let code;
+  if(bPrecip>8) code=pMax<0?75:65;
+  else if(bPrecip>3) code=pMax<0?73:63;
+  else if(bPrecip>.5) code=pMax<0?71:61;
+  else if(bPrecip>.1) code=3;
+  else code=mo>=5&&mo<=9?1:2;
+
+  return {
+    tmax:r1(pMax),tmin:r1(pMin),precip:r1(bPrecip),wind:bWind!=null?r1(bWind):null,
+    code, conf, rainProb,
+    trend:{max:r1(trMax.slope),min:r1(trMin.slope)},
+    sd:{max:r1(sdMx),min:r1(sdMn)},
+    yearly,
+    range:{
+      max:[r1(Math.min(...tmxA)),r1(Math.max(...tmxA))],
+      min:[r1(Math.min(...tmnA)),r1(Math.max(...tmnA))]
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDERERS
+// ═══════════════════════════════════════════════════════════
+function renderCurrent(data,el){
+  const c=data.current, w=wmo(c.weather_code);
+  const hr=data.hourly, curH=new Date().getHours();
+
+  let hh='';
+  for(let i=curH;i<24&&i<hr.time.length;i++){
+    const hi=wmo(hr.weather_code[i]);
+    hh+=`<div class="hour"><div class="hour-t">${String(i).padStart(2,'0')}:00</div>
+      <div class="hour-i">${hi.i}</div><div class="hour-v">${Math.round(hr.temperature_2m[i])}°</div></div>`;
+  }
+
+  el.innerHTML=`<div class="cur">
+    <div class="cur-icon">${w.i}</div>
+    <div class="cur-temp">${Math.round(c.temperature_2m)}°C</div>
+    <div class="cur-desc">${w.d}</div>
+    <div class="details">
+      <div class="det"><div class="det-icon">🌡️</div><div class="det-label">Відчувається</div><div class="det-val">${Math.round(c.apparent_temperature)}°C</div></div>
+      <div class="det"><div class="det-icon">💧</div><div class="det-label">Вологість</div><div class="det-val">${c.relative_humidity_2m}%</div></div>
+      <div class="det"><div class="det-icon">💨</div><div class="det-label">Вітер</div><div class="det-val">${c.wind_speed_10m} км/г ${windDir(c.wind_direction_10m)}</div></div>
+      <div class="det"><div class="det-icon">🌧️</div><div class="det-label">Опади</div><div class="det-val">${c.precipitation} мм</div></div>
+      <div class="det"><div class="det-icon">📊</div><div class="det-label">Тиск</div><div class="det-val">${Math.round(c.pressure_msl)} гПа</div></div>
+      <div class="det"><div class="det-icon">☁️</div><div class="det-label">Хмарність</div><div class="det-val">${c.cloud_cover}%</div></div>
+    </div>
+    ${hh?`<h3 style="margin-top:1.3rem;margin-bottom:.5rem;color:#475569;font-size:1rem">Погодинно сьогодні</h3>
+      <div class="hourly-scroll">${hh}</div>`:''}
+  </div>`;
+}
+
+function renderForecast(data,el){
+  const dl=data.daily;
+  let h='<div class="fc-grid">';
+  for(let i=0;i<dl.time.length;i++){
+    const w=wmo(dl.weather_code[i]);
+    const rain=dl.precipitation_sum[i];
+    const prob=dl.precipitation_probability_max?dl.precipitation_probability_max[i]:null;
+    h+=`<div class="fc">
+      <div class="fc-date">${fmtDay(dl.time[i])}</div>
+      <div class="fc-icon">${w.i}</div>
+      <div class="fc-hi">${Math.round(dl.temperature_2m_max[i])}°</div>
+      <div class="fc-lo">${Math.round(dl.temperature_2m_min[i])}°</div>
+      ${rain>0?`<div class="fc-rain">💧${rain}мм</div>`:''}
+      ${prob?`<div class="fc-rain">${prob}%</div>`:''}
+    </div>`;
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function renderHistory(data,el){
+  const dl=data.daily;
+  if(!dl||!dl.time||!dl.time.length){ showErr(el,'Немає даних за цей період.'); return; }
+
+  const tmx=dl.temperature_2m_max.filter(v=>v!=null);
+  const tmn=dl.temperature_2m_min.filter(v=>v!=null);
+  const prc=dl.precipitation_sum.filter(v=>v!=null);
+  const avgMx=r1(tmx.reduce((a,b)=>a+b,0)/tmx.length);
+  const avgMn=r1(tmn.reduce((a,b)=>a+b,0)/tmn.length);
+  const totalP=r1(prc.reduce((a,b)=>a+b,0));
+  const maxT=r1(Math.max(...tmx)), minT=r1(Math.min(...tmn));
+
+  let h=`<div class="summary">
+    <div class="sm"><div class="sm-l">Сер. макс</div><div class="sm-v">${avgMx}°</div></div>
+    <div class="sm"><div class="sm-l">Сер. мін</div><div class="sm-v">${avgMn}°</div></div>
+    <div class="sm"><div class="sm-l">Рекорд ↑</div><div class="sm-v">${maxT}°</div></div>
+    <div class="sm"><div class="sm-l">Рекорд ↓</div><div class="sm-v">${minT}°</div></div>
+    <div class="sm"><div class="sm-l">Σ Опадів</div><div class="sm-v">${totalP} мм</div></div>
+  </div>`;
+
+  h+=`<div class="tw"><table><thead><tr>
+    <th>Дата</th><th>Погода</th><th>Макс°</th><th>Мін°</th><th>Опади</th><th>Вітер</th>
+  </tr></thead><tbody>`;
+  for(let i=0;i<dl.time.length;i++){
+    const w=wmo(dl.weather_code[i]);
+    h+=`<tr>
+      <td>${fmtDate(dl.time[i])}</td>
+      <td>${w.i} ${w.d}</td>
+      <td>${dl.temperature_2m_max[i]!=null?dl.temperature_2m_max[i]+'°':'—'}</td>
+      <td>${dl.temperature_2m_min[i]!=null?dl.temperature_2m_min[i]+'°':'—'}</td>
+      <td>${dl.precipitation_sum[i]!=null?dl.precipitation_sum[i]+' мм':'—'}</td>
+      <td>${dl.wind_speed_10m_max[i]!=null?dl.wind_speed_10m_max[i]+' км/г':'—'}</td>
+    </tr>`;
+  }
+  h+='</tbody></table></div>';
+  el.innerHTML=h;
+}
+
+function renderPrediction(pred, fc, dateStr, el){
+  const w=wmo(pred.code);
+  const trI=pred.trend.max>0.1?'📈':pred.trend.max<-0.1?'📉':'➡️';
+  const trT=pred.trend.max>0.1?'потепління':pred.trend.max<-0.1?'похолодання':'стабільно';
+
+  // Year bars calculation
+  const allT=pred.yearly.flatMap(d=>[d.tmax,d.tmin]);
+  const cMin=Math.floor(Math.min(...allT)), cMax=Math.ceil(Math.max(...allT));
+  const cRange=cMax-cMin||1;
+
+  let bars='';
+  pred.yearly.forEach(yd=>{
+    const left=((yd.tmin-cMin)/cRange)*100;
+    const width=((yd.tmax-yd.tmin)/cRange)*100;
+    bars+=`<div class="ybar">
+      <span class="ybar-lbl">${yd.year}</span>
+      <div class="ybar-bg"><div class="ybar-fill" style="left:${left}%;width:${Math.max(width,8)}%">
+        <span>${r1(yd.tmin)}°…${r1(yd.tmax)}°</span>
+      </div></div>
+    </div>`;
+  });
+
+  // Scale
+  let scaleH='<div class="scale">';
+  const step=cRange>25?5:cRange>10?5:2;
+  for(let t=Math.ceil(cMin/step)*step;t<=cMax;t+=step){
+    scaleH+=`<span style="left:${((t-cMin)/cRange)*100}%">${t}°</span>`;
+  }
+  scaleH+='</div>';
+
+  // Comparison with forecast
+  let compH='';
+  if(fc){
+    const fw=wmo(fc.code);
+    compH=`<div class="comp"><h3>📊 Порівняння з метеопрогнозом</h3>
+      <div class="comp-row">
+        <div class="comp-card"><h4>🔮 Наше передбачення</h4>
+          <div class="cc-icon">${w.i}</div>
+          <div class="cc-temp">${pred.tmax}° / ${pred.tmin}°</div>
+          <div class="cc-sub">Опади: ${pred.precip} мм</div></div>
+        <div class="comp-card"><h4>🌐 Метеопрогноз</h4>
+          <div class="cc-icon">${fw.i}</div>
+          <div class="cc-temp">${Math.round(fc.tmax)}° / ${Math.round(fc.tmin)}°</div>
+          <div class="cc-sub">Опади: ${fc.precip} мм</div></div>
+      </div></div>`;
+  }
+
+  el.innerHTML=`<div>
+    <h3 style="text-align:center;margin-bottom:1rem;font-size:1.15rem">
+      Передбачення на ${fmtDateFull(dateStr)} · ${city.name}</h3>
+
+    <div class="pred-main">
+      <div class="p-icon">${w.i}</div>
+      <div class="p-temp">${pred.tmax}° / ${pred.tmin}°</div>
+      <div class="p-desc">${w.d}</div>
+      <div class="p-range">Історичний діапазон: ${pred.range.min[0]}°…${pred.range.max[1]}°</div>
+      <div class="badge" style="background:${pred.conf.c}">Впевненість: ${pred.conf.t}</div>
+    </div>
+
+    <div class="pred-grid">
+      <div class="pg"><h4>🌧️ Опади</h4>
+        <p>Середньо: ${pred.precip} мм/день</p>
+        <p>Ймовірність дощу/снігу: <b>${pred.rainProb}%</b></p></div>
+      <div class="pg"><h4>${trI} Кліматичний тренд</h4>
+        <p>Напрямок: <b>${trT}</b></p>
+        <p>Макс: ${pred.trend.max>0?'+':''}${pred.trend.max}°C/рік</p>
+        <p>Мін: ${pred.trend.min>0?'+':''}${pred.trend.min}°C/рік</p></div>
+      <div class="pg"><h4>📊 Розкид даних</h4>
+        <p>σ макс: ±${pred.sd.max}°C</p>
+        <p>σ мін: ±${pred.sd.min}°C</p>
+        <p>Аналіз за ${pred.yearly.length} років</p></div>
+      ${pred.wind!=null?`<div class="pg"><h4>💨 Вітер</h4><p>Середньо: ${pred.wind} км/г</p></div>`:''}
+    </div>
+
+    <h3 style="margin-bottom:.8rem;font-size:1rem;color:#475569">Температура по роках</h3>
+    <div class="ybars">${bars}</div>
+    ${scaleH}
+
+    ${compH}
+
+    <div class="note">
+      ⚠️ <b>Як це працює:</b> Алгоритм аналізує погоду за цю ж дату (±5 днів) за останні 5 років.
+      Використовується зважене середнє (новіші роки мають більшу вагу) + лінійна регресія для
+      виявлення трендів потепління/похолодання. Впевненість визначається стандартним відхиленням
+      історичних даних. Це статистичне передбачення, а не професійний метеопрогноз.
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// EVENTS & INIT
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+tab));
+
+  // Load data for tab
+  if(tab==='current') loadCurrent();
+  else if(tab==='forecast') loadForecast();
+}
+
+function changeCity(){
+  const sel=$('citySelect');
+  city=CITIES[sel.selectedIndex];
+  // Reload active tab
+  if(activeTab==='current') loadCurrent();
+  else if(activeTab==='forecast') loadForecast();
+  // History and prediction are manual
+}
+
+function init(){
+  // Populate city select
+  const sel=$('citySelect');
+  CITIES.forEach((c,i)=>{
+    const o=document.createElement('option');
+    o.textContent=c.name; o.value=i;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', changeCity);
+
+  // Tab buttons
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    b.addEventListener('click',()=>switchTab(b.dataset.tab));
+  });
+
+  // History controls
+  const today=new Date();
+  const d7=new Date(today); d7.setDate(d7.getDate()-7);
+  const d37=new Date(today); d37.setDate(d37.getDate()-37);
+  $('hStart').value=isoDate(d37);
+  $('hEnd').value=isoDate(d7);
+  $('hEnd').max=isoDate(today);
+  $('btnHistory').addEventListener('click', loadHistory);
+
+  // Prediction controls
+  const d30=new Date(today); d30.setDate(d30.getDate()+30);
+  const tmrw=new Date(today); tmrw.setDate(tmrw.getDate()+1);
+  $('pDate').value=isoDate(d30);
+  $('pDate').min=isoDate(tmrw);
+  $('btnPredict').addEventListener('click', loadPrediction);
+
+  // Load current weather
+  loadCurrent();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
