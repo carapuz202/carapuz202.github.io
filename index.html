@@ -193,108 +193,58 @@ Data: <a href="https://open-meteo.com/" target="_blank">Open-Meteo.com</a> — f
 /* ═══════════════════════════════════════════════
    TRANSLATIONS
    ═══════════════════════════════════════════════ */
-const LANG={
-en:{
-title:'🌤️ World Weather',sub:'500+ cities · 30 countries · Forecast · Charts · History · Prediction',
-country:'🌍 Country:',city:'📍 City:',search:'Search city...',
-tabCur:'🌡️ Now',tabFc:'📅 14 Days',tabHist:'📜 History',tabPred:'🔮 Prediction',
-from:'From:',to:'To:',btnHist:'📜 Show History',btnPred:'🔮 Predict Weather',
-predDesc:'Select a date — the algorithm will analyze 8 years of weather data for that day and calculate a prediction using climate trends.',
-loading:'Loading...',errLoad:'Loading error. Check your connection.',errDates:'Select both dates.',errDateOrder:'Start date must be before end date.',
-errHistApi:'Error loading archive data.',errNoData:'No data for this period.',errPredData:'Not enough historical data (need at least 2 years).',errPredCalc:'Prediction error.',
-feelsLike:'Feels like',humidity:'Humidity',wind:'Wind',windDir:'Direction',precip:'Precipitation',
-pressure:'Pressure',clouds:'Cloudiness',uvIndex:'UV Index',sunrise:'Sunrise',sunset:'Sunset',
-dayLength:'Day length',timeOfDay:'Time of day',day:'Day',night:'Night',
-updated:'Updated',hourly:'Hourly',
-max:'Max',min:'Min',feelsMax:'Feels max',feelsMin:'Feels min',rainProb:'Rain prob.',windMax:'Max wind',
-uvMax:'UV max',
-clickDay:'👆 Click any day to see full weather details',
-tempChart:'Temperature',precipChart:'Precipitation',windChart:'Wind',pressChart:'Pressure',
-humidChart:'Humidity',cloudChart:'Cloudiness',
-fullTable:'Full hourly table',time:'Time',weather:'Weather',
-avgMax:'Avg max',avgMin:'Avg min',recHi:'Record ↑',recLo:'Record ↓',totalPrecip:'Σ Precip',days:'Days',
-predFor:'Prediction for',histRange:'Historical range',confidence:'Confidence',
-high:'High',medium:'Medium',low:'Low',
-expectedPrecip:'Expected precip',rainSnowProb:'Rain/snow probability',trend:'Trend',
-warming:'Warming trend',cooling:'Cooling trend',stable:'Stable climate',
-spread:'Spread',analyzedYears:'years analyzed',
-perYear:'/year',precipPerYear:'mm/year',
-compTitle:'Comparison with official forecast',ourPred:'Our prediction',officialFc:'Official forecast',
-algoTitle:'How the algorithm works:',
-algoDesc:'1️⃣ Collecting ±10 days data for this date over 8 years\n2️⃣ Gaussian weighting (σ=3 days)\n3️⃣ Exponential year weighting (newer = more weight)\n4️⃣ Ensemble: 60% weighted avg + 40% linear regression\n5️⃣ Confidence = standard deviation between years',
-algoNote:'This is a statistical prediction, not an official weather forecast.',
-recCold:'Very cold! Wear warm jacket, hat, scarf and gloves.',
-recCool:'Cold. Warm jacket and hat needed.',
-recMild:'Cool. A jacket or sweater recommended.',
-recComf:'Comfortable weather. Light jacket will do.',
-recWarm:'Warm. Light clothes. Don\'t forget water and sunscreen.',
-recHot:'Hot! Drink water, avoid direct sun. Light bright clothes.',
-recRain:' Take an umbrella!',recSnow:' Careful on roads!',recStorm:' Better stay inside.',recWind:' ⚠️ Strong wind — be careful!',
-found:'Found',of:'of',cities:'cities',
-byYears:'Temperature by years',trendReg:'Trend with regression',precipByYears:'Precip by years',
-windowChart:'Avg temperature ±10 days (years comparison)',
-mo:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-mof:['January','February','March','April','May','June','July','August','September','October','November','December'],
-dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-dnf:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-wmo:{0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Rime fog',
-51:'Light drizzle',53:'Drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',
-61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',
-71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',
-80:'Slight showers',81:'Moderate showers',82:'Violent showers',85:'Snow showers',86:'Heavy snow showers',
-95:'Thunderstorm',96:'Thunderstorm with hail',99:'Severe thunderstorm'}
-},
-uk:{
-title:'🌤️ Погода у Світі',sub:'500+ міст · 30 країн · Прогноз · Графіки · Історія · Передбачення',
-country:'🌍 Країна:',city:'📍 Місто:',search:'Пошук міста...',
-tabCur:'🌡️ Зараз',tabFc:'📅 14 днів',tabHist:'📜 Історія',tabPred:'🔮 Передбачення',
-from:'Від:',to:'До:',btnHist:'📜 Показати історію',btnPred:'🔮 Передбачити',
-predDesc:'Оберіть дату — алгоритм проаналізує 8 років метеоданих та розрахує прогноз з кліматичними трендами.',
-loading:'Завантаження...',errLoad:'Помилка завантаження. Перевірте з\'єднання.',errDates:'Оберіть обидві дати.',errDateOrder:'Початок має бути раніше кінця.',
-errHistApi:'Помилка архіву. Спробуйте інший діапазон.',errNoData:'Немає даних за цей період.',errPredData:'Недостатньо даних (потрібно мінімум 2 роки).',errPredCalc:'Помилка розрахунку.',
-feelsLike:'Відчувається',humidity:'Вологість',wind:'Вітер',windDir:'Напрямок',precip:'Опади',
-pressure:'Тиск',clouds:'Хмарність',uvIndex:'UV індекс',sunrise:'Схід',sunset:'Захід',
-dayLength:'Тривалість дня',timeOfDay:'Час доби',day:'День',night:'Ніч',
-updated:'Оновлено',hourly:'По годинах',
-max:'Макс',min:'Мін',feelsMax:'Відч. макс',feelsMin:'Відч. мін',rainProb:'Ймов. опадів',windMax:'Вітер макс',
-uvMax:'UV макс',
-clickDay:'👆 Натисніть на день для повної погоди',
-tempChart:'Температура',precipChart:'Опади',windChart:'Вітер',pressChart:'Тиск',
-humidChart:'Вологість',cloudChart:'Хмарність',
-fullTable:'Повна погодинна таблиця',time:'Час',weather:'Погода',
-avgMax:'Сер. макс',avgMin:'Сер. мін',recHi:'Рекорд ↑',recLo:'Рекорд ↓',totalPrecip:'Σ Опадів',days:'Днів',
-predFor:'Передбачення на',histRange:'Історичний діапазон',confidence:'Впевненість',
-high:'Висока',medium:'Середня',low:'Низька',
-expectedPrecip:'Очікувані опади',rainSnowProb:'Ймовірність дощу/снігу',trend:'Тренд',
-warming:'Тенденція до потепління',cooling:'Тенденція до похолодання',stable:'Стабільний клімат',
-spread:'Розкид',analyzedYears:'років проаналізовано',
-perYear:'/рік',precipPerYear:'мм/рік',
-compTitle:'Порівняння з офіційним прогнозом',ourPred:'Наше передбачення',officialFc:'Офіційний прогноз',
-algoTitle:'Як працює алгоритм:',
-algoDesc:'1️⃣ Збір даних ±10 днів за 8 років\n2️⃣ Гаусове зважування (σ=3 дні)\n3️⃣ Експоненціальне зважування років\n4️⃣ Ансамбль: 60% середнє + 40% регресія\n5️⃣ Впевненість = стандартне відхилення',
-algoNote:'Це статистичне передбачення, не офіційний прогноз.',
-recCold:'Дуже холодно! Тепла куртка, шапка, шарф, рукавиці.',
-recCool:'Холодно. Потрібна тепла куртка та шапка.',
-recMild:'Прохолодно. Куртка або светр.',
-recComf:'Комфортно. Легка куртка.',
-recWarm:'Тепло. Легкий одяг, вода та крем від сонця.',
-recHot:'Спекотно! Пийте воду, уникайте сонця.',
-recRain:' Візьміть парасольку!',recSnow:' Обережно на дорогах!',recStorm:' Краще залишитись вдома.',recWind:' ⚠️ Сильний вітер!',
-found:'Знайдено',of:'з',cities:'міст',
-byYears:'Температура по роках',trendReg:'Тренд з регресією',precipByYears:'Опади по роках',
-windowChart:'Середня температура ±10 днів',
-mo:['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'],
-mof:['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'],
-dn:['Нд','Пн','Вт','Ср','Чт','Пт','Сб'],
-dnf:['Неділя','Понеділок','Вівторок','Середа','Четвер','П\'ятниця','Субота'],
-wmo:{0:'Ясно',1:'Переважно ясно',2:'Мінлива хмарність',3:'Похмуро',45:'Туман',48:'Паморозний туман',
-51:'Мряка слабка',53:'Мряка',55:'Мряка сильна',56:'Крижана мряка',57:'Крижана мряка сильна',
-61:'Дощ слабкий',63:'Дощ помірний',65:'Дощ сильний',66:'Крижаний дощ',67:'Крижаний дощ сильний',
-71:'Сніг слабкий',73:'Сніг помірний',75:'Сніг сильний',77:'Снігові зерна',
-80:'Злива слабка',81:'Злива',82:'Злива сильна',85:'Снігопад',86:'Снігопад сильний',
-95:'Гроза',96:'Гроза з градом',99:'Сильна гроза'}
-}
+const LANG_DATA={
+en:{title:'🌤️ World Weather',sub:'500+ cities · Forecast · History · Prediction',country:'🌍 Country:',city:'📍 City:',search:'Search city...',tabCur:'🌡️ Now',tabFc:'📅 14 Days',tabHist:'📜 History',tabPred:'🔮 Prediction',from:'From:',to:'To:',btnHist:'📜 Show',btnPred:'🔮 Predict',predDesc:'Select a date — algorithm analyzes 8 years of data.',loading:'Loading...',errLoad:'Loading error.',errDates:'Select both dates.',errDateOrder:'Start must be before end.',errHistApi:'Archive error.',errNoData:'No data.',errPredData:'Not enough data.',errPredCalc:'Calculation error.',feelsLike:'Feels like',humidity:'Humidity',wind:'Wind',windDir:'Direction',precip:'Precipitation',pressure:'Pressure',clouds:'Cloudiness',uvIndex:'UV Index',sunrise:'Sunrise',sunset:'Sunset',dayLength:'Day length',timeOfDay:'Time',day:'Day',night:'Night',updated:'Updated',hourly:'Hourly',max:'Max',min:'Min',feelsMax:'Feels max',feelsMin:'Feels min',rainProb:'Rain %',windMax:'Wind max',uvMax:'UV max',clickDay:'👆 Click day for details',tempChart:'Temperature',precipChart:'Precipitation',windChart:'Wind',pressChart:'Pressure',humidChart:'Humidity',cloudChart:'Cloudiness',fullTable:'Hourly table',time:'Time',weather:'Weather',avgMax:'Avg max',avgMin:'Avg min',recHi:'Record ↑',recLo:'Record ↓',totalPrecip:'Σ Precip',days:'Days',predFor:'Prediction for',histRange:'Historical range',confidence:'Confidence',high:'High',medium:'Medium',low:'Low',expectedPrecip:'Expected',rainSnowProb:'Rain/snow %',trend:'Trend',warming:'Warming',cooling:'Cooling',stable:'Stable',spread:'Spread',analyzedYears:'years',perYear:'/year',precipPerYear:'mm/yr',compTitle:'Comparison',ourPred:'Our prediction',officialFc:'Official',algoTitle:'Algorithm:',algoDesc:'Gaussian weighting ±10 days · 8 years · Ensemble method',algoNote:'Statistical prediction, not official forecast.',found:'Found',of:'of',cities:'cities',byYears:'By years',trendReg:'Trend',precipByYears:'Precip by years',windowChart:'±10 days comparison',
+recCold:'Very cold! Warm jacket, hat, gloves.',recCool:'Cold. Warm jacket needed.',recMild:'Cool. Jacket recommended.',recComf:'Comfortable. Light jacket.',recWarm:'Warm. Light clothes, sunscreen.',recHot:'Hot! Drink water, avoid sun.',recRain:' Umbrella!',recSnow:' Careful on roads!',recStorm:' Stay inside.',recWind:' Strong wind!',
+mo:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],mof:['January','February','March','April','May','June','July','August','September','October','November','December'],dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],dnf:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']},
+
+uk:{title:'🌤️ Погода у Світі',sub:'500+ міст · Прогноз · Історія · Передбачення',country:'🌍 Країна:',city:'📍 Місто:',search:'Пошук міста...',tabCur:'🌡️ Зараз',tabFc:'📅 14 днів',tabHist:'📜 Історія',tabPred:'🔮 Передбачення',from:'Від:',to:'До:',btnHist:'📜 Показати',btnPred:'🔮 Передбачити',predDesc:'Оберіть дату — алгоритм аналізує 8 років.',loading:'Завантаження...',errLoad:'Помилка.',errDates:'Оберіть дати.',errDateOrder:'Початок раніше кінця.',errHistApi:'Помилка архіву.',errNoData:'Немає даних.',errPredData:'Мало даних.',errPredCalc:'Помилка.',feelsLike:'Відчувається',humidity:'Вологість',wind:'Вітер',windDir:'Напрямок',precip:'Опади',pressure:'Тиск',clouds:'Хмарність',uvIndex:'UV індекс',sunrise:'Схід',sunset:'Захід',dayLength:'Тривалість дня',timeOfDay:'Доба',day:'День',night:'Ніч',updated:'Оновлено',hourly:'По годинах',max:'Макс',min:'Мін',feelsMax:'Відч. макс',feelsMin:'Відч. мін',rainProb:'Ймов. %',windMax:'Вітер макс',uvMax:'UV макс',clickDay:'👆 Натисніть для деталей',tempChart:'Температура',precipChart:'Опади',windChart:'Вітер',pressChart:'Тиск',humidChart:'Вологість',cloudChart:'Хмарність',fullTable:'Погодинна таблиця',time:'Час',weather:'Погода',avgMax:'Сер. макс',avgMin:'Сер. мін',recHi:'Рекорд ↑',recLo:'Рекорд ↓',totalPrecip:'Σ Опадів',days:'Днів',predFor:'Прогноз на',histRange:'Діапазон',confidence:'Впевненість',high:'Висока',medium:'Середня',low:'Низька',expectedPrecip:'Очікувано',rainSnowProb:'Дощ/сніг %',trend:'Тренд',warming:'Потепління',cooling:'Похолодання',stable:'Стабільно',spread:'Розкид',analyzedYears:'років',perYear:'/рік',precipPerYear:'мм/рік',compTitle:'Порівняння',ourPred:'Наше',officialFc:'Офіційний',algoTitle:'Алгоритм:',algoDesc:'Гаусове зважування ±10 днів · 8 років · Ансамбль',algoNote:'Статистика, не офіційний прогноз.',found:'Знайдено',of:'з',cities:'міст',byYears:'По роках',trendReg:'Тренд',precipByYears:'Опади по роках',windowChart:'±10 днів',
+recCold:'Дуже холодно! Куртка, шапка, рукавиці.',recCool:'Холодно. Тепла куртка.',recMild:'Прохолодно. Куртка.',recComf:'Комфортно. Легка куртка.',recWarm:'Тепло. Легкий одяг, крем.',recHot:'Спекотно! Вода, тінь.',recRain:' Парасолька!',recSnow:' Обережно!',recStorm:' Залишайтесь вдома.',recWind:' Сильний вітер!',
+mo:['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'],mof:['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'],dn:['Нд','Пн','Вт','Ср','Чт','Пт','Сб'],dnf:['Неділя','Понеділок','Вівторок','Середа','Четвер','П\'ятниця','Субота']},
+
+de:{title:'🌤️ Weltwetter',sub:'500+ Städte · Vorhersage · Verlauf · Prognose',country:'🌍 Land:',city:'📍 Stadt:',search:'Stadt suchen...',tabCur:'🌡️ Jetzt',tabFc:'📅 14 Tage',tabHist:'📜 Verlauf',tabPred:'🔮 Prognose',from:'Von:',to:'Bis:',btnHist:'📜 Anzeigen',btnPred:'🔮 Vorhersagen',predDesc:'Datum wählen — Algorithmus analysiert 8 Jahre.',loading:'Laden...',errLoad:'Ladefehler.',errDates:'Daten wählen.',errDateOrder:'Start vor Ende.',errHistApi:'Archivfehler.',errNoData:'Keine Daten.',errPredData:'Zu wenig Daten.',errPredCalc:'Berechnungsfehler.',feelsLike:'Gefühlt',humidity:'Feuchtigkeit',wind:'Wind',windDir:'Richtung',precip:'Niederschlag',pressure:'Druck',clouds:'Bewölkung',uvIndex:'UV-Index',sunrise:'Aufgang',sunset:'Untergang',dayLength:'Tageslänge',timeOfDay:'Tageszeit',day:'Tag',night:'Nacht',updated:'Aktualisiert',hourly:'Stündlich',max:'Max',min:'Min',feelsMax:'Gefühlt max',feelsMin:'Gefühlt min',rainProb:'Regen %',windMax:'Wind max',uvMax:'UV max',clickDay:'👆 Tag anklicken',tempChart:'Temperatur',precipChart:'Niederschlag',windChart:'Wind',pressChart:'Druck',humidChart:'Feuchtigkeit',cloudChart:'Bewölkung',fullTable:'Stundentabelle',time:'Zeit',weather:'Wetter',avgMax:'Ø Max',avgMin:'Ø Min',recHi:'Rekord ↑',recLo:'Rekord ↓',totalPrecip:'Σ Nieders.',days:'Tage',predFor:'Prognose für',histRange:'Bereich',confidence:'Konfidenz',high:'Hoch',medium:'Mittel',low:'Niedrig',expectedPrecip:'Erwartet',rainSnowProb:'Regen/Schnee %',trend:'Trend',warming:'Erwärmung',cooling:'Abkühlung',stable:'Stabil',spread:'Streuung',analyzedYears:'Jahre',perYear:'/Jahr',precipPerYear:'mm/J',compTitle:'Vergleich',ourPred:'Unsere',officialFc:'Offiziell',algoTitle:'Algorithmus:',algoDesc:'Gauß-Gewichtung ±10 Tage · 8 Jahre · Ensemble',algoNote:'Statistik, keine offizielle Vorhersage.',found:'Gefunden',of:'von',cities:'Städte',byYears:'Nach Jahren',trendReg:'Trend',precipByYears:'Niederschlag',windowChart:'±10 Tage',
+recCold:'Sehr kalt! Warme Jacke, Mütze, Handschuhe.',recCool:'Kalt. Warme Jacke.',recMild:'Kühl. Jacke empfohlen.',recComf:'Angenehm. Leichte Jacke.',recWarm:'Warm. Leichte Kleidung.',recHot:'Heiß! Wasser trinken.',recRain:' Regenschirm!',recSnow:' Vorsicht Glätte!',recStorm:' Drinnen bleiben.',recWind:' Starker Wind!',
+mo:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],mof:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],dn:['So','Mo','Di','Mi','Do','Fr','Sa'],dnf:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag']},
+
+fr:{title:'🌤️ Météo Mondiale',sub:'500+ villes · Prévisions · Historique · Prédiction',country:'🌍 Pays:',city:'📍 Ville:',search:'Chercher...',tabCur:'🌡️ Actuel',tabFc:'📅 14 jours',tabHist:'📜 Historique',tabPred:'🔮 Prédiction',from:'De:',to:'À:',btnHist:'📜 Afficher',btnPred:'🔮 Prédire',predDesc:'Choisir une date — analyse de 8 ans.',loading:'Chargement...',errLoad:'Erreur.',feelsLike:'Ressenti',humidity:'Humidité',wind:'Vent',windDir:'Direction',precip:'Précipitations',pressure:'Pression',clouds:'Nébulosité',uvIndex:'Indice UV',sunrise:'Lever',sunset:'Coucher',dayLength:'Durée du jour',day:'Jour',night:'Nuit',updated:'Mis à jour',hourly:'Horaire',max:'Max',min:'Min',clickDay:'👆 Cliquer pour détails',tempChart:'Température',precipChart:'Précipitations',windChart:'Vent',pressChart:'Pression',fullTable:'Tableau horaire',time:'Heure',avgMax:'Moy max',avgMin:'Moy min',totalPrecip:'Σ Précip',days:'Jours',confidence:'Confiance',high:'Haute',medium:'Moyenne',low:'Faible',trend:'Tendance',warming:'Réchauffement',cooling:'Refroidissement',stable:'Stable',found:'Trouvé',of:'sur',cities:'villes',
+recCold:'Très froid! Manteau chaud.',recCool:'Froid. Veste chaude.',recMild:'Frais. Veste légère.',recComf:'Agréable.',recWarm:'Chaud. Vêtements légers.',recHot:'Très chaud! Boire de l\'eau.',recRain:' Parapluie!',recSnow:' Attention verglas!',recStorm:' Restez à l\'intérieur.',recWind:' Vent fort!',
+mo:['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'],mof:['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],dn:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],dnf:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']},
+
+es:{title:'🌤️ Clima Mundial',sub:'500+ ciudades · Pronóstico · Historial · Predicción',country:'🌍 País:',city:'📍 Ciudad:',search:'Buscar...',tabCur:'🌡️ Ahora',tabFc:'📅 14 días',tabHist:'📜 Historial',tabPred:'🔮 Predicción',from:'Desde:',to:'Hasta:',btnHist:'📜 Mostrar',btnPred:'🔮 Predecir',predDesc:'Seleccione fecha — análisis de 8 años.',loading:'Cargando...',errLoad:'Error.',feelsLike:'Sensación',humidity:'Humedad',wind:'Viento',windDir:'Dirección',precip:'Precipitación',pressure:'Presión',clouds:'Nubosidad',uvIndex:'Índice UV',sunrise:'Amanecer',sunset:'Atardecer',dayLength:'Duración',day:'Día',night:'Noche',updated:'Actualizado',hourly:'Por hora',max:'Máx',min:'Mín',clickDay:'👆 Clic para detalles',tempChart:'Temperatura',precipChart:'Precipitación',windChart:'Viento',pressChart:'Presión',fullTable:'Tabla horaria',time:'Hora',confidence:'Confianza',high:'Alta',medium:'Media',low:'Baja',trend:'Tendencia',warming:'Calentamiento',cooling:'Enfriamiento',stable:'Estable',found:'Encontrado',of:'de',cities:'ciudades',
+recCold:'¡Muy frío! Abrigo grueso.',recCool:'Frío. Abrigo necesario.',recMild:'Fresco. Chaqueta ligera.',recComf:'Agradable.',recWarm:'Cálido. Ropa ligera.',recHot:'¡Caluroso! Beber agua.',recRain:' ¡Paraguas!',recSnow:' ¡Cuidado hielo!',recStorm:' Quedarse dentro.',recWind:' ¡Viento fuerte!',
+mo:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],mof:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'],dn:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],dnf:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']},
+
+it:{title:'🌤️ Meteo Mondiale',sub:'500+ città · Previsioni · Storico · Predizione',country:'🌍 Paese:',city:'📍 Città:',search:'Cerca...',tabCur:'🌡️ Ora',tabFc:'📅 14 giorni',tabHist:'📜 Storico',tabPred:'🔮 Predizione',from:'Da:',to:'A:',btnHist:'📜 Mostra',btnPred:'🔮 Predici',loading:'Caricamento...',errLoad:'Errore.',feelsLike:'Percepita',humidity:'Umidità',wind:'Vento',precip:'Precipitazioni',pressure:'Pressione',clouds:'Nuvolosità',sunrise:'Alba',sunset:'Tramonto',dayLength:'Durata',day:'Giorno',night:'Notte',updated:'Aggiornato',hourly:'Orario',max:'Max',min:'Min',clickDay:'👆 Clicca per dettagli',tempChart:'Temperatura',precipChart:'Precipitazioni',fullTable:'Tabella oraria',time:'Ora',confidence:'Affidabilità',high:'Alta',medium:'Media',low:'Bassa',trend:'Tendenza',warming:'Riscaldamento',cooling:'Raffreddamento',stable:'Stabile',found:'Trovato',of:'di',cities:'città',
+mo:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],mof:['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'],dn:['Dom','Lun','Mar','Mer','Gio','Ven','Sab'],dnf:['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato']},
+
+pl:{title:'🌤️ Pogoda na Świecie',sub:'500+ miast · Prognoza · Historia · Predykcja',country:'🌍 Kraj:',city:'📍 Miasto:',search:'Szukaj...',tabCur:'🌡️ Teraz',tabFc:'📅 14 dni',tabHist:'📜 Historia',tabPred:'🔮 Predykcja',from:'Od:',to:'Do:',btnHist:'📜 Pokaż',btnPred:'🔮 Przewiduj',loading:'Ładowanie...',errLoad:'Błąd.',feelsLike:'Odczuwalna',humidity:'Wilgotność',wind:'Wiatr',precip:'Opady',pressure:'Ciśnienie',clouds:'Zachmurzenie',sunrise:'Wschód',sunset:'Zachód',dayLength:'Długość dnia',day:'Dzień',night:'Noc',updated:'Zaktualizowano',hourly:'Godzinowo',max:'Maks',min:'Min',clickDay:'👆 Kliknij dzień',tempChart:'Temperatura',precipChart:'Opady',fullTable:'Tabela godzinowa',time:'Czas',confidence:'Pewność',high:'Wysoka',medium:'Średnia',low:'Niska',trend:'Trend',warming:'Ocieplenie',cooling:'Ochłodzenie',stable:'Stabilnie',found:'Znaleziono',of:'z',cities:'miast',
+mo:['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'],mof:['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'],dn:['Nd','Pn','Wt','Śr','Cz','Pt','So'],dnf:['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota']},
+
+pt:{title:'🌤️ Clima Mundial',sub:'500+ cidades · Previsão · Histórico · Predição',country:'🌍 País:',city:'📍 Cidade:',search:'Pesquisar...',tabCur:'🌡️ Agora',tabFc:'📅 14 dias',tabHist:'📜 Histórico',tabPred:'🔮 Predição',from:'De:',to:'Até:',btnHist:'📜 Mostrar',btnPred:'🔮 Prever',loading:'Carregando...',feelsLike:'Sensação',humidity:'Umidade',wind:'Vento',precip:'Precipitação',pressure:'Pressão',sunrise:'Nascer',sunset:'Pôr do sol',day:'Dia',night:'Noite',updated:'Atualizado',max:'Máx',min:'Mín',clickDay:'👆 Clique para detalhes',tempChart:'Temperatura',precipChart:'Precipitação',time:'Hora',confidence:'Confiança',high:'Alta',medium:'Média',low:'Baixa',trend:'Tendência',warming:'Aquecimento',cooling:'Resfriamento',stable:'Estável',found:'Encontrado',of:'de',cities:'cidades',
+mo:['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],mof:['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'],dn:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],dnf:['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado']},
+
+nl:{title:'🌤️ Wereldweer',sub:'500+ steden · Voorspelling · Geschiedenis',country:'🌍 Land:',city:'📍 Stad:',search:'Zoeken...',tabCur:'🌡️ Nu',tabFc:'📅 14 dagen',tabHist:'📜 Geschiedenis',tabPred:'🔮 Voorspelling',from:'Van:',to:'Tot:',loading:'Laden...',feelsLike:'Gevoels',humidity:'Vochtigheid',wind:'Wind',precip:'Neerslag',pressure:'Druk',sunrise:'Zonsopgang',sunset:'Zonsondergang',day:'Dag',night:'Nacht',updated:'Bijgewerkt',max:'Max',min:'Min',tempChart:'Temperatuur',precipChart:'Neerslag',time:'Tijd',confidence:'Betrouwbaarheid',high:'Hoog',medium:'Gemiddeld',low:'Laag',found:'Gevonden',of:'van',cities:'steden',
+mo:['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'],mof:['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'],dn:['Zo','Ma','Di','Wo','Do','Vr','Za'],dnf:['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag']},
+
+ro:{title:'🌤️ Meteo Global',country:'🌍 Țara:',city:'📍 Oraș:',search:'Caută...',tabCur:'🌡️ Acum',tabFc:'📅 14 zile',tabHist:'📜 Istoric',tabPred:'🔮 Predicție',from:'De la:',to:'Până la:',loading:'Se încarcă...',feelsLike:'Se simte',humidity:'Umiditate',wind:'Vânt',precip:'Precipitații',pressure:'Presiune',sunrise:'Răsărit',sunset:'Apus',day:'Zi',night:'Noapte',max:'Max',min:'Min',tempChart:'Temperatură',time:'Ora',found:'Găsite',of:'din',cities:'orașe',
+mo:['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','nov','dec'],mof:['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'],dn:['Dum','Lun','Mar','Mie','Joi','Vin','Sâm'],dnf:['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă']},
+
+cs:{title:'🌤️ Světové Počasí',country:'🌍 Země:',city:'📍 Město:',search:'Hledat...',tabCur:'🌡️ Nyní',tabFc:'📅 14 dní',tabHist:'📜 Historie',tabPred:'🔮 Predikce',from:'Od:',to:'Do:',loading:'Načítání...',feelsLike:'Pocitově',humidity:'Vlhkost',wind:'Vítr',precip:'Srážky',pressure:'Tlak',sunrise:'Východ',sunset:'Západ',day:'Den',night:'Noc',max:'Max',min:'Min',tempChart:'Teplota',time:'Čas',found:'Nalezeno',of:'z',cities:'měst',
+mo:['led','úno','bře','dub','kvě','čvn','čvc','srp','zář','říj','lis','pro'],mof:['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'],dn:['Ne','Po','Út','St','Čt','Pá','So'],dnf:['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota']},
+
+sv:{title:'🌤️ Världsväder',country:'🌍 Land:',city:'📍 Stad:',search:'Sök...',tabCur:'🌡️ Nu',tabFc:'📅 14 dagar',tabHist:'📜 Historik',tabPred:'🔮 Prognos',from:'Från:',to:'Till:',loading:'Laddar...',feelsLike:'Känns som',humidity:'Fuktighet',wind:'Vind',precip:'Nederbörd',pressure:'Tryck',sunrise:'Soluppgång',sunset:'Solnedgång',day:'Dag',night:'Natt',max:'Max',min:'Min',tempChart:'Temperatur',time:'Tid',found:'Hittade',of:'av',cities:'städer',
+mo:['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],mof:['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],dn:['Sön','Mån','Tis','Ons','Tor','Fre','Lör'],dnf:['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag']},
+
+hu:{title:'🌤️ Világidőjárás',country:'🌍 Ország:',city:'📍 Város:',search:'Keresés...',tabCur:'🌡️ Most',tabFc:'📅 14 nap',tabHist:'📜 Előzmények',tabPred:'🔮 Előrejelzés',from:'Ettől:',to:'Eddig:',loading:'Betöltés...',feelsLike:'Hőérzet',humidity:'Páratartalom',wind:'Szél',precip:'Csapadék',pressure:'Légnyomás',sunrise:'Napkelte',sunset:'Napnyugta',day:'Nap',night:'Éjszaka',max:'Max',min:'Min',tempChart:'Hőmérséklet',time:'Idő',found:'Találat',of:'/',cities:'város',
+mo:['jan','feb','már','ápr','máj','jún','júl','aug','sze','okt','nov','dec'],mof:['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'],dn:['V','H','K','Sze','Cs','P','Szo'],dnf:['Vasárnap','Hétfő','Kedd','Szerda','Csütörtök','Péntek','Szombat']},
+
+el:{title:'🌤️ Παγκόσμιος Καιρός',country:'🌍 Χώρα:',city:'📍 Πόλη:',search:'Αναζήτηση...',tabCur:'🌡️ Τώρα',tabFc:'📅 14 μέρες',tabHist:'📜 Ιστορικό',tabPred:'🔮 Πρόβλεψη',from:'Από:',to:'Έως:',loading:'Φόρτωση...',feelsLike:'Αίσθηση',humidity:'Υγρασία',wind:'Άνεμος',precip:'Βροχόπτωση',pressure:'Πίεση',sunrise:'Ανατολή',sunset:'Δύση',day:'Μέρα',night:'Νύχτα',max:'Μέγ',min:'Ελάχ',tempChart:'Θερμοκρασία',time:'Ώρα',found:'Βρέθηκαν',of:'από',cities:'πόλεις',
+mo:['Ιαν','Φεβ','Μάρ','Απρ','Μάι','Ιού','Ιούλ','Αύγ','Σεπ','Οκτ','Νοέ','Δεκ'],mof:['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'],dn:['Κυ','Δε','Τρ','Τε','Πέ','Πα','Σά'],dnf:['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο']}
 };
+
+// Функція отримання перекладу з fallback на English:
+const LANGS=Object.keys(LANG_DATA);
+function t(key){return(LANG_DATA[lang]&&LANG_DATA[lang][key])||LANG_DATA.en[key]||key}
 
 const WMO_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',
 61:'🌦️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'❄️',75:'❄️',77:'❄️',80:'🌦️',81:'🌧️',82:'🌧️',
@@ -430,11 +380,12 @@ function getRec(temp,code,wind){
 
 /* ═══════ LANGUAGE ═══════ */
 function toggleLang(){
-  lang=lang==='en'?'uk':'en';
+  const idx=LANGS.indexOf(lang);
+  lang=LANGS[(idx+1)%LANGS.length];
   localStorage.setItem('lang',lang);
-  updateUI();
-  loadCurrentTab();
+  updateUI();loadCurrentTab();
 }
+
 function updateUI(){
   $('langBtn').textContent='🌐 '+(lang==='en'?'UK':'EN');
   $('hdrTitle').textContent=t('title');
