@@ -3,657 +3,798 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Погода в Україні — 200+ міст</title>
+<title>World Weather — 500+ cities</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#f0f4f8;--card:#fff;--pri:#2563eb;--prid:#1d4ed8;--tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;
---bor:#e2e8f0;--hov:#f8fafc;--r:14px}
+--bor:#e2e8f0;--hov:#f8fafc;--r:14px;--shadow:0 8px 30px rgba(0,0,0,.1)}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--tx2:#cbd5e1;--tx3:#64748b;
+--bor:#334155;--hov:#334155;--shadow:0 8px 30px rgba(0,0,0,.4)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
-.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f 50%,#2563eb);color:#fff;padding:2rem 1rem;text-align:center}
-.hdr h1{font-size:2rem}.hdr p{opacity:.8;margin-top:.3rem}
-.wrap{max-width:960px;margin:0 auto;padding:0 1rem 2rem}
-
-.city-bar{background:var(--card);border-radius:var(--r);padding:1rem 1.2rem;margin-top:-1.2rem;position:relative;z-index:60;
-box-shadow:0 8px 30px rgba(0,0,0,.12);display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
-.city-bar label{font-weight:700;font-size:1rem;white-space:nowrap}
-.sw{flex:1;min-width:200px;position:relative}
-.sw input{width:100%;padding:.55rem .8rem .55rem 2rem;border:2px solid var(--bor);border-radius:10px;font-size:.95rem;background:var(--hov)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:background .3s,color .3s}
+.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f 50%,#2563eb);color:#fff;padding:1.8rem 1rem;text-align:center}
+.hdr h1{font-size:2rem}.hdr p{opacity:.8;margin-top:.2rem;font-size:.95rem}
+.hdr-btns{position:absolute;top:.8rem;right:.8rem;display:flex;gap:.4rem;z-index:2}
+.hdr{position:relative}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;height:36px;border-radius:18px;
+font-size:.85rem;cursor:pointer;transition:.2s;backdrop-filter:blur(4px);padding:0 .8rem;display:flex;align-items:center;gap:.3rem}
+.hdr-btn:hover{background:rgba(255,255,255,.3)}
+.wrap{max-width:980px;margin:0 auto;padding:0 1rem 2rem}
+/* SELECTORS */
+.sel-bar{background:var(--card);border-radius:var(--r);padding:.8rem 1rem;margin-top:-1.2rem;position:relative;z-index:60;
+box-shadow:var(--shadow);display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;transition:background .3s}
+.sel-bar label{font-weight:700;font-size:.9rem;white-space:nowrap}
+.sel-bar select{padding:.5rem .7rem;border:2px solid var(--bor);border-radius:8px;font-size:.88rem;
+background:var(--hov);color:var(--tx);cursor:pointer;min-width:140px}
+.sel-bar select:focus{outline:none;border-color:var(--pri)}
+.sw{flex:1;min-width:180px;position:relative}
+.sw input{width:100%;padding:.5rem .7rem .5rem 2rem;border:2px solid var(--bor);border-radius:8px;
+font-size:.88rem;background:var(--hov);color:var(--tx)}
 .sw input:focus{outline:none;border-color:var(--pri)}
-.sw::before{content:'🔍';position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.85rem;pointer-events:none}
+.sw::before{content:'🔍';position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none}
 .dd{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--card);border:2px solid var(--bor);
-border-radius:0 0 10px 10px;max-height:400px;overflow-y:auto;display:none;z-index:200;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+border-radius:0 0 10px 10px;max-height:400px;overflow-y:auto;display:none;z-index:200;box-shadow:0 16px 40px rgba(0,0,0,.25)}
 .dd.open{display:block}
-.dd-r{padding:.3rem .7rem;font-size:.72rem;font-weight:700;color:var(--pri);background:#eff6ff;position:sticky;top:0;z-index:1}
-.dd-i{padding:.5rem .9rem;cursor:pointer;font-size:.88rem;transition:.12s;display:flex;justify-content:space-between;align-items:center}
+.dd-cnt{padding:.3rem .6rem;font-size:.75rem;color:var(--tx3);text-align:center;border-bottom:1px solid var(--bor);background:var(--hov);position:sticky;top:0;z-index:2}
+.dd-r{padding:.25rem .6rem;font-size:.7rem;font-weight:700;color:var(--pri);background:var(--hov);position:sticky;top:24px;z-index:1}
+.dd-i{padding:.4rem .7rem;cursor:pointer;font-size:.85rem;transition:.12s;display:flex;justify-content:space-between}
 .dd-i:hover{background:#dbeafe;color:var(--pri)}
+[data-theme="dark"] .dd-i:hover{background:#1e3a5f}
 .dd-i.act{background:var(--pri);color:#fff}
-.dd-i span{font-size:.7rem;color:var(--tx3);margin-left:.5rem}.dd-i.act span{color:rgba(255,255,255,.7)}
-.c-info{font-size:.8rem;color:var(--tx3);white-space:nowrap}
-.city-count{font-size:.78rem;color:var(--tx3);text-align:center;padding:.4rem;border-bottom:1px solid var(--bor)}
-
-.tabs{display:flex;gap:.3rem;margin-top:1.1rem;flex-wrap:wrap}
-.tbtn{padding:.6rem 1rem;border:none;background:var(--bor);border-radius:10px 10px 0 0;font-size:.88rem;
+.dd-i span{font-size:.68rem;color:var(--tx3)}.dd-i.act span{color:rgba(255,255,255,.7)}
+.c-info{font-size:.78rem;color:var(--tx3);white-space:nowrap}
+/* TABS */
+.tabs{display:flex;gap:.25rem;margin-top:1rem;flex-wrap:wrap}
+.tbtn{padding:.55rem .9rem;border:none;background:var(--bor);border-radius:10px 10px 0 0;font-size:.85rem;
 font-weight:600;cursor:pointer;color:var(--tx3);transition:.2s}
 .tbtn:hover{background:#cbd5e1;color:var(--tx)}
 .tbtn.on{background:var(--card);color:var(--pri);box-shadow:0 -2px 8px rgba(0,0,0,.05)}
-
-.pnl{background:var(--card);border-radius:0 var(--r) var(--r) var(--r);padding:1.5rem;
-box-shadow:0 6px 24px rgba(0,0,0,.07);display:none;min-height:180px}
+[data-theme="dark"] .tbtn:hover{background:#475569}
+.pnl{background:var(--card);border-radius:0 var(--r) var(--r) var(--r);padding:1.3rem;
+box-shadow:0 6px 24px rgba(0,0,0,.07);display:none;min-height:150px;transition:background .3s}
 .pnl.on{display:block;animation:fu .25s ease}
 @keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-
-.cw{text-align:center;padding:.5rem 0}
+/* CURRENT */
+.cw{text-align:center;padding:.3rem 0}
 .cw-ic{font-size:4.5rem}.cw-t{font-size:3.5rem;font-weight:800;letter-spacing:-2px}
-.cw-d{font-size:1.1rem;color:var(--tx3);margin-bottom:1rem}
-.grid8{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem;margin-bottom:1rem}
-.g8{background:var(--hov);border-radius:10px;padding:.6rem;text-align:center}
-.g8-i{font-size:1.2rem}.g8-l{font-size:.7rem;color:var(--tx3);margin:.05rem 0}.g8-v{font-size:.95rem;font-weight:700}
-
-.cb{background:var(--hov);border-radius:12px;padding:1rem;margin-bottom:.8rem}
-.cb h3{font-size:.92rem;color:var(--tx2);margin-bottom:.6rem}
+.cw-d{font-size:1.05rem;color:var(--tx3);margin-bottom:.2rem}
+.cw-time{font-size:.82rem;color:var(--tx3);margin-bottom:.8rem}
+.grd{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:.4rem;margin-bottom:.8rem}
+.gd{background:var(--hov);border-radius:10px;padding:.55rem;text-align:center;transition:transform .15s}
+.gd:hover{transform:translateY(-2px)}
+.gd-i{font-size:1.2rem}.gd-l{font-size:.68rem;color:var(--tx3);margin:.03rem 0}.gd-v{font-size:.92rem;font-weight:700}
+.rec{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:12px;padding:.8rem;margin-bottom:.8rem;
+display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+[data-theme="dark"] .rec{background:linear-gradient(135deg,#1e3a5f,#14532d)}
+.rec-ic{font-size:2.2rem}.rec-txt h4{color:var(--tx2);font-size:.88rem;margin-bottom:.15rem}
+.rec-txt p{color:var(--tx3);font-size:.82rem;line-height:1.35}
+.hr-scroll{display:flex;gap:.4rem;overflow-x:auto;padding:.5rem 0;scrollbar-width:thin}
+.hr{text-align:center;min-width:50px;flex-shrink:0;padding:.35rem;border-radius:8px;background:var(--card);border:1px solid var(--bor)}
+.hr-t{font-size:.68rem;color:var(--tx3)}.hr-i{font-size:1.1rem;margin:.05rem 0}.hr-v{font-weight:700;font-size:.82rem}
+.hr-r{font-size:.62rem;color:#3b82f6}
+.cb{background:var(--hov);border-radius:12px;padding:.8rem;margin-bottom:.7rem}
+.cb h3{font-size:.88rem;color:var(--tx2);margin-bottom:.5rem}
 .cb canvas{max-height:200px;width:100%!important}
-
-.fc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.5rem;margin-bottom:.8rem}
-.fc{background:linear-gradient(135deg,#f8fafc,#eff6ff);border-radius:12px;padding:.6rem .4rem;text-align:center;
+/* FORECAST */
+.fc-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:.4rem;margin-bottom:.7rem}
+.fc{background:linear-gradient(135deg,var(--hov),#eff6ff);border-radius:10px;padding:.5rem .3rem;text-align:center;
 cursor:pointer;transition:.2s;border:2px solid transparent;user-select:none}
-.fc:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+[data-theme="dark"] .fc{background:linear-gradient(135deg,#1e293b,#1e3a5f)}
+.fc:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,.1)}
 .fc.sel{border-color:var(--pri);background:linear-gradient(135deg,#dbeafe,#eff6ff)}
-.fc-dt{font-size:.7rem;color:var(--tx2);font-weight:600;margin-bottom:.2rem}
-.fc-ic{font-size:1.8rem;margin:.1rem 0}.fc-hi{font-weight:800;font-size:.95rem}.fc-lo{color:var(--tx3);font-size:.82rem}
-.fc-rn{font-size:.68rem;color:#3b82f6;margin-top:.1rem}
-
-.ddet{background:linear-gradient(135deg,#fafbff,#f0f7ff);border-radius:var(--r);padding:1.5rem;margin-top:.5rem;
-border:1px solid #dbeafe;animation:fu .3s}
-.ddet-hdr{text-align:center;margin-bottom:1.2rem}
-.ddet-hdr .ddi{font-size:4rem}.ddet-hdr .ddt{font-size:2.8rem;font-weight:800}
-.ddet-hdr .ddd{color:var(--tx2);font-size:1.05rem;margin:.2rem 0}
-.ddet-hdr .dds{color:var(--tx3);font-size:.85rem}
-.hr-scroll{display:flex;gap:.5rem;overflow-x:auto;padding:.6rem 0;margin-bottom:1rem}
-.hr{text-align:center;min-width:52px;flex-shrink:0;padding:.4rem;border-radius:10px;background:var(--card)}
-.hr-t{font-size:.7rem;color:var(--tx3)}.hr-i{font-size:1.2rem;margin:.1rem 0}.hr-v{font-weight:700;font-size:.85rem}
-.hr-r{font-size:.65rem;color:#3b82f6}
-
-.htbl{max-height:320px;overflow-y:auto;border:1px solid var(--bor);border-radius:8px;margin-top:.8rem}
+[data-theme="dark"] .fc.sel{background:linear-gradient(135deg,#1e3a5f,#2563eb30)}
+.fc-dt{font-size:.68rem;color:var(--tx2);font-weight:600;margin-bottom:.15rem}
+.fc-ic{font-size:1.7rem;margin:.05rem 0}.fc-hi{font-weight:800;font-size:.9rem}.fc-lo{color:var(--tx3);font-size:.78rem}
+.fc-rn{font-size:.65rem;color:#3b82f6;margin-top:.08rem}
+.ddet{background:linear-gradient(135deg,#fafbff,#f0f7ff);border-radius:var(--r);padding:1.3rem;margin-top:.5rem;border:1px solid #dbeafe;animation:fu .3s}
+[data-theme="dark"] .ddet{background:linear-gradient(135deg,#1e293b,#1e3a5f);border-color:#334155}
+.ddet-hdr{text-align:center;margin-bottom:1rem}
+.ddet-hdr .ddi{font-size:4rem}.ddet-hdr .ddt{font-size:2.6rem;font-weight:800}
+.ddet-hdr .ddd{color:var(--tx2);font-size:1rem;margin:.15rem 0}
+.ddet-hdr .dds{color:var(--tx3);font-size:.82rem}
+.htbl{max-height:320px;overflow-y:auto;border:1px solid var(--bor);border-radius:8px;margin-top:.7rem;scrollbar-width:thin}
 table{width:100%;border-collapse:collapse}
-th,td{padding:.4rem .45rem;text-align:center;border-bottom:1px solid #f1f5f9;font-size:.8rem}
+th,td{padding:.35rem .4rem;text-align:center;border-bottom:1px solid var(--bor);font-size:.78rem}
 th{background:var(--hov);font-weight:700;color:var(--tx2);position:sticky;top:0;z-index:2}
-tbody tr:hover{background:#fafbfe}
-
-.ctrl{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end;margin-bottom:.8rem}
-.fg{display:flex;flex-direction:column;gap:.15rem}
-.fg label{font-size:.75rem;font-weight:600;color:var(--tx2)}
-.fg input{padding:.45rem .6rem;border:2px solid var(--bor);border-radius:8px;font-size:.88rem}
+tbody tr:hover{background:var(--hov)}
+.ctrl{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end;margin-bottom:.7rem}
+.fg{display:flex;flex-direction:column;gap:.1rem}
+.fg label{font-size:.72rem;font-weight:600;color:var(--tx2)}
+.fg input{padding:.4rem .55rem;border:2px solid var(--bor);border-radius:8px;font-size:.85rem;background:var(--hov);color:var(--tx)}
 .fg input:focus{outline:none;border-color:var(--pri)}
-.btn{padding:.5rem 1.1rem;background:var(--pri);color:#fff;border:none;border-radius:8px;font-size:.88rem;
-font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+.btn{padding:.45rem 1rem;background:var(--pri);color:#fff;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
 .btn:hover{background:var(--prid);transform:translateY(-1px)}
-
-.smry{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem}
-.sm{background:var(--hov);border-radius:10px;padding:.5rem .7rem;flex:1;min-width:80px;text-align:center}
-.sm-l{font-size:.68rem;color:var(--tx3)}.sm-v{font-size:1.05rem;font-weight:700}
-
-.pmain{text-align:center;background:linear-gradient(135deg,#faf5ff,#eff6ff);border-radius:var(--r);padding:1.4rem;margin-bottom:1rem}
+.smry{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem}
+.sm{background:var(--hov);border-radius:10px;padding:.45rem .6rem;flex:1;min-width:75px;text-align:center}
+.sm-l{font-size:.65rem;color:var(--tx3)}.sm-v{font-size:1rem;font-weight:700}
+.pmain{text-align:center;background:linear-gradient(135deg,#faf5ff,#eff6ff);border-radius:var(--r);padding:1.2rem;margin-bottom:.8rem}
+[data-theme="dark"] .pmain{background:linear-gradient(135deg,#1e1b4b,#1e3a5f)}
 .pmain .pi{font-size:3.5rem}.pmain .pt{font-size:2.4rem;font-weight:800}
-.pmain .pd{color:var(--tx2);font-size:1rem;margin:.2rem 0}.pmain .pr{color:var(--tx3);font-size:.82rem}
-.badge{display:inline-block;color:#fff;padding:.2rem .7rem;border-radius:20px;font-size:.8rem;font-weight:600;margin-top:.4rem}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem;margin-bottom:1rem}
-.pg{background:var(--hov);border-radius:10px;padding:.8rem}
-.pg h4{color:var(--tx2);margin-bottom:.25rem;font-size:.88rem}
-.pg p{color:var(--tx3);font-size:.82rem;margin:.08rem 0}
-.note{margin-top:1rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:.8rem;font-size:.8rem;color:#92400e;line-height:1.5}
-.comp{padding:1rem;background:var(--hov);border-radius:12px;margin-top:.8rem}
-.comp h3{margin-bottom:.5rem;font-size:.95rem;color:var(--tx2)}
-.comp2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
-.cc{text-align:center;padding:.7rem;background:var(--card);border-radius:10px}
-.cc h4{font-size:.78rem;color:var(--tx3);margin-bottom:.15rem}
-
+.pmain .pd{color:var(--tx2);font-size:1rem;margin:.15rem 0}.pmain .pr{color:var(--tx3);font-size:.8rem}
+.badge{display:inline-block;color:#fff;padding:.2rem .7rem;border-radius:20px;font-size:.78rem;font-weight:600;margin-top:.4rem}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.5rem;margin-bottom:.8rem}
+.pg{background:var(--hov);border-radius:10px;padding:.7rem}
+.pg h4{color:var(--tx2);margin-bottom:.2rem;font-size:.85rem}
+.pg p{color:var(--tx3);font-size:.8rem;margin:.06rem 0}
+.comp{padding:.8rem;background:var(--hov);border-radius:12px;margin-top:.7rem}
+.comp h3{margin-bottom:.5rem;font-size:.92rem;color:var(--tx2)}
+.comp2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.cc{text-align:center;padding:.6rem;background:var(--card);border-radius:10px}
+.cc h4{font-size:.75rem;color:var(--tx3);margin-bottom:.1rem}
+.note{margin-top:.8rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:.7rem;font-size:.78rem;color:#92400e;line-height:1.4}
+[data-theme="dark"] .note{background:#422006;border-color:#854d0e;color:#fbbf24}
 .ld{text-align:center;padding:2rem;color:var(--tx3)}
 .sp{display:inline-block;width:30px;height:30px;border:3px solid var(--bor);border-top-color:var(--pri);border-radius:50%;animation:rr .6s linear infinite;margin-bottom:.4rem}
 @keyframes rr{to{transform:rotate(360deg)}}
-.err{background:#fef2f2;color:#dc2626;padding:.8rem;border-radius:8px;border:1px solid #fecaca;font-size:.88rem}
-.ftr{text-align:center;padding:1rem;color:var(--tx3);font-size:.78rem}
+.err{background:#fef2f2;color:#dc2626;padding:.7rem;border-radius:8px;border:1px solid #fecaca;font-size:.85rem}
+[data-theme="dark"] .err{background:#450a0a;border-color:#991b1b;color:#fca5a5}
+.ftr{text-align:center;padding:1rem;color:var(--tx3);font-size:.75rem}
 .ftr a{color:#3b82f6;text-decoration:none}
-
 @media(max-width:600px){
-.hdr h1{font-size:1.4rem}.cw-t{font-size:2.6rem}.tbtn{padding:.4rem .7rem;font-size:.78rem}
-.pnl{padding:1rem}.fc-g{grid-template-columns:repeat(auto-fill,minmax(75px,1fr))}
-.city-bar{flex-direction:column;align-items:stretch}.comp2{grid-template-columns:1fr}
+.hdr h1{font-size:1.3rem}.cw-t{font-size:2.5rem}.cw-ic{font-size:3.5rem}
+.tbtn{padding:.4rem .6rem;font-size:.75rem}.pnl{padding:.8rem}
+.fc-g{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
+.sel-bar{flex-direction:column;align-items:stretch}.comp2{grid-template-columns:1fr}
 .ddet-hdr .ddt{font-size:2rem}.ddet-hdr .ddi{font-size:3rem}
+.grd{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}.hdr-btns{top:.4rem;right:.4rem}
 }
 </style>
 </head>
 <body>
-<div class="hdr"><h1>🌤️ Погода в Україні</h1><p>211 міст · Прогноз · Графіки · Історія · Передбачення</p></div>
+<div class="hdr">
+<div class="hdr-btns">
+<button class="hdr-btn" onclick="toggleLang()" id="langBtn">🌐 EN</button>
+<button class="hdr-btn" onclick="toggleTheme()">🌓</button>
+</div>
+<h1 id="hdrTitle">🌤️ World Weather</h1>
+<p id="hdrSub">500+ cities · 30 countries · Forecast · Charts · History · Prediction</p>
+</div>
 <div class="wrap">
-<div class="city-bar">
-<label>📍 Місто:</label>
+<div class="sel-bar">
+<label id="lblCountry">🌍</label>
+<select id="countrySel"></select>
+<label id="lblCity">📍</label>
 <div class="sw">
-<input type="text" id="si" placeholder="Натисніть щоб обрати місто..." autocomplete="off">
+<input type="text" id="si" autocomplete="off">
 <div class="dd" id="dd"></div>
 </div>
 <div class="c-info" id="ci"></div>
 </div>
 <div class="tabs">
-<button class="tbtn on" data-t="cur">🌡️ Зараз</button>
-<button class="tbtn" data-t="fc">📅 14 днів</button>
-<button class="tbtn" data-t="hist">📜 Історія</button>
-<button class="tbtn" data-t="pred">🔮 Передбачення</button>
+<button class="tbtn on" data-t="cur" id="tabCur">🌡️</button>
+<button class="tbtn" data-t="fc" id="tabFc">📅</button>
+<button class="tbtn" data-t="hist" id="tabHist">📜</button>
+<button class="tbtn" data-t="pred" id="tabPred">🔮</button>
 </div>
 <div class="pnl on" id="p-cur"><div id="o-cur"></div></div>
 <div class="pnl" id="p-fc"><div id="o-fc"></div></div>
 <div class="pnl" id="p-hist">
 <div class="ctrl">
-<div class="fg"><label>Від:</label><input type="date" id="hS"></div>
-<div class="fg"><label>До:</label><input type="date" id="hE"></div>
-<button class="btn" onclick="loadHist()">📜 Показати</button>
+<div class="fg"><label id="lblFrom">From:</label><input type="date" id="hS"></div>
+<div class="fg"><label id="lblTo">To:</label><input type="date" id="hE"></div>
+<button class="btn" onclick="loadHist()" id="btnHist">📜</button>
 </div>
 <div id="o-hist"></div>
 </div>
 <div class="pnl" id="p-pred">
-<p style="color:var(--tx3);margin-bottom:.7rem;font-size:.85rem;line-height:1.5">
-Оберіть дату — алгоритм проаналізує 8 років даних та розрахує прогноз з кліматичними трендами.</p>
+<p id="predDesc" style="color:var(--tx3);margin-bottom:.6rem;font-size:.85rem;line-height:1.4"></p>
 <div class="ctrl">
-<div class="fg"><label>Дата:</label><input type="date" id="pD"></div>
-<button class="btn" onclick="loadPred()">🔮 Передбачити</button>
+<div class="fg"><label id="lblPredDate">Date:</label><input type="date" id="pD"></div>
+<button class="btn" onclick="loadPred()" id="btnPred">🔮</button>
 </div>
 <div id="o-pred"></div>
 </div>
 </div>
-<div class="ftr">Дані: <a href="https://open-meteo.com/" target="_blank">Open-Meteo</a> · Передбачення — статистика, не офіційний прогноз</div>
-
+<div class="ftr">
+Data: <a href="https://open-meteo.com/" target="_blank">Open-Meteo.com</a> — free API ·
+<span id="totalCities"></span>
+</div>
 <script>
-/* ═══ CITIES 211 ═══ */
-const R=[
-["Київ / Київська",[["Київ",50.45,30.52],["Біла Церква",49.80,30.11],["Бориспіль",50.35,30.95],["Бровари",50.51,30.79],["Фастів",50.08,29.92],["Ірпінь",50.52,30.25],["Васильків",50.18,30.31],["Обухів",50.11,30.62],["Переяслав",50.07,31.45],["Славутич",51.52,30.75],["Вишгород",50.59,30.49],["Буча",50.55,30.35],["Боярка",50.32,30.29],["Українка",50.14,30.74],["Кагарлик",49.86,30.82]]],
-["Харківська",[["Харків",49.99,36.23],["Ізюм",49.21,37.26],["Лозова",48.89,36.31],["Чугуїв",49.84,36.69],["Куп'янськ",49.71,37.61],["Мерефа",49.82,36.05],["Балаклія",49.46,36.86],["Вовчанськ",50.29,36.94],["Дергачі",50.11,36.12],["Первомайський",48.35,36.23],["Люботин",49.95,35.93],["Зміїв",49.68,36.35]]],
-["Одеська",[["Одеса",46.48,30.72],["Ізмаїл",45.35,28.84],["Білгород-Дністровський",46.20,30.35],["Чорноморськ",46.30,30.65],["Южне",46.62,31.10],["Подільськ",47.74,29.53],["Рені",45.46,28.28],["Кілія",45.45,29.26],["Балта",47.94,29.62],["Арциз",45.99,29.43]]],
-["Дніпропетровська",[["Дніпро",48.46,35.05],["Кривий Ріг",47.91,33.39],["Кам'янське",48.68,34.59],["Нікополь",47.57,34.40],["Павлоград",48.53,35.87],["Новомосковськ",48.63,35.23],["Марганець",47.65,34.63],["Синельникове",48.32,35.52],["Жовті Води",48.35,33.50],["Покров",47.66,34.08],["Вільногірськ",48.46,34.04]]],
-["Львівська",[["Львів",49.84,24.03],["Дрогобич",49.35,23.51],["Червоноград",50.39,24.23],["Стрий",49.26,23.85],["Самбір",49.52,23.20],["Борислав",49.29,23.43],["Трускавець",49.28,23.51],["Золочів",49.81,24.90],["Новий Розділ",49.47,24.14],["Яворів",49.95,23.39],["Городок",49.79,23.65],["Моршин",49.16,23.87]]],
-["Запорізька",[["Запоріжжя",47.84,35.14],["Мелітополь",46.84,35.37],["Бердянськ",46.76,36.78],["Енергодар",47.50,34.66],["Токмак",47.25,35.71],["Вільнянськ",47.94,35.54],["Пологи",47.47,36.27]]],
-["Вінницька",[["Вінниця",49.23,28.47],["Жмеринка",49.04,28.11],["Могилів-Подільський",48.45,27.80],["Гайсин",48.81,29.39],["Козятин",49.71,28.84],["Ладижин",48.68,29.24],["Хмільник",49.56,27.96],["Бар",49.08,27.68],["Тульчин",48.67,28.85],["Немирів",48.97,28.84]]],
-["Миколаївська",[["Миколаїв",46.97,31.99],["Первомайськ",48.04,30.85],["Вознесенськ",47.57,31.33],["Южноукраїнськ",47.82,31.18],["Очаків",46.62,31.55],["Снігурівка",47.08,32.80]]],
-["Полтавська",[["Полтава",49.59,34.55],["Кременчук",49.07,33.42],["Горішні Плавні",49.00,33.83],["Лубни",50.02,33.00],["Миргород",49.97,33.60],["Гадяч",50.37,34.00],["Кобеляки",49.14,34.18],["Карлівка",49.46,35.13],["Пирятин",50.24,32.51],["Зіньків",50.20,34.36]]],
-["Чернігівська",[["Чернігів",51.50,31.29],["Ніжин",51.05,31.88],["Прилуки",50.59,32.39],["Бахмач",51.18,32.82],["Новгород-Сіверський",52.00,33.26],["Корюківка",51.77,32.25],["Десна",51.51,30.76]]],
-["Черкаська",[["Черкаси",49.44,32.06],["Умань",48.75,30.22],["Сміла",49.23,31.87],["Золотоноша",49.67,32.03],["Канів",49.75,31.46],["Ватутіне",49.02,31.07],["Тальне",48.89,30.69],["Шпола",49.00,31.39]]],
-["Сумська",[["Суми",50.91,34.80],["Шостка",51.87,33.48],["Конотоп",51.24,33.20],["Ромни",50.75,33.47],["Охтирка",50.31,34.88],["Глухів",51.68,33.91],["Лебедин",50.58,34.49],["Тростянець",50.48,34.97]]],
-["Рівненська",[["Рівне",50.62,26.25],["Дубно",50.42,25.74],["Вараш",51.35,25.84],["Сарни",51.34,26.60],["Костопіль",50.89,26.45],["Здолбунів",50.52,26.24],["Острог",50.33,26.52],["Березне",51.00,26.74]]],
-["Тернопільська",[["Тернопіль",49.55,25.59],["Чортків",49.02,25.80],["Бережани",49.45,24.94],["Кременець",50.10,25.73],["Збараж",49.67,25.78],["Теребовля",49.30,25.70],["Бучач",49.06,25.39]]],
-["Волинська",[["Луцьк",50.75,25.33],["Ковель",51.22,24.72],["Нововолинськ",50.73,24.17],["Володимир",50.85,24.32],["Рожище",50.85,25.27],["Ківерці",50.84,25.46]]],
-["Івано-Франківська",[["Івано-Франківськ",48.92,24.71],["Калуш",49.01,24.37],["Коломия",48.53,25.04],["Надвірна",48.63,24.58],["Яремче",48.45,24.56],["Болехів",49.06,23.85],["Долина",48.97,24.01],["Галич",49.12,24.73],["Рогатин",49.41,24.61],["Тисмениця",48.90,24.85]]],
-["Закарпатська",[["Ужгород",48.62,22.29],["Мукачево",48.44,22.72],["Хуст",48.18,23.30],["Берегове",48.21,22.64],["Виноградів",48.14,23.03],["Рахів",48.05,24.22],["Свалява",48.55,22.98],["Тячів",48.01,23.57],["Перечин",48.73,22.49]]],
-["Хмельницька",[["Хмельницький",49.42,26.99],["Кам'янець-Подільський",48.68,26.58],["Шепетівка",50.18,27.06],["Старокостянтинів",49.75,27.21],["Нетішин",50.33,26.64],["Славута",50.30,26.87],["Полонне",50.12,27.51],["Ізяслав",50.12,26.82]]],
-["Житомирська",[["Житомир",50.25,28.66],["Бердичів",49.90,28.59],["Коростень",50.95,28.65],["Звягель",50.60,27.77],["Малін",50.77,29.24],["Овруч",51.33,28.80],["Радомишль",50.50,29.23]]],
-["Кіровоградська",[["Кропивницький",48.51,32.26],["Олександрія",48.67,33.11],["Світловодськ",49.05,33.24],["Знам'янка",48.71,32.67],["Мала Виска",48.65,31.64]]],
-["Чернівецька",[["Чернівці",48.29,25.94],["Новодністровськ",48.59,27.56],["Сторожинець",48.16,25.71],["Вижниця",48.25,25.18],["Новоселиця",48.22,26.27]]],
-["Херсонська",[["Херсон",46.64,32.62],["Нова Каховка",46.76,33.35],["Генічеськ",46.17,34.80],["Скадовськ",46.11,32.91],["Берислав",46.84,33.42],["Олешки",46.62,32.77]]],
-["Донецька",[["Краматорськ",48.72,37.56],["Слов'янськ",48.85,37.62],["Покровськ",48.28,37.18],["Костянтинівка",48.53,37.70],["Дружківка",48.62,37.53],["Мирноград",48.30,37.27],["Добропілля",48.46,37.09],["Торецьк",48.40,37.85]]],
-["Луганська",[["Сєвєродонецьк",48.95,38.49],["Лисичанськ",48.90,38.44],["Старобільськ",49.28,38.91],["Сватове",49.41,38.16],["Рубіжне",49.01,38.38]]]
+/* ═══════════════════════════════════════════════
+   TRANSLATIONS
+   ═══════════════════════════════════════════════ */
+const LANG={
+en:{
+title:'🌤️ World Weather',sub:'500+ cities · 30 countries · Forecast · Charts · History · Prediction',
+country:'🌍 Country:',city:'📍 City:',search:'Search city...',
+tabCur:'🌡️ Now',tabFc:'📅 14 Days',tabHist:'📜 History',tabPred:'🔮 Prediction',
+from:'From:',to:'To:',btnHist:'📜 Show History',btnPred:'🔮 Predict Weather',
+predDesc:'Select a date — the algorithm will analyze 8 years of weather data for that day and calculate a prediction using climate trends.',
+loading:'Loading...',errLoad:'Loading error. Check your connection.',errDates:'Select both dates.',errDateOrder:'Start date must be before end date.',
+errHistApi:'Error loading archive data.',errNoData:'No data for this period.',errPredData:'Not enough historical data (need at least 2 years).',errPredCalc:'Prediction error.',
+feelsLike:'Feels like',humidity:'Humidity',wind:'Wind',windDir:'Direction',precip:'Precipitation',
+pressure:'Pressure',clouds:'Cloudiness',uvIndex:'UV Index',sunrise:'Sunrise',sunset:'Sunset',
+dayLength:'Day length',timeOfDay:'Time of day',day:'Day',night:'Night',
+updated:'Updated',hourly:'Hourly',
+max:'Max',min:'Min',feelsMax:'Feels max',feelsMin:'Feels min',rainProb:'Rain prob.',windMax:'Max wind',
+uvMax:'UV max',
+clickDay:'👆 Click any day to see full weather details',
+tempChart:'Temperature',precipChart:'Precipitation',windChart:'Wind',pressChart:'Pressure',
+humidChart:'Humidity',cloudChart:'Cloudiness',
+fullTable:'Full hourly table',time:'Time',weather:'Weather',
+avgMax:'Avg max',avgMin:'Avg min',recHi:'Record ↑',recLo:'Record ↓',totalPrecip:'Σ Precip',days:'Days',
+predFor:'Prediction for',histRange:'Historical range',confidence:'Confidence',
+high:'High',medium:'Medium',low:'Low',
+expectedPrecip:'Expected precip',rainSnowProb:'Rain/snow probability',trend:'Trend',
+warming:'Warming trend',cooling:'Cooling trend',stable:'Stable climate',
+spread:'Spread',analyzedYears:'years analyzed',
+perYear:'/year',precipPerYear:'mm/year',
+compTitle:'Comparison with official forecast',ourPred:'Our prediction',officialFc:'Official forecast',
+algoTitle:'How the algorithm works:',
+algoDesc:'1️⃣ Collecting ±10 days data for this date over 8 years\n2️⃣ Gaussian weighting (σ=3 days)\n3️⃣ Exponential year weighting (newer = more weight)\n4️⃣ Ensemble: 60% weighted avg + 40% linear regression\n5️⃣ Confidence = standard deviation between years',
+algoNote:'This is a statistical prediction, not an official weather forecast.',
+recCold:'Very cold! Wear warm jacket, hat, scarf and gloves.',
+recCool:'Cold. Warm jacket and hat needed.',
+recMild:'Cool. A jacket or sweater recommended.',
+recComf:'Comfortable weather. Light jacket will do.',
+recWarm:'Warm. Light clothes. Don\'t forget water and sunscreen.',
+recHot:'Hot! Drink water, avoid direct sun. Light bright clothes.',
+recRain:' Take an umbrella!',recSnow:' Careful on roads!',recStorm:' Better stay inside.',recWind:' ⚠️ Strong wind — be careful!',
+found:'Found',of:'of',cities:'cities',
+byYears:'Temperature by years',trendReg:'Trend with regression',precipByYears:'Precip by years',
+windowChart:'Avg temperature ±10 days (years comparison)',
+mo:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+mof:['January','February','March','April','May','June','July','August','September','October','November','December'],
+dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+dnf:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+wmo:{0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Rime fog',
+51:'Light drizzle',53:'Drizzle',55:'Dense drizzle',56:'Freezing drizzle',57:'Dense freezing drizzle',
+61:'Slight rain',63:'Moderate rain',65:'Heavy rain',66:'Freezing rain',67:'Heavy freezing rain',
+71:'Slight snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',
+80:'Slight showers',81:'Moderate showers',82:'Violent showers',85:'Snow showers',86:'Heavy snow showers',
+95:'Thunderstorm',96:'Thunderstorm with hail',99:'Severe thunderstorm'}
+},
+uk:{
+title:'🌤️ Погода у Світі',sub:'500+ міст · 30 країн · Прогноз · Графіки · Історія · Передбачення',
+country:'🌍 Країна:',city:'📍 Місто:',search:'Пошук міста...',
+tabCur:'🌡️ Зараз',tabFc:'📅 14 днів',tabHist:'📜 Історія',tabPred:'🔮 Передбачення',
+from:'Від:',to:'До:',btnHist:'📜 Показати історію',btnPred:'🔮 Передбачити',
+predDesc:'Оберіть дату — алгоритм проаналізує 8 років метеоданих та розрахує прогноз з кліматичними трендами.',
+loading:'Завантаження...',errLoad:'Помилка завантаження. Перевірте з\'єднання.',errDates:'Оберіть обидві дати.',errDateOrder:'Початок має бути раніше кінця.',
+errHistApi:'Помилка архіву. Спробуйте інший діапазон.',errNoData:'Немає даних за цей період.',errPredData:'Недостатньо даних (потрібно мінімум 2 роки).',errPredCalc:'Помилка розрахунку.',
+feelsLike:'Відчувається',humidity:'Вологість',wind:'Вітер',windDir:'Напрямок',precip:'Опади',
+pressure:'Тиск',clouds:'Хмарність',uvIndex:'UV індекс',sunrise:'Схід',sunset:'Захід',
+dayLength:'Тривалість дня',timeOfDay:'Час доби',day:'День',night:'Ніч',
+updated:'Оновлено',hourly:'По годинах',
+max:'Макс',min:'Мін',feelsMax:'Відч. макс',feelsMin:'Відч. мін',rainProb:'Ймов. опадів',windMax:'Вітер макс',
+uvMax:'UV макс',
+clickDay:'👆 Натисніть на день для повної погоди',
+tempChart:'Температура',precipChart:'Опади',windChart:'Вітер',pressChart:'Тиск',
+humidChart:'Вологість',cloudChart:'Хмарність',
+fullTable:'Повна погодинна таблиця',time:'Час',weather:'Погода',
+avgMax:'Сер. макс',avgMin:'Сер. мін',recHi:'Рекорд ↑',recLo:'Рекорд ↓',totalPrecip:'Σ Опадів',days:'Днів',
+predFor:'Передбачення на',histRange:'Історичний діапазон',confidence:'Впевненість',
+high:'Висока',medium:'Середня',low:'Низька',
+expectedPrecip:'Очікувані опади',rainSnowProb:'Ймовірність дощу/снігу',trend:'Тренд',
+warming:'Тенденція до потепління',cooling:'Тенденція до похолодання',stable:'Стабільний клімат',
+spread:'Розкид',analyzedYears:'років проаналізовано',
+perYear:'/рік',precipPerYear:'мм/рік',
+compTitle:'Порівняння з офіційним прогнозом',ourPred:'Наше передбачення',officialFc:'Офіційний прогноз',
+algoTitle:'Як працює алгоритм:',
+algoDesc:'1️⃣ Збір даних ±10 днів за 8 років\n2️⃣ Гаусове зважування (σ=3 дні)\n3️⃣ Експоненціальне зважування років\n4️⃣ Ансамбль: 60% середнє + 40% регресія\n5️⃣ Впевненість = стандартне відхилення',
+algoNote:'Це статистичне передбачення, не офіційний прогноз.',
+recCold:'Дуже холодно! Тепла куртка, шапка, шарф, рукавиці.',
+recCool:'Холодно. Потрібна тепла куртка та шапка.',
+recMild:'Прохолодно. Куртка або светр.',
+recComf:'Комфортно. Легка куртка.',
+recWarm:'Тепло. Легкий одяг, вода та крем від сонця.',
+recHot:'Спекотно! Пийте воду, уникайте сонця.',
+recRain:' Візьміть парасольку!',recSnow:' Обережно на дорогах!',recStorm:' Краще залишитись вдома.',recWind:' ⚠️ Сильний вітер!',
+found:'Знайдено',of:'з',cities:'міст',
+byYears:'Температура по роках',trendReg:'Тренд з регресією',precipByYears:'Опади по роках',
+windowChart:'Середня температура ±10 днів',
+mo:['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'],
+mof:['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'],
+dn:['Нд','Пн','Вт','Ср','Чт','Пт','Сб'],
+dnf:['Неділя','Понеділок','Вівторок','Середа','Четвер','П\'ятниця','Субота'],
+wmo:{0:'Ясно',1:'Переважно ясно',2:'Мінлива хмарність',3:'Похмуро',45:'Туман',48:'Паморозний туман',
+51:'Мряка слабка',53:'Мряка',55:'Мряка сильна',56:'Крижана мряка',57:'Крижана мряка сильна',
+61:'Дощ слабкий',63:'Дощ помірний',65:'Дощ сильний',66:'Крижаний дощ',67:'Крижаний дощ сильний',
+71:'Сніг слабкий',73:'Сніг помірний',75:'Сніг сильний',77:'Снігові зерна',
+80:'Злива слабка',81:'Злива',82:'Злива сильна',85:'Снігопад',86:'Снігопад сильний',
+95:'Гроза',96:'Гроза з градом',99:'Сильна гроза'}
+}
+};
+
+const WMO_ICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌦️',53:'🌦️',55:'🌧️',56:'🌧️',57:'🌧️',
+61:'🌦️',63:'🌧️',65:'🌧️',66:'🌧️',67:'🌧️',71:'🌨️',73:'❄️',75:'❄️',77:'❄️',80:'🌦️',81:'🌧️',82:'🌧️',
+85:'🌨️',86:'❄️',95:'⛈️',96:'⛈️',99:'⛈️'};
+
+/* ═══════════════════════════════════════════════
+   COUNTRIES & CITIES DATA (compact)
+   Format: [code, flag, nameEN, nameUK, {region: "city,lat,lon;city,lat,lon;..."}]
+   ═══════════════════════════════════════════════ */
+const RAW_DATA=[
+["UA","🇺🇦","Ukraine","Україна",{"Київська":"Київ,50.45,30.52;Біла Церква,49.8,30.11;Бориспіль,50.35,30.95;Бровари,50.51,30.79;Фастів,50.08,29.92;Ірпінь,50.52,30.25;Обухів,50.11,30.62;Переяслав,50.07,31.45;Славутич,51.52,30.75;Буча,50.55,30.35;Боярка,50.32,30.29;Вишгород,50.59,30.49",
+"Харківська":"Харків,49.99,36.23;Ізюм,49.21,37.26;Лозова,48.89,36.31;Чугуїв,49.84,36.69;Куп'янськ,49.71,37.61;Мерефа,49.82,36.05;Балаклія,49.46,36.86;Вовчанськ,50.29,36.94;Дергачі,50.11,36.12;Люботин,49.95,35.93;Зміїв,49.68,36.35",
+"Одеська":"Одеса,46.48,30.72;Ізмаїл,45.35,28.84;Білгород-Дністровський,46.2,30.35;Чорноморськ,46.3,30.65;Южне,46.62,31.1;Подільськ,47.74,29.53;Рені,45.46,28.28;Балта,47.94,29.62",
+"Дніпропетровська":"Дніпро,48.46,35.05;Кривий Ріг,47.91,33.39;Кам'янське,48.68,34.59;Нікополь,47.57,34.4;Павлоград,48.53,35.87;Новомосковськ,48.63,35.23;Марганець,47.65,34.63;Синельникове,48.32,35.52;Жовті Води,48.35,33.5;Покров,47.66,34.08",
+"Львівська":"Львів,49.84,24.03;Дрогобич,49.35,23.51;Червоноград,50.39,24.23;Стрий,49.26,23.85;Самбір,49.52,23.2;Борислав,49.29,23.43;Трускавець,49.28,23.51;Золочів,49.81,24.9;Яворів,49.95,23.39;Городок,49.79,23.65;Моршин,49.16,23.87",
+"Запорізька":"Запоріжжя,47.84,35.14;Мелітополь,46.84,35.37;Бердянськ,46.76,36.78;Енергодар,47.5,34.66;Токмак,47.25,35.71;Пологи,47.47,36.27",
+"Вінницька":"Вінниця,49.23,28.47;Жмеринка,49.04,28.11;Могилів-Подільський,48.45,27.8;Козятин,49.71,28.84;Ладижин,48.68,29.24;Хмільник,49.56,27.96;Бар,49.08,27.68;Немирів,48.97,28.84",
+"Миколаївська":"Миколаїв,46.97,31.99;Первомайськ,48.04,30.85;Вознесенськ,47.57,31.33;Южноукраїнськ,47.82,31.18;Очаків,46.62,31.55",
+"Полтавська":"Полтава,49.59,34.55;Кременчук,49.07,33.42;Горішні Плавні,49,33.83;Лубни,50.02,33;Миргород,49.97,33.6;Гадяч,50.37,34;Пирятин,50.24,32.51",
+"Чернігівська":"Чернігів,51.5,31.29;Ніжин,51.05,31.88;Прилуки,50.59,32.39;Бахмач,51.18,32.82;Новгород-Сіверський,52,33.26",
+"Черкаська":"Черкаси,49.44,32.06;Умань,48.75,30.22;Сміла,49.23,31.87;Золотоноша,49.67,32.03;Канів,49.75,31.46",
+"Сумська":"Суми,50.91,34.8;Шостка,51.87,33.48;Конотоп,51.24,33.2;Ромни,50.75,33.47;Охтирка,50.31,34.88;Глухів,51.68,33.91",
+"Рівненська":"Рівне,50.62,26.25;Дубно,50.42,25.74;Вараш,51.35,25.84;Сарни,51.34,26.6;Костопіль,50.89,26.45",
+"Тернопільська":"Тернопіль,49.55,25.59;Чортків,49.02,25.8;Бережани,49.45,24.94;Кременець,50.1,25.73;Бучач,49.06,25.39",
+"Волинська":"Луцьк,50.75,25.33;Ковель,51.22,24.72;Нововолинськ,50.73,24.17;Володимир,50.85,24.32;Ківерці,50.84,25.46",
+"Івано-Франківська":"Івано-Франківськ,48.92,24.71;Калуш,49.01,24.37;Коломия,48.53,25.04;Надвірна,48.63,24.58;Яремче,48.45,24.56;Долина,48.97,24.01;Галич,49.12,24.73",
+"Закарпатська":"Ужгород,48.62,22.29;Мукачево,48.44,22.72;Хуст,48.18,23.3;Берегове,48.21,22.64;Рахів,48.05,24.22;Свалява,48.55,22.98;Тячів,48.01,23.57",
+"Хмельницька":"Хмельницький,49.42,26.99;Кам'янець-Подільський,48.68,26.58;Шепетівка,50.18,27.06;Старокостянтинів,49.75,27.21;Нетішин,50.33,26.64;Славута,50.3,26.87",
+"Житомирська":"Житомир,50.25,28.66;Бердичів,49.9,28.59;Коростень,50.95,28.65;Звягель,50.6,27.77;Малін,50.77,29.24;Овруч,51.33,28.8",
+"Кіровоградська":"Кропивницький,48.51,32.26;Олександрія,48.67,33.11;Світловодськ,49.05,33.24;Знам'янка,48.71,32.67",
+"Чернівецька":"Чернівці,48.29,25.94;Новодністровськ,48.59,27.56;Сторожинець,48.16,25.71;Вижниця,48.25,25.18",
+"Херсонська":"Херсон,46.64,32.62;Нова Каховка,46.76,33.35;Генічеськ,46.17,34.8;Скадовськ,46.11,32.91;Олешки,46.62,32.77",
+"Донецька":"Краматорськ,48.72,37.56;Слов'янськ,48.85,37.62;Покровськ,48.28,37.18;Костянтинівка,48.53,37.7;Дружківка,48.62,37.53;Мирноград,48.3,37.27;Торецьк,48.4,37.85",
+"Луганська":"Сєвєродонецьк,48.95,38.49;Лисичанськ,48.9,38.44;Старобільськ,49.28,38.91;Сватове,49.41,38.16;Рубіжне,49.01,38.38"}],
+["US","🇺🇸","United States","США",{"Northeast":"New York,40.71,-74.01;Boston,42.36,-71.06;Philadelphia,39.95,-75.17;Washington DC,38.91,-77.04;Pittsburgh,40.44,-79.99;Baltimore,39.29,-76.61",
+"Southeast":"Miami,25.76,-80.19;Atlanta,33.75,-84.39;Charlotte,35.23,-80.84;Nashville,36.16,-86.78;Orlando,28.54,-81.38;Tampa,27.95,-82.46;New Orleans,29.95,-90.07;Jacksonville,30.33,-81.66",
+"Midwest":"Chicago,41.88,-87.63;Detroit,42.33,-83.05;Minneapolis,44.98,-93.27;Cleveland,41.5,-81.69;Columbus,39.96,-82.99;Indianapolis,39.77,-86.16;Milwaukee,43.04,-87.91;Kansas City,39.1,-94.58;St. Louis,38.63,-90.2",
+"South":"Houston,29.76,-95.37;Dallas,32.78,-96.8;San Antonio,29.42,-98.49;Austin,30.27,-97.74;Memphis,35.15,-90.05;Louisville,38.25,-85.76;Oklahoma City,35.47,-97.52",
+"West":"Los Angeles,34.05,-118.24;San Francisco,37.77,-122.42;Seattle,47.61,-122.33;Denver,39.74,-104.98;Phoenix,33.45,-112.07;Portland,45.51,-122.68;Las Vegas,36.17,-115.14;San Diego,32.72,-117.16;Salt Lake City,40.76,-111.89;Honolulu,21.31,-157.86;Anchorage,61.22,-149.9"}],
+["CA","🇨🇦","Canada","Канада",{"Ontario":"Toronto,43.65,-79.38;Ottawa,45.42,-75.7;Hamilton,43.26,-79.87;London,42.98,-81.25;Mississauga,43.59,-79.64",
+"Quebec":"Montreal,45.5,-73.57;Quebec City,46.81,-71.21;Laval,45.57,-73.69;Gatineau,45.48,-75.7",
+"British Columbia":"Vancouver,49.28,-123.12;Victoria,48.43,-123.37;Surrey,49.19,-122.85;Kelowna,49.89,-119.5",
+"Alberta":"Calgary,51.05,-114.07;Edmonton,53.55,-113.49;Red Deer,52.27,-113.81",
+"Other":"Winnipeg,49.9,-97.14;Halifax,44.65,-63.57;Regina,50.45,-104.62;Saskatoon,52.13,-106.67;St. John's,47.56,-52.71"}],
+["DE","🇩🇪","Germany","Німеччина",{"Germany":"Berlin,52.52,13.41;Hamburg,53.55,9.99;Munich,48.14,11.58;Cologne,50.94,6.96;Frankfurt,50.11,8.68;Stuttgart,48.78,9.18;Düsseldorf,51.23,6.78;Leipzig,51.34,12.37;Dortmund,51.51,7.47;Essen,51.46,7.01;Bremen,53.08,8.8;Dresden,51.05,13.74;Hannover,52.37,9.74;Nuremberg,49.45,11.08;Bonn,50.73,7.1"}],
+["FR","🇫🇷","France","Франція",{"France":"Paris,48.86,2.35;Marseille,43.3,5.37;Lyon,45.76,4.84;Toulouse,43.6,1.44;Nice,43.71,7.27;Nantes,47.22,-1.55;Strasbourg,48.57,7.75;Montpellier,43.61,3.88;Bordeaux,44.84,-0.58;Lille,50.63,3.06;Rennes,48.11,-1.68;Reims,49.25,3.88;Toulon,43.12,5.93;Grenoble,45.19,5.72;Dijon,47.32,5.04"}],
+["ES","🇪🇸","Spain","Іспанія",{"Spain":"Madrid,40.42,-3.7;Barcelona,41.39,2.17;Valencia,39.47,-0.38;Seville,37.39,-5.98;Zaragoza,41.65,-0.88;Málaga,36.72,-4.42;Murcia,37.98,-1.13;Palma,39.57,2.65;Las Palmas,28.1,-15.41;Bilbao,43.26,-2.93;Alicante,38.35,-0.48;Córdoba,37.89,-4.78;Granada,37.18,-3.6"}],
+["IT","🇮🇹","Italy","Італія",{"Italy":"Rome,41.9,12.5;Milan,45.46,9.19;Naples,40.85,14.27;Turin,45.07,7.69;Palermo,38.12,13.36;Genoa,44.41,8.93;Bologna,44.49,11.34;Florence,43.77,11.25;Venice,45.44,12.34;Verona,45.44,10.99;Catania,37.5,15.09;Bari,41.13,16.87;Trieste,45.65,13.78"}],
+["PL","🇵🇱","Poland","Польща",{"Poland":"Warsaw,52.23,21.01;Kraków,50.06,19.94;Łódź,51.75,19.47;Wrocław,51.11,17.04;Poznań,52.41,16.93;Gdańsk,54.35,18.65;Szczecin,53.43,14.55;Bydgoszcz,53.12,18.01;Lublin,51.25,22.57;Białystok,53.13,23.16;Katowice,50.26,19.03;Rzeszów,50.04,22;Toruń,53.01,18.61"}],
+["NL","🇳🇱","Netherlands","Нідерланди",{"Netherlands":"Amsterdam,52.37,4.9;Rotterdam,51.92,4.48;The Hague,52.08,4.3;Utrecht,52.09,5.12;Eindhoven,51.44,5.47;Groningen,53.22,6.57;Tilburg,51.56,5.09;Maastricht,50.85,5.69"}],
+["BE","🇧🇪","Belgium","Бельгія",{"Belgium":"Brussels,50.85,4.35;Antwerp,51.22,4.4;Ghent,51.05,3.72;Charleroi,50.41,4.44;Liège,50.63,5.57;Bruges,51.21,3.22;Namur,50.47,4.87"}],
+["SE","🇸🇪","Sweden","Швеція",{"Sweden":"Stockholm,59.33,18.07;Gothenburg,57.71,11.97;Malmö,55.61,13;Uppsala,59.86,17.64;Linköping,58.41,15.63;Örebro,59.27,15.21;Umeå,63.83,20.26"}],
+["AT","🇦🇹","Austria","Австрія",{"Austria":"Vienna,48.21,16.37;Graz,47.07,15.44;Linz,48.31,14.29;Salzburg,47.8,13.04;Innsbruck,47.26,11.39;Klagenfurt,46.62,14.31"}],
+["CZ","🇨🇿","Czech Republic","Чехія",{"Czech Republic":"Prague,50.08,14.44;Brno,49.2,16.61;Ostrava,49.84,18.29;Plzeň,49.75,13.38;Liberec,50.77,15.06;Olomouc,49.6,17.25"}],
+["RO","🇷🇴","Romania","Румунія",{"Romania":"Bucharest,44.43,26.1;Cluj-Napoca,46.77,23.6;Timișoara,45.76,21.23;Iași,47.16,27.59;Constanța,44.18,28.63;Brașov,45.66,25.61;Craiova,44.32,23.8;Sibiu,45.8,24.15;Oradea,47.07,21.92"}],
+["HU","🇭🇺","Hungary","Угорщина",{"Hungary":"Budapest,47.5,19.04;Debrecen,47.53,21.63;Szeged,46.25,20.15;Miskolc,48.1,20.78;Pécs,46.07,18.23;Győr,47.68,17.64;Nyíregyháza,47.95,21.72"}],
+["PT","🇵🇹","Portugal","Португалія",{"Portugal":"Lisbon,38.72,-9.14;Porto,41.15,-8.61;Braga,41.55,-8.43;Faro,37.02,-7.94;Coimbra,40.2,-8.43;Funchal,32.65,-16.91"}],
+["GR","🇬🇷","Greece","Греція",{"Greece":"Athens,37.98,23.73;Thessaloniki,40.64,22.94;Patras,38.25,21.73;Heraklion,35.34,25.13;Larissa,39.64,22.42;Volos,39.36,22.95;Rhodes,36.43,28.22"}],
+["BG","🇧🇬","Bulgaria","Болгарія",{"Bulgaria":"Sofia,42.7,23.32;Plovdiv,42.15,24.75;Varna,43.21,27.91;Burgas,42.5,27.47;Ruse,43.86,25.97;Stara Zagora,42.43,25.63"}],
+["HR","🇭🇷","Croatia","Хорватія",{"Croatia":"Zagreb,45.81,15.98;Split,43.51,16.44;Rijeka,45.33,14.44;Osijek,45.55,18.69;Zadar,44.12,15.23;Dubrovnik,42.65,18.09"}],
+["DK","🇩🇰","Denmark","Данія",{"Denmark":"Copenhagen,55.68,12.57;Aarhus,56.15,10.21;Odense,55.4,10.39;Aalborg,57.05,9.92;Esbjerg,55.47,8.45"}],
+["FI","🇫🇮","Finland","Фінляндія",{"Finland":"Helsinki,60.17,24.94;Espoo,60.21,24.66;Tampere,61.5,23.79;Turku,60.45,22.27;Oulu,65.01,25.47;Rovaniemi,66.5,25.72"}],
+["IE","🇮🇪","Ireland","Ірландія",{"Ireland":"Dublin,53.35,-6.26;Cork,51.9,-8.47;Limerick,52.66,-8.63;Galway,53.27,-9.06;Waterford,52.26,-7.11"}],
+["SK","🇸🇰","Slovakia","Словаччина",{"Slovakia":"Bratislava,48.15,17.11;Košice,48.72,21.26;Prešov,49,21.24;Žilina,49.22,18.74;Banská Bystrica,48.74,19.15"}],
+["SI","🇸🇮","Slovenia","Словенія",{"Slovenia":"Ljubljana,46.06,14.51;Maribor,46.56,15.65;Celje,46.23,15.26;Koper,45.55,13.73"}],
+["LT","🇱🇹","Lithuania","Литва",{"Lithuania":"Vilnius,54.69,25.28;Kaunas,54.9,23.9;Klaipėda,55.71,21.14;Šiauliai,55.93,23.31"}],
+["LV","🇱🇻","Latvia","Латвія",{"Latvia":"Riga,56.95,24.11;Daugavpils,55.87,26.54;Liepāja,56.51,21.01;Jelgava,56.65,23.71"}],
+["EE","🇪🇪","Estonia","Естонія",{"Estonia":"Tallinn,59.44,24.75;Tartu,58.38,26.72;Narva,59.38,28.19;Pärnu,58.39,24.5"}],
+["LU","🇱🇺","Luxembourg","Люксембург",{"Luxembourg":"Luxembourg City,49.61,6.13;Esch-sur-Alzette,49.5,5.98"}],
+["MT","🇲🇹","Malta","Мальта",{"Malta":"Valletta,35.9,14.51;Birkirkara,35.9,14.46"}],
+["CY","🇨🇾","Cyprus","Кіпр",{"Cyprus":"Nicosia,35.17,33.37;Limassol,34.68,33.04;Larnaca,34.92,33.63;Paphos,34.78,32.42"}]
 ];
-const C=[];R.forEach(([rn,cs])=>cs.forEach(([n,la,lo])=>C.push({n,la,lo,r:rn})));
 
-const W={0:{d:'Ясно',i:'☀️'},1:{d:'Переважно ясно',i:'🌤️'},2:{d:'Мінлива хмарність',i:'⛅'},
-3:{d:'Похмуро',i:'☁️'},45:{d:'Туман',i:'🌫️'},48:{d:'Паморозний туман',i:'🌫️'},
-51:{d:'Мряка слабка',i:'🌦️'},53:{d:'Мряка',i:'🌦️'},55:{d:'Мряка сильна',i:'🌧️'},
-56:{d:'Крижана мряка',i:'🌧️'},57:{d:'Крижана мряка',i:'🌧️'},
-61:{d:'Дощ слабкий',i:'🌦️'},63:{d:'Дощ',i:'🌧️'},65:{d:'Дощ сильний',i:'🌧️'},
-66:{d:'Крижаний дощ',i:'🌧️'},67:{d:'Крижаний дощ',i:'🌧️'},
-71:{d:'Сніг слабкий',i:'🌨️'},73:{d:'Сніг',i:'❄️'},75:{d:'Сніг сильний',i:'❄️'},
-77:{d:'Снігові зерна',i:'❄️'},80:{d:'Злива слабка',i:'🌦️'},81:{d:'Злива',i:'🌧️'},
-82:{d:'Злива сильна',i:'🌧️'},85:{d:'Снігопад',i:'🌨️'},86:{d:'Снігопад сильний',i:'❄️'},
-95:{d:'Гроза',i:'⛈️'},96:{d:'Гроза з градом',i:'⛈️'},99:{d:'Сильна гроза',i:'⛈️'}};
+/* ═══════ PARSE DATA ═══════ */
+const COUNTRIES=[];
+const ALL_CITIES=[];
+RAW_DATA.forEach(([code,flag,nameEn,nameUk,regions])=>{
+  const country={code,flag,n:{en:nameEn,uk:nameUk},regions:[],cityStart:ALL_CITIES.length};
+  Object.entries(regions).forEach(([regName,citiesStr])=>{
+    const cities=citiesStr.split(';').map(s=>{const p=s.split(',');return{n:p[0],la:+p[1],lo:+p[2]}});
+    country.regions.push({name:regName,cities});
+    cities.forEach(c=>{ALL_CITIES.push({...c,r:regName,cc:code,flag})});
+  });
+  country.cityEnd=ALL_CITIES.length;
+  COUNTRIES.push(country);
+});
 
-const MN=['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'];
-const MS=['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'];
-const DN=['Нд','Пн','Вт','Ср','Чт','Пт','Сб'];
-let city=C[0],tab='cur',_fcD=null,_fcH=null;
+/* ═══════ STATE ═══════ */
+let lang='en';
+let curCountry=COUNTRIES[0];
+let city=ALL_CITIES[0];
+let activeTab='cur';
+let _fcD=null,_fcH=null;
 const CH={};
 
+/* ═══════ HELPERS ═══════ */
 const $=id=>document.getElementById(id);
-const wm=c=>(W[c]||{d:'?',i:'❓'});
+const t=k=>LANG[lang][k]||k;
+const wDesc=c=>(LANG[lang].wmo[c]||'?');
+const wIc=c=>(WMO_ICONS[c]||'❓');
 const iso=d=>d.toISOString().slice(0,10);
 const r1=n=>Math.round(n*10)/10;
-const fD=s=>{const d=new Date(s+'T00:00');return d.getDate()+' '+MN[d.getMonth()]};
-const fDF=s=>{const d=new Date(s+'T00:00');return d.getDate()+' '+MN[d.getMonth()]+' '+d.getFullYear()};
-const fDy=s=>{const d=new Date(s+'T00:00');return DN[d.getDay()]+', '+d.getDate()+' '+MS[d.getMonth()]};
-const wd=deg=>['Пн','ПнСх','Сх','ПдСх','Пд','ПдЗх','Зх','ПнЗх'][Math.round(deg/45)%8];
-function sL(el){el.innerHTML='<div class="ld"><div class="sp"></div><p>Завантаження...</p></div>'}
+const fD=s=>{const d=new Date(s+'T00:00');return d.getDate()+' '+t('mof')[d.getMonth()]};
+const fDF=s=>{const d=new Date(s+'T00:00');return d.getDate()+' '+t('mof')[d.getMonth()]+' '+d.getFullYear()};
+const fDy=s=>{const d=new Date(s+'T00:00');return t('dn')[d.getDay()]+', '+d.getDate()+' '+t('mo')[d.getMonth()]};
+const fDyF=s=>{const d=new Date(s+'T00:00');return t('dnf')[d.getDay()]+', '+d.getDate()+' '+t('mof')[d.getMonth()]};
+const wd=d=>['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];
+const dayLen=(a,b)=>{if(a==='—'||b==='—')return'—';const[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);const m=(h2*60+m2)-(h1*60+m1);return Math.floor(m/60)+'h '+m%60+'m'};
+function sL(el){el.innerHTML='<div class="ld"><div class="sp"></div><p>'+t('loading')+'</p></div>'}
 function sE(el,m){el.innerHTML='<div class="err">⚠️ '+m+'</div>'}
 async function api(u){const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()}
 function mc(id,cfg){if(CH[id]){CH[id].destroy();delete CH[id]}const cv=document.getElementById(id);if(!cv)return;CH[id]=new Chart(cv.getContext('2d'),cfg)}
+function cO(x={}){const dk=document.documentElement.getAttribute('data-theme')==='dark';
+return{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
+plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},color:dk?'#94a3b8':'#475569'}}},
+scales:{x:{ticks:{maxTicksLimit:12,font:{size:9},color:dk?'#64748b':'#475569'},grid:{color:dk?'rgba(148,163,184,.1)':'rgba(0,0,0,.06)'}},
+y:{ticks:{font:{size:9},color:dk?'#64748b':'#475569'},grid:{color:dk?'rgba(148,163,184,.1)':'rgba(0,0,0,.06)'}}},...x}}
 
-/* ═══════════════════════════════════
-   DROPDOWN — ГОЛОВНИЙ ФІКС ТУТ
-   ═══════════════════════════════════ */
-let ddOpen=false;
+function getRec(temp,code,wind){
+  let ic='👕',ti,de;
+  if(temp<=-10){ic='🧥';ti='❄️';de=t('recCold')}
+  else if(temp<=0){ic='🧣';ti='🥶';de=t('recCool')}
+  else if(temp<=10){ic='🧥';ti='🌬️';de=t('recMild')}
+  else if(temp<=20){ic='👔';ti='👍';de=t('recComf')}
+  else if(temp<=30){ic='👕';ti='☀️';de=t('recWarm')}
+  else{ic='🥵';ti='🔥';de=t('recHot')}
+  if(code>=61&&code<=67||code>=80&&code<=82)de+=t('recRain');
+  else if(code>=71&&code<=77||code>=85&&code<=86)de+=t('recSnow');
+  else if(code>=95)de+=t('recStorm');
+  if(wind>50)de+=t('recWind');
+  return{ic,ti,de};
+}
+
+/* ═══════ LANGUAGE ═══════ */
+function toggleLang(){
+  lang=lang==='en'?'uk':'en';
+  localStorage.setItem('lang',lang);
+  updateUI();
+  loadCurrentTab();
+}
+function updateUI(){
+  $('langBtn').textContent='🌐 '+(lang==='en'?'UK':'EN');
+  $('hdrTitle').textContent=t('title');
+  $('hdrSub').textContent=t('sub');
+  $('lblCountry').textContent=t('country');
+  $('lblCity').textContent=t('city');
+  $('si').placeholder=t('search');
+  $('tabCur').textContent=t('tabCur');
+  $('tabFc').textContent=t('tabFc');
+  $('tabHist').textContent=t('tabHist');
+  $('tabPred').textContent=t('tabPred');
+  $('lblFrom').textContent=t('from');
+  $('lblTo').textContent=t('to');
+  $('btnHist').textContent=t('btnHist');
+  $('btnPred').textContent=t('btnPred');
+  $('predDesc').textContent=t('predDesc');
+  $('totalCities').textContent=ALL_CITIES.length+' '+t('cities');
+  // Update country selector names
+  const sel=$('countrySel');
+  COUNTRIES.forEach((c,i)=>{sel.options[i].textContent=c.flag+' '+c.n[lang]});
+  $('ci').innerHTML=curCountry.flag+' '+curCountry.n[lang]+' · <b>'+city.la.toFixed(2)+'°, '+city.lo.toFixed(2)+'°</b>';
+}
+
+/* ═══════ DARK MODE ═══════ */
+function toggleTheme(){
+  const h=document.documentElement;const dk=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dk?'':'dark');localStorage.setItem('theme',dk?'light':'dark');
+}
+
+/* ═══════ COUNTRY & CITY SELECTION ═══════ */
+function buildCountrySel(){
+  const sel=$('countrySel');
+  COUNTRIES.forEach((c,i)=>{
+    const o=document.createElement('option');
+    o.value=i;o.textContent=c.flag+' '+c.n[lang];
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change',()=>{
+    curCountry=COUNTRIES[+sel.value];
+    const firstCity=ALL_CITIES[curCountry.cityStart];
+    selectCity(curCountry.cityStart);
+  });
+}
 
 function buildDD(filter){
-  const dd=$('dd');
-  const fl=(filter||'').toLowerCase().trim();
+  const dd=$('dd');const fl=(filter||'').toLowerCase().trim();
   let h='',total=0;
-
-  R.forEach(([rn,cs])=>{
-    const matched=cs.filter(([n])=> !fl || n.toLowerCase().includes(fl));
-    if(!matched.length) return;
+  const start=curCountry.cityStart, end=curCountry.cityEnd;
+  // Group by region
+  curCountry.regions.forEach(reg=>{
+    const matched=reg.cities.filter(c=>!fl||c.n.toLowerCase().includes(fl));
+    if(!matched.length)return;
     total+=matched.length;
-    h+='<div class="dd-r">'+rn+' — '+matched.length+' міст</div>';
-    matched.forEach(([n])=>{
-      const idx=C.findIndex(c=>c.n===n && c.r===rn);
-      const isAct=(city.n===n && city.r===rn);
-      h+='<div class="dd-i'+(isAct?' act':'')+'" data-i="'+idx+'">'+n+'<span>'+rn+'</span></div>';
+    h+='<div class="dd-r">'+reg.name+' ('+matched.length+')</div>';
+    matched.forEach(c=>{
+      const idx=ALL_CITIES.findIndex(ac=>ac.n===c.n&&ac.r===reg.name&&ac.cc===curCountry.code);
+      const isAct=(city.n===c.n&&city.r===reg.name);
+      h+='<div class="dd-i'+(isAct?' act':'')+'" data-i="'+idx+'">'+c.n+'<span>'+reg.name+'</span></div>';
     });
   });
-
-  h='<div class="city-count">Знайдено: '+total+' з '+C.length+' міст</div>'+h;
-  if(!total) h='<div style="padding:1rem;text-align:center;color:var(--tx3)">Нічого не знайдено 😕</div>';
+  h='<div class="dd-cnt">'+t('found')+': <b>'+total+'</b> '+t('of')+' '+(end-start)+' '+t('cities')+'</div>'+h;
+  if(!total)h='<div style="padding:1rem;text-align:center;color:var(--tx3)">😕</div>';
   dd.innerHTML=h;
 }
 
-function openDD(){
-  const dd=$('dd');
-  ddOpen=true;
-  dd.classList.add('open');
-}
-function closeDD(){
-  const dd=$('dd');
-  ddOpen=false;
-  dd.classList.remove('open');
-  $('si').value=city.n; // відновити ім'я міста
-}
-
-function pickCity(idx){
-  city=C[idx];
+function selectCity(idx){
+  city=ALL_CITIES[idx];
   $('si').value=city.n;
-  $('ci').textContent='📍 '+city.r+' · '+city.la.toFixed(2)+'°N '+city.lo.toFixed(2)+'°E';
-  closeDD();
+  $('ci').innerHTML=curCountry.flag+' '+curCountry.n[lang]+' · <b>'+city.la.toFixed(2)+'°, '+city.lo.toFixed(2)+'°</b>';
+  $('dd').classList.remove('open');
   _fcD=null;_fcH=null;
-  loadTab();
+  loadCurrentTab();
 }
 
 function initCitySearch(){
-  const si=$('si');
-  const dd=$('dd');
-
-  // ФОКУС — очистити поле і показати ВСІ міста
-  si.addEventListener('focus',()=>{
-    si.value='';          // ← ГОЛОВНИЙ ФІКС!
-    buildDD('');           // показати ВСІ 211 міст
-    openDD();
-  });
-
-  // Набір тексту — фільтрувати
-  si.addEventListener('input',()=>{
-    buildDD(si.value);
-    if(!ddOpen) openDD();
-  });
-
-  // Клік по місту — mousedown щоб спрацювало до blur
-  dd.addEventListener('mousedown',(e)=>{
-    const item=e.target.closest('.dd-i');
-    if(item && item.dataset.i!=null){
-      e.preventDefault();   // не давати blur закрити dd
-      pickCity(+item.dataset.i);
-    }
-  });
-
-  // Клік поза dropdown — закрити
-  document.addEventListener('click',(e)=>{
-    if(!e.target.closest('.sw')){
-      closeDD();
-    }
-  });
-
-  // ESC — закрити
-  si.addEventListener('keydown',(e)=>{
-    if(e.key==='Escape') closeDD();
-  });
+  const si=$('si'),dd=$('dd');
+  si.addEventListener('focus',()=>{si.value='';buildDD('');dd.classList.add('open')});
+  si.addEventListener('input',()=>{buildDD(si.value);dd.classList.add('open')});
+  dd.addEventListener('mousedown',e=>{const it=e.target.closest('.dd-i');if(it&&it.dataset.i!=null){e.preventDefault();selectCity(+it.dataset.i)}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.sw')){dd.classList.remove('open');si.value=city.n}});
+  si.addEventListener('keydown',e=>{if(e.key==='Escape'){dd.classList.remove('open');si.value=city.n;si.blur()}});
 }
 
-/* ═══ TABS ═══ */
-function switchT(t){
-  tab=t;
+/* ═══════ TABS ═══════ */
+function switchTab(t){
+  activeTab=t;
   document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   document.querySelectorAll('.pnl').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));
-  loadTab();
+  loadCurrentTab();
 }
-function loadTab(){if(tab==='cur')loadCur();else if(tab==='fc')loadFc()}
+function loadCurrentTab(){if(activeTab==='cur')loadCur();else if(activeTab==='fc')loadFc()}
 
-/* ═══ CURRENT ═══ */
+/* ═══════ CURRENT ═══════ */
 async function loadCur(){
   const el=$('o-cur');sL(el);
   try{
     const d=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+
-      '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl,cloud_cover,uv_index'+
-      '&hourly=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,relative_humidity_2m'+
-      '&timezone=auto&forecast_days=2');
+      '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl,cloud_cover,uv_index,is_day'+
+      '&hourly=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover,pressure_msl'+
+      '&daily=sunrise,sunset&timezone=auto&forecast_days=2');
     rendCur(d,el);
-  }catch(e){sE(el,'Помилка завантаження.')}
+  }catch(e){sE(el,t('errLoad'))}
 }
 function rendCur(d,el){
-  const c=d.current,w=wm(c.weather_code),hr=d.hourly;
-  const lb=[],tmp=[],fl=[],pr=[],hm=[];
+  const c=d.current,w=wDesc(c.weather_code),wi=wIc(c.weather_code),hr=d.hourly;
+  const sr=d.daily.sunrise[0]?d.daily.sunrise[0].slice(11,16):'—';
+  const ss=d.daily.sunset[0]?d.daily.sunset[0].slice(11,16):'—';
+  const rec=getRec(c.temperature_2m,c.weather_code,c.wind_speed_10m);
+  const now=new Date(),ts=now.toLocaleTimeString(lang==='uk'?'uk-UA':'en-US',{hour:'2-digit',minute:'2-digit'});
+  const lb=[],tmp=[],fl=[],pr=[],hm=[],wn=[],cl=[],ps=[];
   for(let i=0;i<Math.min(48,hr.time.length);i++){
     lb.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');
     tmp.push(hr.temperature_2m[i]);fl.push(hr.apparent_temperature[i]);
     pr.push(hr.precipitation[i]);hm.push(hr.relative_humidity_2m[i]);
+    wn.push(hr.wind_speed_10m[i]);cl.push(hr.cloud_cover[i]);ps.push(hr.pressure_msl[i]);
   }
-  el.innerHTML=`<div class="cw">
-<div class="cw-ic">${w.i}</div><div class="cw-t">${Math.round(c.temperature_2m)}°C</div>
-<div class="cw-d">${w.d} · ${city.n}</div>
-<div class="grid8">
-<div class="g8"><div class="g8-i">🌡️</div><div class="g8-l">Відчувається</div><div class="g8-v">${Math.round(c.apparent_temperature)}°C</div></div>
-<div class="g8"><div class="g8-i">💧</div><div class="g8-l">Вологість</div><div class="g8-v">${c.relative_humidity_2m}%</div></div>
-<div class="g8"><div class="g8-i">💨</div><div class="g8-l">Вітер</div><div class="g8-v">${c.wind_speed_10m} км/г</div></div>
-<div class="g8"><div class="g8-i">🧭</div><div class="g8-l">Напрямок</div><div class="g8-v">${wd(c.wind_direction_10m)}</div></div>
-<div class="g8"><div class="g8-i">🌧️</div><div class="g8-l">Опади</div><div class="g8-v">${c.precipitation} мм</div></div>
-<div class="g8"><div class="g8-i">📊</div><div class="g8-l">Тиск</div><div class="g8-v">${Math.round(c.pressure_msl)} гПа</div></div>
-<div class="g8"><div class="g8-i">☁️</div><div class="g8-l">Хмарність</div><div class="g8-v">${c.cloud_cover}%</div></div>
-<div class="g8"><div class="g8-i">☀️</div><div class="g8-l">UV</div><div class="g8-v">${c.uv_index!=null?c.uv_index:'—'}</div></div>
+  const ch=now.getHours();
+  let hs='<div class="hr-scroll">';
+  for(let i=ch;i<Math.min(ch+24,hr.time.length);i++){
+    const hw=wIc(hr.weather_code[i]);
+    hs+=`<div class="hr"><div class="hr-t">${new Date(hr.time[i]).getHours().toString().padStart(2,'0')}:00</div><div class="hr-i">${hw}</div><div class="hr-v">${Math.round(hr.temperature_2m[i])}°</div>${hr.precipitation[i]>0?'<div class="hr-r">💧'+r1(hr.precipitation[i])+'</div>':''}</div>`;
+  }
+  hs+='</div>';
+  el.innerHTML=`<div class="cw"><div class="cw-ic">${wi}</div><div class="cw-t">${Math.round(c.temperature_2m)}°C</div>
+<div class="cw-d">${w} · ${city.n}</div><div class="cw-time">🕐 ${t('updated')}: ${ts}</div>
+<div class="grd">
+<div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('feelsLike')}</div><div class="gd-v">${Math.round(c.apparent_temperature)}°C</div></div>
+<div class="gd"><div class="gd-i">💧</div><div class="gd-l">${t('humidity')}</div><div class="gd-v">${c.relative_humidity_2m}%</div></div>
+<div class="gd"><div class="gd-i">💨</div><div class="gd-l">${t('wind')}</div><div class="gd-v">${c.wind_speed_10m} km/h</div></div>
+<div class="gd"><div class="gd-i">🧭</div><div class="gd-l">${t('windDir')}</div><div class="gd-v">${wd(c.wind_direction_10m)}</div></div>
+<div class="gd"><div class="gd-i">🌧️</div><div class="gd-l">${t('precip')}</div><div class="gd-v">${c.precipitation} mm</div></div>
+<div class="gd"><div class="gd-i">📊</div><div class="gd-l">${t('pressure')}</div><div class="gd-v">${Math.round(c.pressure_msl)} hPa</div></div>
+<div class="gd"><div class="gd-i">☁️</div><div class="gd-l">${t('clouds')}</div><div class="gd-v">${c.cloud_cover}%</div></div>
+<div class="gd"><div class="gd-i">☀️</div><div class="gd-l">${t('uvIndex')}</div><div class="gd-v">${c.uv_index!=null?c.uv_index:'—'}</div></div>
+<div class="gd"><div class="gd-i">🌅</div><div class="gd-l">${t('sunrise')}</div><div class="gd-v">${sr}</div></div>
+<div class="gd"><div class="gd-i">🌇</div><div class="gd-l">${t('sunset')}</div><div class="gd-v">${ss}</div></div>
+<div class="gd"><div class="gd-i">⏱️</div><div class="gd-l">${t('dayLength')}</div><div class="gd-v">${dayLen(sr,ss)}</div></div>
+<div class="gd"><div class="gd-i">${c.is_day?'🌞':'🌙'}</div><div class="gd-l">${t('timeOfDay')}</div><div class="gd-v">${c.is_day?t('day'):t('night')}</div></div>
 </div></div>
-<div class="cb"><h3>🌡️ Температура — 48 годин</h3><canvas id="c1"></canvas></div>
-<div class="cb"><h3>🌧️ Опади · 💧 Вологість</h3><canvas id="c2"></canvas></div>`;
+<div class="rec"><div class="rec-ic">${rec.ic}</div><div class="rec-txt"><h4>${rec.ti}</h4><p>${rec.de}</p></div></div>
+<h3 style="margin:.4rem 0;font-size:.9rem;color:var(--tx2)">⏱️ ${t('hourly')}</h3>${hs}
+<div class="cb"><h3>🌡️ ${t('tempChart')} — 48h</h3><canvas id="c1"></canvas></div>
+<div class="cb"><h3>🌧️ ${t('precipChart')} · 💧 ${t('humidChart')}</h3><canvas id="c2"></canvas></div>
+<div class="cb"><h3>💨 ${t('windChart')} · ☁️ ${t('cloudChart')}</h3><canvas id="c3"></canvas></div>
+<div class="cb"><h3>📊 ${t('pressChart')}</h3><canvas id="c4"></canvas></div>`;
   mc('c1',{type:'line',data:{labels:lb,datasets:[
     {label:'°C',data:tmp,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:0},
-    {label:'Відчув.',data:fl,borderColor:'#f97316',borderDash:[5,3],backgroundColor:'transparent',tension:.3,pointRadius:0}
+    {label:t('feelsLike'),data:fl,borderColor:'#f97316',borderDash:[5,3],backgroundColor:'transparent',tension:.3,pointRadius:0}
   ]},options:cO()});
   mc('c2',{type:'bar',data:{labels:lb,datasets:[
-    {label:'Опади мм',data:pr,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},
-    {label:'Вологість %',data:hm,type:'line',borderColor:'#22c55e',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}
-  ]},options:{...cO(),scales:{x:xS(),y:{position:'left',min:0,ticks:{font:{size:9}}},
-    y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}}});
+    {label:'mm',data:pr,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},
+    {label:'%',data:hm,type:'line',borderColor:'#22c55e',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}
+  ]},options:cO({scales:{x:{ticks:{maxTicksLimit:12,font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
+  mc('c3',{type:'line',data:{labels:lb,datasets:[
+    {label:'km/h',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},
+    {label:'%',data:cl,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}
+  ]},options:cO({scales:{x:{ticks:{maxTicksLimit:12,font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
+  mc('c4',{type:'line',data:{labels:lb,datasets:[
+    {label:'hPa',data:ps,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:0}
+  ]},options:cO()});
 }
-function cO(){return{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
-  plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{x:xS(),y:{ticks:{font:{size:9}}}}}}
-function xS(){return{ticks:{maxTicksLimit:12,font:{size:9}}}}
 
-/* ═══ FORECAST ═══ */
+/* ═══════ FORECAST ═══════ */
 async function loadFc(){
   const el=$('o-fc');sL(el);
   try{
     const d=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+
       '&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max'+
-      '&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,relative_humidity_2m,pressure_msl,cloud_cover,uv_index'+
+      '&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,relative_humidity_2m,pressure_msl,cloud_cover'+
       '&timezone=auto&forecast_days=14');
-    _fcD=d.daily;_fcH=d.hourly;
-    rendFc(el);
-  }catch(e){sE(el,'Помилка.')}
+    _fcD=d.daily;_fcH=d.hourly;rendFc(el);
+  }catch(e){sE(el,t('errLoad'))}
 }
 function rendFc(el){
   const dl=_fcD;
-  let h='<p style="text-align:center;color:var(--tx3);margin-bottom:.6rem;font-size:.85rem">👆 Натисніть на день — побачите повну погоду</p>';
-  h+='<div class="fc-g">';
+  let h='<p style="text-align:center;color:var(--tx3);margin-bottom:.5rem;font-size:.82rem">'+t('clickDay')+'</p><div class="fc-g">';
   for(let i=0;i<dl.time.length;i++){
-    const w=wm(dl.weather_code[i]);
-    h+=`<div class="fc${i===0?' sel':''}" data-d="${i}"><div class="fc-dt">${fDy(dl.time[i])}</div>
-<div class="fc-ic">${w.i}</div><div class="fc-hi">${Math.round(dl.temperature_2m_max[i])}°</div>
-<div class="fc-lo">${Math.round(dl.temperature_2m_min[i])}°</div>
-${dl.precipitation_sum[i]>0?'<div class="fc-rn">💧'+r1(dl.precipitation_sum[i])+'мм</div>':''}
-${dl.precipitation_probability_max[i]>0?'<div class="fc-rn">'+dl.precipitation_probability_max[i]+'%</div>':''}
-</div>`;
+    const wi=wIc(dl.weather_code[i]);
+    h+=`<div class="fc${i===0?' sel':''}" data-d="${i}"><div class="fc-dt">${fDy(dl.time[i])}</div><div class="fc-ic">${wi}</div><div class="fc-hi">${Math.round(dl.temperature_2m_max[i])}°</div><div class="fc-lo">${Math.round(dl.temperature_2m_min[i])}°</div>${dl.precipitation_sum[i]>0?'<div class="fc-rn">💧'+r1(dl.precipitation_sum[i])+'mm</div>':''}${dl.precipitation_probability_max[i]>0?'<div class="fc-rn">☔'+dl.precipitation_probability_max[i]+'%</div>':''}</div>`;
   }
-  h+='</div>';
-  h+='<div class="cb"><h3>📈 Температура 14 днів</h3><canvas id="fc14t"></canvas></div>';
-  h+='<div class="cb"><h3>🌧️ Опади 14 днів</h3><canvas id="fc14p"></canvas></div>';
-  h+='<div id="ddet"></div>';
+  h+='</div><div class="cb"><h3>📈 '+t('tempChart')+' 14d</h3><canvas id="f1"></canvas></div>';
+  h+='<div class="cb"><h3>🌧️ '+t('precipChart')+' 14d</h3><canvas id="f2"></canvas></div><div id="ddc"></div>';
   el.innerHTML=h;
-
   const lb=dl.time.map(fDy);
-  mc('fc14t',{type:'line',data:{labels:lb,datasets:[
-    {label:'Макс',data:dl.temperature_2m_max,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:3,pointBackgroundColor:'#ef4444'},
-    {label:'Мін',data:dl.temperature_2m_min,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:3,pointBackgroundColor:'#3b82f6'}
+  mc('f1',{type:'line',data:{labels:lb,datasets:[
+    {label:t('max'),data:dl.temperature_2m_max,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:3,pointBackgroundColor:'#ef4444'},
+    {label:t('min'),data:dl.temperature_2m_min,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:3,pointBackgroundColor:'#3b82f6'}
   ]},options:cO()});
-  mc('fc14p',{type:'bar',data:{labels:lb,datasets:[
-    {label:'мм',data:dl.precipitation_sum,backgroundColor:dl.precipitation_sum.map(v=>v>5?'rgba(239,68,68,.7)':v>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}
+  mc('f2',{type:'bar',data:{labels:lb,datasets:[
+    {label:'mm',data:dl.precipitation_sum,backgroundColor:dl.precipitation_sum.map(v=>v>5?'rgba(239,68,68,.7)':v>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}
   ]},options:{...cO(),plugins:{legend:{display:false}}}});
-
   el.querySelectorAll('.fc').forEach(c=>c.addEventListener('click',()=>{
-    el.querySelectorAll('.fc').forEach(x=>x.classList.remove('sel'));
-    c.classList.add('sel');showDay(+c.dataset.d);
-  }));
+    el.querySelectorAll('.fc').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');showDay(+c.dataset.d);}));
   showDay(0);
 }
-
 function showDay(idx){
-  const el=$('ddet'),dl=_fcD,hr=_fcH,date=dl.time[idx],w=wm(dl.weather_code[idx]);
-  const lb=[],tm=[],fl=[],pr=[],pp=[],wn=[],wdr=[],hm=[],ps=[],cl=[],uv=[],wc=[];
+  const el=$('ddc'),dl=_fcD,hr=_fcH,date=dl.time[idx],wi=wIc(dl.weather_code[idx]),wd2=wDesc(dl.weather_code[idx]);
+  const hL=[],hT=[],hF=[],hP=[],hPP=[],hW=[],hWD=[],hH=[],hPS=[],hC=[],hWC=[];
   for(let i=0;i<hr.time.length;i++){
     if(!hr.time[i].startsWith(date))continue;
-    lb.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');
-    tm.push(hr.temperature_2m[i]);fl.push(hr.apparent_temperature[i]);
-    pr.push(hr.precipitation[i]);pp.push(hr.precipitation_probability[i]);
-    wn.push(hr.wind_speed_10m[i]);wdr.push(hr.wind_direction_10m[i]);
-    hm.push(hr.relative_humidity_2m[i]);ps.push(hr.pressure_msl[i]);
-    cl.push(hr.cloud_cover[i]);uv.push(hr.uv_index[i]);wc.push(hr.weather_code[i]);
+    hL.push(new Date(hr.time[i]).getHours().toString().padStart(2,'0')+':00');
+    hT.push(hr.temperature_2m[i]);hF.push(hr.apparent_temperature[i]);
+    hP.push(hr.precipitation[i]);hPP.push(hr.precipitation_probability[i]);
+    hW.push(hr.wind_speed_10m[i]);hWD.push(hr.wind_direction_10m[i]);
+    hH.push(hr.relative_humidity_2m[i]);hPS.push(hr.pressure_msl[i]);hC.push(hr.cloud_cover[i]);hWC.push(hr.weather_code[i]);
   }
-  const sr=dl.sunrise[idx]?dl.sunrise[idx].slice(11,16):'—';
-  const ss=dl.sunset[idx]?dl.sunset[idx].slice(11,16):'—';
+  const sr=dl.sunrise[idx]?dl.sunrise[idx].slice(11,16):'—',ss=dl.sunset[idx]?dl.sunset[idx].slice(11,16):'—';
+  const rec=getRec(dl.temperature_2m_max[idx],dl.weather_code[idx],dl.wind_speed_10m_max[idx]);
   let hs='<div class="hr-scroll">';
-  for(let i=0;i<lb.length;i++){const wi=wm(wc[i]);
-    hs+=`<div class="hr"><div class="hr-t">${lb[i]}</div><div class="hr-i">${wi.i}</div><div class="hr-v">${Math.round(tm[i])}°</div>${pr[i]>0?'<div class="hr-r">'+r1(pr[i])+'мм</div>':''}</div>`}
+  for(let i=0;i<hL.length;i++){hs+=`<div class="hr"><div class="hr-t">${hL[i]}</div><div class="hr-i">${wIc(hWC[i])}</div><div class="hr-v">${Math.round(hT[i])}°</div>${hP[i]>0?'<div class="hr-r">'+r1(hP[i])+'mm</div>':''}</div>`}
   hs+='</div>';
-
-  el.innerHTML=`<div class="ddet">
-<div class="ddet-hdr"><div class="ddi">${w.i}</div><div class="ddt">${Math.round(dl.temperature_2m_max[idx])}° / ${Math.round(dl.temperature_2m_min[idx])}°</div>
-<div class="ddd">${w.d}</div><div class="dds">${fDF(date)} · ${city.n}</div></div>
-<div class="grid8">
-<div class="g8"><div class="g8-i">🌡️</div><div class="g8-l">Макс</div><div class="g8-v" style="color:#ef4444">${Math.round(dl.temperature_2m_max[idx])}°C</div></div>
-<div class="g8"><div class="g8-i">🌡️</div><div class="g8-l">Мін</div><div class="g8-v" style="color:#3b82f6">${Math.round(dl.temperature_2m_min[idx])}°C</div></div>
-<div class="g8"><div class="g8-i">🤗</div><div class="g8-l">Відч. макс</div><div class="g8-v">${Math.round(dl.apparent_temperature_max[idx])}°</div></div>
-<div class="g8"><div class="g8-i">🥶</div><div class="g8-l">Відч. мін</div><div class="g8-v">${Math.round(dl.apparent_temperature_min[idx])}°</div></div>
-<div class="g8"><div class="g8-i">🌧️</div><div class="g8-l">Опади</div><div class="g8-v">${r1(dl.precipitation_sum[idx])} мм</div></div>
-<div class="g8"><div class="g8-i">☔</div><div class="g8-l">Ймовірність</div><div class="g8-v">${dl.precipitation_probability_max[idx]}%</div></div>
-<div class="g8"><div class="g8-i">💨</div><div class="g8-l">Вітер макс</div><div class="g8-v">${dl.wind_speed_10m_max[idx]} км/г</div></div>
-<div class="g8"><div class="g8-i">🧭</div><div class="g8-l">Напрямок</div><div class="g8-v">${wd(dl.wind_direction_10m_dominant[idx])}</div></div>
-<div class="g8"><div class="g8-i">☀️</div><div class="g8-l">UV</div><div class="g8-v">${dl.uv_index_max[idx]!=null?dl.uv_index_max[idx]:'—'}</div></div>
-<div class="g8"><div class="g8-i">🌅</div><div class="g8-l">Схід</div><div class="g8-v">${sr}</div></div>
-<div class="g8"><div class="g8-i">🌇</div><div class="g8-l">Захід</div><div class="g8-v">${ss}</div></div>
-<div class="g8"><div class="g8-i">⏱️</div><div class="g8-l">День</div><div class="g8-v">${dayL(sr,ss)}</div></div>
+  el.innerHTML=`<div class="ddet"><div class="ddet-hdr"><div class="ddi">${wi}</div><div class="ddt">${Math.round(dl.temperature_2m_max[idx])}° / ${Math.round(dl.temperature_2m_min[idx])}°</div><div class="ddd">${wd2}</div><div class="dds">${fDyF(date)} · ${city.n}</div></div>
+<div class="grd">
+<div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('max')}</div><div class="gd-v" style="color:#ef4444">${Math.round(dl.temperature_2m_max[idx])}°</div></div>
+<div class="gd"><div class="gd-i">🌡️</div><div class="gd-l">${t('min')}</div><div class="gd-v" style="color:#3b82f6">${Math.round(dl.temperature_2m_min[idx])}°</div></div>
+<div class="gd"><div class="gd-i">🤗</div><div class="gd-l">${t('feelsMax')}</div><div class="gd-v">${Math.round(dl.apparent_temperature_max[idx])}°</div></div>
+<div class="gd"><div class="gd-i">🥶</div><div class="gd-l">${t('feelsMin')}</div><div class="gd-v">${Math.round(dl.apparent_temperature_min[idx])}°</div></div>
+<div class="gd"><div class="gd-i">🌧️</div><div class="gd-l">${t('precip')}</div><div class="gd-v">${r1(dl.precipitation_sum[idx])}mm</div></div>
+<div class="gd"><div class="gd-i">☔</div><div class="gd-l">${t('rainProb')}</div><div class="gd-v">${dl.precipitation_probability_max[idx]}%</div></div>
+<div class="gd"><div class="gd-i">💨</div><div class="gd-l">${t('windMax')}</div><div class="gd-v">${dl.wind_speed_10m_max[idx]}km/h</div></div>
+<div class="gd"><div class="gd-i">🧭</div><div class="gd-l">${t('windDir')}</div><div class="gd-v">${wd(dl.wind_direction_10m_dominant[idx])}</div></div>
+<div class="gd"><div class="gd-i">☀️</div><div class="gd-l">${t('uvMax')}</div><div class="gd-v">${dl.uv_index_max[idx]!=null?dl.uv_index_max[idx]:'—'}</div></div>
+<div class="gd"><div class="gd-i">🌅</div><div class="gd-l">${t('sunrise')}</div><div class="gd-v">${sr}</div></div>
+<div class="gd"><div class="gd-i">🌇</div><div class="gd-l">${t('sunset')}</div><div class="gd-v">${ss}</div></div>
+<div class="gd"><div class="gd-i">⏱️</div><div class="gd-l">${t('dayLength')}</div><div class="gd-v">${dayLen(sr,ss)}</div></div>
 </div>
-<h3 style="margin:1rem 0 .3rem;font-size:.95rem;color:var(--tx2)">⏱️ По годинах</h3>${hs}
-<div class="cb"><h3>🌡️ Температура</h3><canvas id="dd1"></canvas></div>
-<div class="cb"><h3>🌧️ Опади · ☔ Ймовірність</h3><canvas id="dd2"></canvas></div>
-<div class="cb"><h3>💨 Вітер · 💧 Вологість</h3><canvas id="dd3"></canvas></div>
-<div class="cb"><h3>📊 Тиск · ☁️ Хмарність</h3><canvas id="dd4"></canvas></div>
-<h3 style="margin:1rem 0 .3rem;font-size:.95rem;color:var(--tx2)">📋 Таблиця</h3>
-<div class="htbl"><table><thead><tr><th>Час</th><th></th><th>°C</th><th>Відч.</th><th>мм</th><th>☔%</th><th>💨</th><th>🧭</th><th>💧%</th><th>☁️%</th><th>гПа</th></tr></thead><tbody>
-${lb.map((l,i)=>{const wi=wm(wc[i]);return`<tr><td>${l}</td><td>${wi.i}</td><td><b>${r1(tm[i])}°</b></td><td>${r1(fl[i])}°</td><td>${pr[i]>0?r1(pr[i]):'—'}</td><td>${pp[i]||0}</td><td>${r1(wn[i])}</td><td>${wd(wdr[i])}</td><td>${hm[i]}</td><td>${cl[i]}</td><td>${Math.round(ps[i])}</td></tr>`}).join('')}
+<div class="rec"><div class="rec-ic">${rec.ic}</div><div class="rec-txt"><h4>${rec.ti}</h4><p>${rec.de}</p></div></div>
+<h3 style="margin:.6rem 0 .2rem;font-size:.88rem;color:var(--tx2)">⏱️ ${t('hourly')}</h3>${hs}
+<div class="cb"><h3>🌡️ ${t('tempChart')}</h3><canvas id="d1"></canvas></div>
+<div class="cb"><h3>🌧️ ${t('precipChart')} · ☔ ${t('rainProb')}</h3><canvas id="d2"></canvas></div>
+<div class="cb"><h3>💨 ${t('windChart')} · 💧 ${t('humidChart')}</h3><canvas id="d3"></canvas></div>
+<div class="cb"><h3>📊 ${t('pressChart')} · ☁️ ${t('cloudChart')}</h3><canvas id="d4"></canvas></div>
+<h3 style="margin:.7rem 0 .2rem;font-size:.88rem;color:var(--tx2)">📋 ${t('fullTable')}</h3>
+<div class="htbl"><table><thead><tr><th>${t('time')}</th><th></th><th>°C</th><th>${t('feelsLike')}</th><th>mm</th><th>☔%</th><th>💨</th><th>🧭</th><th>💧%</th><th>☁️%</th><th>hPa</th></tr></thead><tbody>
+${hL.map((l,i)=>`<tr><td>${l}</td><td>${wIc(hWC[i])}</td><td><b>${r1(hT[i])}°</b></td><td>${r1(hF[i])}°</td><td>${hP[i]>0?r1(hP[i]):'—'}</td><td>${hPP[i]||0}</td><td>${r1(hW[i])}</td><td>${wd(hWD[i])}</td><td>${hH[i]}</td><td>${hC[i]}</td><td>${Math.round(hPS[i])}</td></tr>`).join('')}
 </tbody></table></div></div>`;
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
-  const co=()=>({responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},
-    plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}});
-  mc('dd1',{type:'line',data:{labels:lb,datasets:[
-    {label:'°C',data:tm,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:2},
-    {label:'Відчув.',data:fl,borderColor:'#f97316',borderDash:[4,3],backgroundColor:'transparent',tension:.3,pointRadius:0}
-  ]},options:co()});
-  mc('dd2',{type:'bar',data:{labels:lb,datasets:[
-    {label:'мм',data:pr,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},
-    {label:'%',data:pp,type:'line',borderColor:'#f97316',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}
-  ]},options:{...co(),scales:{x:{ticks:{font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},
-    y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}}});
-  mc('dd3',{type:'line',data:{labels:lb,datasets:[
-    {label:'Вітер',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},
-    {label:'Вологість',data:hm,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}
-  ]},options:{...co(),scales:{x:{ticks:{font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},
-    y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}}});
-  mc('dd4',{type:'line',data:{labels:lb,datasets:[
-    {label:'Тиск',data:ps,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.3,pointRadius:0},
-    {label:'Хмарність',data:cl,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.1)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}
-  ]},options:{...co(),scales:{x:{ticks:{font:{size:9}}},y:{position:'left',ticks:{font:{size:9}}},
-    y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}}});
+  const co=()=>cO();
+  mc('d1',{type:'line',data:{labels:hL,datasets:[{label:'°C',data:hT,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.1)',fill:true,tension:.3,pointRadius:2},{label:t('feelsLike'),data:hF,borderColor:'#f97316',borderDash:[4,3],backgroundColor:'transparent',tension:.3,pointRadius:0}]},options:co()});
+  mc('d2',{type:'bar',data:{labels:hL,datasets:[{label:'mm',data:hP,backgroundColor:'rgba(59,130,246,.6)',borderRadius:2,yAxisID:'y',order:1},{label:'%',data:hPP,type:'line',borderColor:'#f97316',backgroundColor:'transparent',tension:.3,pointRadius:0,yAxisID:'y1',order:0}]},options:cO({scales:{x:{ticks:{font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
+  mc('d3',{type:'line',data:{labels:hL,datasets:[{label:'km/h',data:hW,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:0},{label:'%',data:hH,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:cO({scales:{x:{ticks:{font:{size:9}}},y:{position:'left',min:0,ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
+  mc('d4',{type:'line',data:{labels:hL,datasets:[{label:'hPa',data:hPS,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:0},{label:'%',data:hC,borderColor:'#94a3b8',backgroundColor:'rgba(148,163,184,.08)',fill:true,tension:.3,pointRadius:0,yAxisID:'y1'}]},options:cO({scales:{x:{ticks:{font:{size:9}}},y:{position:'left',ticks:{font:{size:9}}},y1:{position:'right',min:0,max:100,grid:{drawOnChartArea:false},ticks:{font:{size:9}}}}})});
 }
-function dayL(a,b){if(a==='—'||b==='—')return'—';const[h1,m1]=a.split(':').map(Number),[h2,m2]=b.split(':').map(Number);const d=(h2*60+m2)-(h1*60+m1);return Math.floor(d/60)+'г '+d%60+'хв'}
 
-/* ═══ HISTORY ═══ */
+/* ═══════ HISTORY ═══════ */
 async function loadHist(){
   const el=$('o-hist'),s=$('hS').value,e=$('hE').value;
-  if(!s||!e){sE(el,'Оберіть дати.');return}
-  if(s>e){sE(el,'Початок раніше кінця.');return}
-  sL(el);
+  if(!s||!e){sE(el,t('errDates'));return}if(s>e){sE(el,t('errDateOrder'));return}sL(el);
   try{
-    const d=await api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+
-      '&start_date='+s+'&end_date='+e+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto');
+    const d=await api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+'&start_date='+s+'&end_date='+e+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto');
     rendHist(d,el);
-  }catch(e){sE(el,'Помилка. Архів доступний до вчора.')}
+  }catch(e){sE(el,t('errHistApi'))}
 }
 function rendHist(d,el){
-  const dl=d.daily;if(!dl||!dl.time||!dl.time.length){sE(el,'Немає даних.');return}
+  const dl=d.daily;if(!dl||!dl.time||!dl.time.length){sE(el,t('errNoData'));return}
   const mx=dl.temperature_2m_max,mn=dl.temperature_2m_min,pr=dl.precipitation_sum,wn=dl.wind_speed_10m_max;
   const vx=mx.filter(v=>v!=null),vn=mn.filter(v=>v!=null),vp=pr.filter(v=>v!=null);
   const avg=a=>r1(a.reduce((s,v)=>s+v,0)/a.length);
-  let h=`<div class="smry">
-<div class="sm"><div class="sm-l">Сер.макс</div><div class="sm-v">${avg(vx)}°</div></div>
-<div class="sm"><div class="sm-l">Сер.мін</div><div class="sm-v">${avg(vn)}°</div></div>
-<div class="sm"><div class="sm-l">Рекорд↑</div><div class="sm-v">${r1(Math.max(...vx))}°</div></div>
-<div class="sm"><div class="sm-l">Рекорд↓</div><div class="sm-v">${r1(Math.min(...vn))}°</div></div>
-<div class="sm"><div class="sm-l">Σ Опадів</div><div class="sm-v">${r1(vp.reduce((a,b)=>a+b,0))}мм</div></div>
-<div class="sm"><div class="sm-l">Днів</div><div class="sm-v">${dl.time.length}</div></div></div>`;
-  h+=`<div class="cb"><h3>🌡️ Температура</h3><canvas id="ht"></canvas></div>`;
-  h+=`<div class="cb"><h3>🌧️ Опади</h3><canvas id="hp"></canvas></div>`;
-  h+=`<div class="cb"><h3>💨 Вітер</h3><canvas id="hw"></canvas></div>`;
-  h+=`<div class="htbl"><table><thead><tr><th>Дата</th><th></th><th>Макс°</th><th>Мін°</th><th>Опади</th><th>Вітер</th></tr></thead><tbody>`;
-  for(let i=0;i<dl.time.length;i++){const w=wm(dl.weather_code[i]);
-    h+=`<tr><td>${fD(dl.time[i])}</td><td>${w.i}</td><td>${mx[i]!=null?mx[i]+'°':'—'}</td><td>${mn[i]!=null?mn[i]+'°':'—'}</td><td>${pr[i]!=null?pr[i]+'мм':'—'}</td><td>${wn[i]!=null?wn[i]+'км/г':'—'}</td></tr>`}
+  let h=`<div class="smry"><div class="sm"><div class="sm-l">${t('avgMax')}</div><div class="sm-v" style="color:#ef4444">${avg(vx)}°</div></div><div class="sm"><div class="sm-l">${t('avgMin')}</div><div class="sm-v" style="color:#3b82f6">${avg(vn)}°</div></div><div class="sm"><div class="sm-l">${t('recHi')}</div><div class="sm-v">${r1(Math.max(...vx))}°</div></div><div class="sm"><div class="sm-l">${t('recLo')}</div><div class="sm-v">${r1(Math.min(...vn))}°</div></div><div class="sm"><div class="sm-l">${t('totalPrecip')}</div><div class="sm-v">${r1(vp.reduce((a,b)=>a+b,0))}mm</div></div><div class="sm"><div class="sm-l">${t('days')}</div><div class="sm-v">${dl.time.length}</div></div></div>`;
+  h+=`<div class="cb"><h3>🌡️ ${t('tempChart')}</h3><canvas id="h1"></canvas></div><div class="cb"><h3>🌧️ ${t('precipChart')}</h3><canvas id="h2"></canvas></div><div class="cb"><h3>💨 ${t('windChart')}</h3><canvas id="h3"></canvas></div>`;
+  h+='<div class="htbl"><table><thead><tr><th>'+t('time')+'</th><th></th><th>'+t('max')+'</th><th>'+t('min')+'</th><th>'+t('precip')+'</th><th>'+t('wind')+'</th></tr></thead><tbody>';
+  for(let i=0;i<dl.time.length;i++){h+=`<tr><td>${fD(dl.time[i])}</td><td>${wIc(dl.weather_code[i])}</td><td>${mx[i]!=null?mx[i]+'°':'—'}</td><td>${mn[i]!=null?mn[i]+'°':'—'}</td><td>${pr[i]!=null?pr[i]+'mm':'—'}</td><td>${wn[i]!=null?wn[i]+'km/h':'—'}</td></tr>`}
   h+='</tbody></table></div>';el.innerHTML=h;
   const lb=dl.time.map(fD),nr=dl.time.length>60?0:2;
-  mc('ht',{type:'line',data:{labels:lb,datasets:[
-    {label:'Макс',data:mx,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:nr},
-    {label:'Мін',data:mn,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:nr}
-  ]},options:cO()});
-  mc('hp',{type:'bar',data:{labels:lb,datasets:[
-    {label:'мм',data:pr,backgroundColor:pr.map(v=>v>10?'rgba(239,68,68,.7)':v>3?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:2}
-  ]},options:{...cO(),plugins:{legend:{display:false}}}});
-  mc('hw',{type:'line',data:{labels:lb,datasets:[
-    {label:'км/г',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:nr}
-  ]},options:cO()});
+  mc('h1',{type:'line',data:{labels:lb,datasets:[{label:t('max'),data:mx,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.08)',fill:'+1',tension:.3,pointRadius:nr},{label:t('min'),data:mn,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',tension:.3,pointRadius:nr}]},options:cO()});
+  mc('h2',{type:'bar',data:{labels:lb,datasets:[{label:'mm',data:pr,backgroundColor:pr.map(v=>v>10?'rgba(239,68,68,.7)':v>3?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:2}]},options:{...cO(),plugins:{legend:{display:false}}}});
+  mc('h3',{type:'line',data:{labels:lb,datasets:[{label:'km/h',data:wn,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:nr}]},options:cO()});
 }
 
-/* ═══ PREDICTION ═══ */
-function linR(x,y){const n=x.length,sx=x.reduce((a,b)=>a+b,0),sy=y.reduce((a,b)=>a+b,0);
-  const sxy=x.reduce((s,xi,i)=>s+xi*y[i],0),sx2=x.reduce((s,xi)=>s+xi*xi,0),dn=n*sx2-sx*sx;
-  if(!dn)return{s:0,i:sy/n};const sl=(n*sxy-sx*sy)/dn;return{s:sl,i:(sy-sl*sx)/n}}
+/* ═══════ PREDICTION ═══════ */
+function linR(x,y){const n=x.length,sx=x.reduce((a,b)=>a+b,0),sy=y.reduce((a,b)=>a+b,0),sxy=x.reduce((s,xi,i)=>s+xi*y[i],0),sx2=x.reduce((s,xi)=>s+xi*xi,0),dn=n*sx2-sx*sx;if(!dn)return{s:0,i:sy/n};const sl=(n*sxy-sx*sy)/dn;return{s:sl,i:(sy-sl*sx)/n}}
 function stdev(a){const m=a.reduce((s,v)=>s+v,0)/a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length)}
-
 async function loadPred(){
-  const el=$('o-pred'),ds=$('pD').value;
-  if(!ds){sE(el,'Оберіть дату.');return}sL(el);
+  const el=$('o-pred'),ds=$('pD').value;if(!ds){sE(el,t('errDates'));return}sL(el);
   try{
     const tgt=new Date(ds+'T00:00'),mo=tgt.getMonth()+1,dy=tgt.getDate(),tY=tgt.getFullYear();
-    const now=new Date(),cY=now.getFullYear(),yrs=[];
-    for(let y=cY-8;y<=cY-1;y++)yrs.push(y);
+    const now=new Date(),cY=now.getFullYear(),yrs=[];for(let y=cY-8;y<=cY-1;y++)yrs.push(y);
     const pad=n=>String(n).padStart(2,'0');
-    const proms=yrs.map(y=>{
-      const c=new Date(y,mo-1,dy),s=new Date(c),e=new Date(c);s.setDate(s.getDate()-10);e.setDate(e.getDate()+10);
-      return api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+
-        '&start_date='+iso(s)+'&end_date='+iso(e)+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto')
-        .then(d=>({year:y,data:d})).catch(()=>null)});
+    const ps=yrs.map(y=>{const c=new Date(y,mo-1,dy),s=new Date(c),e=new Date(c);s.setDate(s.getDate()-10);e.setDate(e.getDate()+10);
+      return api('https://archive-api.open-meteo.com/v1/archive?latitude='+city.la+'&longitude='+city.lo+'&start_date='+iso(s)+'&end_date='+iso(e)+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=auto').then(d=>({year:y,data:d})).catch(()=>null)});
     let fc=null;const diff=Math.ceil((tgt-now)/864e5);
-    if(diff>=0&&diff<=14){try{
-      const fd=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+
-        '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=15');
-      const ix=fd.daily.time.indexOf(ds);
-      if(ix>=0)fc={mx:fd.daily.temperature_2m_max[ix],mn:fd.daily.temperature_2m_min[ix],pr:fd.daily.precipitation_sum[ix],wc:fd.daily.weather_code[ix]};
-    }catch(e){}}
-    const res=(await Promise.all(proms)).filter(Boolean);
-    if(res.length<2){sE(el,'Недостатньо даних.');return}
+    if(diff>=0&&diff<=14){try{const fd=await api('https://api.open-meteo.com/v1/forecast?latitude='+city.la+'&longitude='+city.lo+'&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&forecast_days=15');const ix=fd.daily.time.indexOf(ds);if(ix>=0)fc={mx:fd.daily.temperature_2m_max[ix],mn:fd.daily.temperature_2m_min[ix],pr:fd.daily.precipitation_sum[ix],wc:fd.daily.weather_code[ix]};}catch(e){}}
+    const res=(await Promise.all(ps)).filter(Boolean);if(res.length<2){sE(el,t('errPredData'));return}
     const pred=calcP(res,mo,dy,tY);rendPred(pred,fc,ds,el);
-  }catch(e){sE(el,'Помилка: '+e.message)}
+  }catch(e){sE(el,t('errPredCalc'))}
 }
-
 function calcP(res,mo,dy,tY){
-  const pad=n=>String(n).padStart(2,'0');
-  const gauss=(d,sig)=>Math.exp(-(d*d)/(2*sig*sig));
-  const yearly=res.map(({year,data})=>{
-    const dl=data.daily,target=`${year}-${pad(mo)}-${pad(dy)}`;
-    let wmx=0,wmn=0,wpr=0,wwd=0,tw=0,wdw=0;const days=[];
-    for(let i=0;i<dl.time.length;i++){
-      const diff=Math.abs(new Date(dl.time[i]+'T00:00')-new Date(target+'T00:00'))/864e5;
-      const w=gauss(diff,3);
-      if(w>0.01&&dl.temperature_2m_max[i]!=null){tw+=w;wmx+=dl.temperature_2m_max[i]*w;wmn+=dl.temperature_2m_min[i]*w;
-        wpr+=(dl.precipitation_sum[i]||0)*w;if(dl.wind_speed_10m_max[i]!=null){wwd+=dl.wind_speed_10m_max[i]*w;wdw+=w;}}
-      days.push({date:dl.time[i],tmax:dl.temperature_2m_max[i],tmin:dl.temperature_2m_min[i],precip:dl.precipitation_sum[i],
-        off:Math.round((new Date(dl.time[i]+'T00:00')-new Date(target+'T00:00'))/864e5)});}
-    if(!tw)return null;
-    return{year,tmax:wmx/tw,tmin:wmn/tw,precip:wpr/tw,wind:wdw?wwd/wdw:null,days};
-  }).filter(Boolean);
+  const pad=n=>String(n).padStart(2,'0'),gauss=(d,sig)=>Math.exp(-(d*d)/(2*sig*sig));
+  const yearly=res.map(({year,data})=>{const dl=data.daily,tgt=`${year}-${pad(mo)}-${pad(dy)}`;
+    let wm=0,wn=0,wp=0,ww=0,tw=0,wdw=0;const days=[];
+    for(let i=0;i<dl.time.length;i++){const diff=Math.abs(new Date(dl.time[i]+'T00:00')-new Date(tgt+'T00:00'))/864e5;const w=gauss(diff,3);
+      if(w>0.01&&dl.temperature_2m_max[i]!=null){tw+=w;wm+=dl.temperature_2m_max[i]*w;wn+=dl.temperature_2m_min[i]*w;wp+=(dl.precipitation_sum[i]||0)*w;if(dl.wind_speed_10m_max[i]!=null){ww+=dl.wind_speed_10m_max[i]*w;wdw+=w;}}
+      days.push({date:dl.time[i],tmax:dl.temperature_2m_max[i],tmin:dl.temperature_2m_min[i],precip:dl.precipitation_sum[i],off:Math.round((new Date(dl.time[i]+'T00:00')-new Date(tgt+'T00:00'))/864e5)});}
+    if(!tw)return null;return{year,tmax:wm/tw,tmin:wn/tw,precip:wp/tw,wind:wdw?ww/wdw:null,days};}).filter(Boolean);
   if(!yearly.length)throw new Error('no data');
   const n=yearly.length;let TW=0,sm=0,sn=0,sp=0,sw=0,sww=0;
-  yearly.forEach((d,i)=>{const w=Math.pow(1.5,i);TW+=w;sm+=d.tmax*w;sn+=d.tmin*w;sp+=d.precip*w;
-    if(d.wind!=null){sw+=d.wind*w;sww+=w;}});
-  const bMx=sm/TW,bMn=sn/TW,bPr=sp/TW,bWd=sww?sw/sww:null;
-  const yrs=yearly.map(d=>d.year),tmxA=yearly.map(d=>d.tmax),tmnA=yearly.map(d=>d.tmin),prA=yearly.map(d=>d.precip);
-  const trMx=linR(yrs,tmxA),trMn=linR(yrs,tmnA),trPr=linR(yrs,prA);
-  const pMx=bMx*0.6+(trMx.s*tY+trMx.i)*0.4;
-  const pMn=bMn*0.6+(trMn.s*tY+trMn.i)*0.4;
-  const pPr=Math.max(0,bPr*0.6+(trPr.s*tY+trPr.i)*0.4);
-  const sdMx=stdev(tmxA),sdMn=stdev(tmnA),avgSd=(sdMx+sdMn)/2;
-  let conf;if(avgSd<1.5&&n>=5)conf={t:'Висока',c:'#16a34a'};else if(avgSd<3)conf={t:'Середня',c:'#ca8a04'};else conf={t:'Низька',c:'#dc2626'};
-  const rainy=yearly.filter(d=>d.precip>0.5).length,rnProb=Math.round(rainy/n*100);
-  let code;if(pPr>8)code=pMx<0?75:65;else if(pPr>3)code=pMx<0?73:63;else if(pPr>.5)code=pMx<0?71:61;else if(pPr>.1)code=3;else code=mo>=5&&mo<=9?1:2;
-  return{tmax:r1(pMx),tmin:r1(pMn),precip:r1(pPr),wind:bWd!=null?r1(bWd):null,code,conf,rnProb,
-    trend:{mx:r1(trMx.s),mn:r1(trMn.s),pr:r1(trPr.s)},sd:{mx:r1(sdMx),mn:r1(sdMn)},yearly,trMx,trMn,
-    range:{mx:[r1(Math.min(...tmxA)),r1(Math.max(...tmxA))],mn:[r1(Math.min(...tmnA)),r1(Math.max(...tmnA))]}};
+  yearly.forEach((d,i)=>{const w=Math.pow(1.5,i);TW+=w;sm+=d.tmax*w;sn+=d.tmin*w;sp+=d.precip*w;if(d.wind!=null){sw+=d.wind*w;sww+=w;}});
+  const bM=sm/TW,bN=sn/TW,bP=sp/TW,bW=sww?sw/sww:null;
+  const ys=yearly.map(d=>d.year),tmA=yearly.map(d=>d.tmax),tnA=yearly.map(d=>d.tmin),prA=yearly.map(d=>d.precip);
+  const trM=linR(ys,tmA),trN=linR(ys,tnA),trP=linR(ys,prA);
+  const pM=bM*.6+(trM.s*tY+trM.i)*.4,pN=bN*.6+(trN.s*tY+trN.i)*.4,pP=Math.max(0,bP*.6+(trP.s*tY+trP.i)*.4);
+  const sdM=stdev(tmA),sdN=stdev(tnA),aSD=(sdM+sdN)/2;
+  let conf;if(aSD<1.5&&n>=5)conf={t:t('high'),c:'#16a34a'};else if(aSD<3)conf={t:t('medium'),c:'#ca8a04'};else conf={t:t('low'),c:'#dc2626'};
+  const rainy=yearly.filter(d=>d.precip>.5).length,rP=Math.round(rainy/n*100);
+  let code;if(pP>8)code=pM<0?75:65;else if(pP>3)code=pM<0?73:63;else if(pP>.5)code=pM<0?71:61;else if(pP>.1)code=3;else code=mo>=5&&mo<=9?1:2;
+  return{tmax:r1(pM),tmin:r1(pN),precip:r1(pP),wind:bW!=null?r1(bW):null,code,conf,rP,
+    trend:{mx:r1(trM.s),mn:r1(trN.s),pr:r1(trP.s)},sd:{mx:r1(sdM),mn:r1(sdN)},yearly,trM,trN,
+    range:{mx:[r1(Math.min(...tmA)),r1(Math.max(...tmA))],mn:[r1(Math.min(...tnA)),r1(Math.max(...tnA))]}};
 }
-
 function rendPred(p,fc,ds,el){
-  const w=wm(p.code),trI=p.trend.mx>0.1?'📈':p.trend.mx<-0.1?'📉':'➡️',trT=p.trend.mx>0.1?'потепління':p.trend.mx<-0.1?'похолодання':'стабільно';
+  const wi=wIc(p.code),wd2=wDesc(p.code);
+  const trI=p.trend.mx>0.1?'📈':p.trend.mx<-0.1?'📉':'➡️';
+  const trT=p.trend.mx>0.1?t('warming'):p.trend.mx<-0.1?t('cooling'):t('stable');
   let compH='';
-  if(fc){const fw=wm(fc.wc);
-    compH=`<div class="comp"><h3>📊 Порівняння</h3><div class="comp2">
-<div class="cc"><h4>🔮 Наше</h4><div style="font-size:1.8rem">${w.i}</div><div style="font-weight:700">${p.tmax}°/${p.tmin}°</div><div style="font-size:.78rem;color:var(--tx3)">Опади: ${p.precip}мм</div></div>
-<div class="cc"><h4>🌐 Прогноз</h4><div style="font-size:1.8rem">${fw.i}</div><div style="font-weight:700">${Math.round(fc.mx)}°/${Math.round(fc.mn)}°</div><div style="font-size:.78rem;color:var(--tx3)">Опади: ${fc.pr}мм</div></div></div></div>`}
-  el.innerHTML=`<h3 style="text-align:center;margin-bottom:.8rem">${city.n} · ${fDF(ds)}</h3>
-<div class="pmain"><div class="pi">${w.i}</div><div class="pt">${p.tmax}° / ${p.tmin}°</div>
-<div class="pd">${w.d}</div><div class="pr">Діапазон: ${p.range.mn[0]}°…${p.range.mx[1]}°</div>
-<div class="badge" style="background:${p.conf.c}">Впевненість: ${p.conf.t}</div></div>
+  if(fc){compH=`<div class="comp"><h3>📊 ${t('compTitle')}</h3><div class="comp2"><div class="cc"><h4>🔮 ${t('ourPred')}</h4><div style="font-size:1.8rem">${wi}</div><div style="font-weight:700">${p.tmax}°/${p.tmin}°</div><div style="font-size:.75rem;color:var(--tx3)">${p.precip}mm</div></div><div class="cc"><h4>🌐 ${t('officialFc')}</h4><div style="font-size:1.8rem">${wIc(fc.wc)}</div><div style="font-weight:700">${Math.round(fc.mx)}°/${Math.round(fc.mn)}°</div><div style="font-size:.75rem;color:var(--tx3)">${fc.pr}mm</div></div></div></div>`}
+  el.innerHTML=`<h3 style="text-align:center;margin-bottom:.7rem">${city.n} · ${fDF(ds)}</h3>
+<div class="pmain"><div class="pi">${wi}</div><div class="pt">${p.tmax}° / ${p.tmin}°</div><div class="pd">${wd2}</div><div class="pr">${t('histRange')}: ${p.range.mn[0]}°…${p.range.mx[1]}°</div><div class="badge" style="background:${p.conf.c}">${t('confidence')}: ${p.conf.t}</div></div>
 <div class="pgrid">
-<div class="pg"><h4>🌧️ Опади</h4><p>~${p.precip} мм</p><p>Ймовірність: <b>${p.rnProb}%</b></p></div>
-<div class="pg"><h4>${trI} Тренд</h4><p>${trT}</p><p>Макс: ${p.trend.mx>0?'+':''}${p.trend.mx}°/рік</p><p>Мін: ${p.trend.mn>0?'+':''}${p.trend.mn}°/рік</p></div>
-<div class="pg"><h4>📊 Розкид</h4><p>σ макс: ±${p.sd.mx}°</p><p>σ мін: ±${p.sd.mn}°</p><p>За ${p.yearly.length} років</p></div>
-${p.wind!=null?`<div class="pg"><h4>💨 Вітер</h4><p>~${p.wind} км/г</p></div>`:''}</div>
-<div class="cb"><h3>🌡️ По роках</h3><canvas id="py1"></canvas></div>
-<div class="cb"><h3>📈 Тренд</h3><canvas id="py2"></canvas></div>
-<div class="cb"><h3>🌧️ Опади</h3><canvas id="py3"></canvas></div>
-<div class="cb"><h3>📅 ±10 днів</h3><canvas id="py4"></canvas></div>
+<div class="pg"><h4>🌧️ ${t('precip')}</h4><p>~${p.precip} mm</p><p>${t('rainSnowProb')}: <b>${p.rP}%</b></p><p>${t('trend')}: ${p.trend.pr>0?'+':''}${p.trend.pr} ${t('precipPerYear')}</p></div>
+<div class="pg"><h4>${trI} ${t('trend')}</h4><p><b>${trT}</b></p><p>${t('max')}: ${p.trend.mx>0?'+':''}${p.trend.mx}°${t('perYear')}</p><p>${t('min')}: ${p.trend.mn>0?'+':''}${p.trend.mn}°${t('perYear')}</p></div>
+<div class="pg"><h4>📊 ${t('spread')}</h4><p>σ ${t('max')}: ±${p.sd.mx}°</p><p>σ ${t('min')}: ±${p.sd.mn}°</p><p>${p.yearly.length} ${t('analyzedYears')}</p></div>
+${p.wind!=null?`<div class="pg"><h4>💨 ${t('wind')}</h4><p>~${p.wind} km/h</p></div>`:''}</div>
+<div class="cb"><h3>🌡️ ${t('byYears')}</h3><canvas id="p1"></canvas></div>
+<div class="cb"><h3>📈 ${t('trendReg')}</h3><canvas id="p2"></canvas></div>
+<div class="cb"><h3>🌧️ ${t('precipByYears')}</h3><canvas id="p3"></canvas></div>
+<div class="cb"><h3>📅 ${t('windowChart')}</h3><canvas id="p4"></canvas></div>
 ${compH}
-<div class="note">⚠️ Гаусове зважування ±10 днів (σ=3) за 8 років. Експоненціальне зважування років. Ансамбль: 60% середнє + 40% регресія.</div>`;
-  const yLb=p.yearly.map(d=>String(d.year)),yrs=p.yearly.map(d=>d.year);
-  mc('py1',{type:'bar',data:{labels:yLb,datasets:[
-    {label:'Макс',data:p.yearly.map(d=>r1(d.tmax)),backgroundColor:'rgba(239,68,68,.7)',borderRadius:4},
-    {label:'Мін',data:p.yearly.map(d=>r1(d.tmin)),backgroundColor:'rgba(59,130,246,.7)',borderRadius:4}
-  ]},options:cO()});
-  const rMx=yrs.map(y=>r1(p.trMx.s*y+p.trMx.i)),rMn=yrs.map(y=>r1(p.trMn.s*y+p.trMn.i));
-  mc('py2',{type:'scatter',data:{datasets:[
-    {label:'Макс',data:p.yearly.map(d=>({x:d.year,y:r1(d.tmax)})),backgroundColor:'#ef4444',pointRadius:6},
-    {label:'Мін',data:p.yearly.map(d=>({x:d.year,y:r1(d.tmin)})),backgroundColor:'#3b82f6',pointRadius:6},
-    {label:'Тренд макс',data:yrs.map((y,i)=>({x:y,y:rMx[i]})),type:'line',borderColor:'#ef4444',borderDash:[5,3],pointRadius:0,fill:false},
-    {label:'Тренд мін',data:yrs.map((y,i)=>({x:y,y:rMn[i]})),type:'line',borderColor:'#3b82f6',borderDash:[5,3],pointRadius:0,fill:false}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},
-    scales:{x:{type:'linear',ticks:{stepSize:1,callback:v=>v,font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
-  mc('py3',{type:'bar',data:{labels:yLb,datasets:[
-    {label:'мм',data:p.yearly.map(d=>r1(d.precip)),backgroundColor:p.yearly.map(d=>d.precip>5?'rgba(239,68,68,.7)':d.precip>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}
-  ]},options:{...cO(),plugins:{legend:{display:false}}}});
+<div class="note">⚠️ <b>${t('algoTitle')}</b><br>${t('algoDesc').replace(/\n/g,'<br>')}<br><br>${t('algoNote')}</div>`;
+  const yL=p.yearly.map(d=>String(d.year)),yn=p.yearly.map(d=>d.year);
+  mc('p1',{type:'bar',data:{labels:yL,datasets:[{label:t('max'),data:p.yearly.map(d=>r1(d.tmax)),backgroundColor:'rgba(239,68,68,.7)',borderRadius:4},{label:t('min'),data:p.yearly.map(d=>r1(d.tmin)),backgroundColor:'rgba(59,130,246,.7)',borderRadius:4}]},options:cO()});
+  const rM=yn.map(y=>r1(p.trM.s*y+p.trM.i)),rN=yn.map(y=>r1(p.trN.s*y+p.trN.i));
+  mc('p2',{type:'scatter',data:{datasets:[{label:t('max'),data:p.yearly.map(d=>({x:d.year,y:r1(d.tmax)})),backgroundColor:'#ef4444',pointRadius:6},{label:t('min'),data:p.yearly.map(d=>({x:d.year,y:r1(d.tmin)})),backgroundColor:'#3b82f6',pointRadius:6},{label:t('trend')+' '+t('max'),data:yn.map((y,i)=>({x:y,y:rM[i]})),type:'line',borderColor:'#ef4444',borderDash:[5,3],pointRadius:0,fill:false},{label:t('trend')+' '+t('min'),data:yn.map((y,i)=>({x:y,y:rN[i]})),type:'line',borderColor:'#3b82f6',borderDash:[5,3],pointRadius:0,fill:false}]},options:cO({scales:{x:{type:'linear',ticks:{stepSize:1,callback:v=>v,font:{size:9}}},y:{ticks:{font:{size:9}}}}})});
+  mc('p3',{type:'bar',data:{labels:yL,datasets:[{label:'mm',data:p.yearly.map(d=>r1(d.precip)),backgroundColor:p.yearly.map(d=>d.precip>5?'rgba(239,68,68,.7)':d.precip>1?'rgba(251,191,36,.7)':'rgba(59,130,246,.5)'),borderRadius:3}]},options:{...cO(),plugins:{legend:{display:false}}}});
   const offs=[];for(let i=-10;i<=10;i++)offs.push(i);
   const clr=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6'];
-  mc('py4',{type:'line',data:{labels:offs.map(o=>o===0?'📍':o>0?'+'+o:String(o)),
-    datasets:p.yearly.map((yd,ix)=>({label:String(yd.year),
-      data:offs.map(o=>{const f=yd.days.find(d=>d.off===o);return f&&f.tmax!=null?r1((f.tmax+f.tmin)/2):null}),
-      borderColor:clr[ix%clr.length],tension:.3,pointRadius:1,fill:false,borderWidth:2}))},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},
-    scales:{x:{ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
+  mc('p4',{type:'line',data:{labels:offs.map(o=>o===0?'📍':o>0?'+'+o:String(o)),datasets:p.yearly.map((yd,ix)=>({label:String(yd.year),data:offs.map(o=>{const f=yd.days.find(d=>d.off===o);return f&&f.tmax!=null?r1((f.tmax+f.tmin)/2):null}),borderColor:clr[ix%clr.length],tension:.3,pointRadius:1,fill:false,borderWidth:2}))},options:cO()});
 }
 
-/* ═══ INIT ═══ */
+/* ═══════ INIT ═══════ */
 document.addEventListener('DOMContentLoaded',()=>{
+  // Theme
+  if(localStorage.getItem('theme')==='dark')document.documentElement.setAttribute('data-theme','dark');
+  // Language
+  lang=localStorage.getItem('lang')||'en';
+  // Build country selector
+  buildCountrySel();
+  // Init city
+  city=ALL_CITIES[0];
   $('si').value=city.n;
-  $('ci').textContent='📍 '+city.r+' · '+city.la.toFixed(2)+'°N '+city.lo.toFixed(2)+'°E';
-
-  initCitySearch();  // ← нова функція з фіксом
-
-  document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>switchT(b.dataset.t)));
-  const now=new Date(),w1=new Date(now),w5=new Date(now);
-  w1.setDate(w1.getDate()-7);w5.setDate(w5.getDate()-37);
+  // Init search
+  initCitySearch();
+  // Tabs
+  document.querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.t)));
+  // Date pickers
+  const now=new Date(),w1=new Date(now),w5=new Date(now);w1.setDate(w1.getDate()-7);w5.setDate(w5.getDate()-37);
   $('hS').value=iso(w5);$('hE').value=iso(w1);
   const m1=new Date(now);m1.setDate(m1.getDate()+30);$('pD').value=iso(m1);
+  // Update all UI text
+  updateUI();
+  // Load weather
   loadCur();
 });
 </script>
