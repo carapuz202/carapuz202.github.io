@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✂️ AI Background Remover</title>
+<!-- Подключаем библиотеку нейросети для удаления фона -->
+<script src="https://unpkg.com/@imgly/background-removal@1.4.3/dist/browser/umd/index.js"></script>
+<style>
+:root{--bg:#f0f4f8;--card:#fff;--pri:#ec4899;--prid:#db2777;--tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;--bor:#e2e8f0;--hov:#f8fafc;--r:16px}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--tx2:#cbd5e1;--tx3:#64748b;--bor:#334155;--hov:#334155}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:.3s}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#4c1d95,#ec4899,#f43f5e);color:#fff;padding:1.8rem 1rem;text-align:center;position:relative}
+.hdr h1{font-size:2rem}.hdr p{opacity:.9;margin-top:.3rem;font-size:.95rem}
+.hdr-btn{position:absolute;top:.8rem;right:.8rem;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1rem;cursor:pointer;backdrop-filter:blur(4px)}
+.wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+
+/* DROPZONE */
+.drop{border:3px dashed var(--bor);border-radius:var(--r);padding:3rem 1rem;text-align:center;cursor:pointer;transition:.3s;background:var(--card);position:relative;margin-bottom:1rem}
+.drop:hover,.drop.over{border-color:var(--pri);background:#fdf2f8}
+[data-theme="dark"] .drop:hover,[data-theme="dark"] .drop.over{background:#4c1d95;border-color:#a78bfa}
+.drop.disabled{pointer-events:none;opacity:.6}
+.drop-ic{font-size:3.5rem;margin-bottom:.5rem}
+.drop h3{color:var(--tx2);margin-bottom:.3rem;font-size:1.1rem}
+.drop p{color:var(--tx3);font-size:.85rem}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* LOADER */
+.loader-wrap{display:none;text-align:center;padding:2rem;background:var(--card);border-radius:var(--r);box-shadow:0 4px 15px rgba(0,0,0,.05);margin-bottom:1rem}
+.loader-wrap h3{color:var(--tx2);margin-bottom:.5rem}
+.loader-wrap p{color:var(--tx3);font-size:.85rem;margin-bottom:1rem}
+.prog-bar{height:10px;background:var(--bor);border-radius:5px;overflow:hidden;max-width:400px;margin:0 auto}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--pri),#f43f5e);width:0%;transition:width .2s}
+
+/* RESULTS */
+.res-wrap{display:none;background:var(--card);border-radius:var(--r);padding:1.5rem;box-shadow:0 8px 30px rgba(0,0,0,.1)}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.img-box{text-align:center}
+.img-box h4{color:var(--tx2);margin-bottom:.8rem}
+/* Checkerboard background for transparency */
+.checkerboard{
+  background-color: #e5e5f7;
+  background-image: linear-gradient(45deg, #f4f4f9 25%, transparent 25%), linear-gradient(-45deg, #f4f4f9 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f4f4f9 75%), linear-gradient(-45deg, transparent 75%, #f4f4f9 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  border-radius: 12px;
+  overflow: hidden;
+  border:1px solid var(--bor);
+}
+[data-theme="dark"] .checkerboard{
+  background-color: #1e293b;
+  background-image: linear-gradient(45deg, #334155 25%, transparent 25%), linear-gradient(-45deg, #334155 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #334155 75%), linear-gradient(-45deg, transparent 75%, #334155 75%);
+}
+.img-box img{max-width:100%;max-height:400px;display:block;margin:0 auto;object-fit:contain}
+
+/* BUTTONS */
+.btns{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap}
+.btn{padding:.8rem 2rem;background:var(--pri);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:.5rem}
+.btn:hover{background:var(--prid);transform:translateY(-2px);box-shadow:0 5px 15px rgba(236,72,153,.4)}
+.btn-out{background:transparent;border:2px solid var(--bor);color:var(--tx2)}
+.btn-out:hover{border-color:var(--pri);color:var(--pri);background:transparent;box-shadow:none}
+
+.note{text-align:center;font-size:.78rem;color:var(--tx3);margin-top:1.5rem}
+
+@media(max-width:600px){.res-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+<button class="hdr-btn" onclick="document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'':'dark')">🌓</button>
+<h1>✂️ AI Background Remover</h1>
+<p>100% Free · Runs in your browser · No data is sent to servers</p>
+</div>
+
+<div class="wrap">
+
+<div class="drop" id="dropZone">
+<div class="drop-ic">🖼️</div>
+<h3>Drop image here or click to upload</h3>
+<p>Supports JPG, PNG, WebP · You can also paste with Ctrl+V</p>
+<input type="file" id="fileInput" accept="image/*">
+</div>
+
+<div class="loader-wrap" id="loader">
+<h3>🤖 AI is analyzing the image...</h3>
+<p id="progText">Loading AI model (this takes a few seconds the first time)</p>
+<div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+<p style="font-size:.7rem;margin-top:.8rem;color:var(--tx3)">Everything happens securely on your device.</p>
+</div>
+
+<div class="res-wrap" id="results">
+<div class="res-grid">
+  <div class="img-box">
+    <h4>Original</h4>
+    <img id="imgOriginal">
+  </div>
+  <div class="img-box">
+    <h4>Result (Transparent)</h4>
+    <div class="checkerboard">
+      <img id="imgResult">
+    </div>
+  </div>
+</div>
+<div class="btns">
+  <button class="btn" id="btnDownload">💾 Download HD (PNG)</button>
+  <button class="btn btn-out" id="btnNew">🔄 Upload New</button>
+</div>
+</div>
+
+<div class="note">Powered by imgly/background-removal (WebAssembly + Neural Networks)</div>
+</div>
+
+<script>
+// Elements
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const loader = document.getElementById('loader');
+const progText = document.getElementById('progText');
+const progFill = document.getElementById('progFill');
+const results = document.getElementById('results');
+const imgOriginal = document.getElementById('imgOriginal');
+const imgResult = document.getElementById('imgResult');
+const btnDownload = document.getElementById('btnDownload');
+const btnNew = document.getElementById('btnNew');
+
+let resultBlobUrl = null;
+
+// File Upload Handlers (Drag & Drop, Click, Paste)
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('over');
+  if(e.dataTransfer.files[0]) processImage(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => {
+  if(e.target.files[0]) processImage(e.target.files[0]);
+});
+document.addEventListener('paste', e => {
+  if(dropZone.classList.contains('disabled')) return;
+  const items = e.clipboardData.items;
+  for(let i=0; i<items.length; i++) {
+    if(items[i].type.startsWith('image/')) {
+      processImage(items[i].getAsFile());
+      break;
+    }
+  }
+});
+
+// Main AI Processing Function
+async function processImage(file) {
+  if(!file.type.startsWith('image/')) {
+    alert('Please select an image file!');
+    return;
+  }
+
+  // UI Setup
+  dropZone.style.display = 'none';
+  results.style.display = 'none';
+  loader.style.display = 'block';
+  progFill.style.width = '0%';
+  
+  // Show Original Image
+  imgOriginal.src = URL.createObjectURL(file);
+
+  try {
+    // Configuration for the AI Model
+    const config = {
+      progress: (key, current, total) => {
+        // Show download/processing progress
+        if(key.includes('fetch')) {
+          const pct = Math.round((current / total) * 100) || 0;
+          progText.textContent = `Downloading AI Model... ${pct}%`;
+          progFill.style.width = `${pct}%`;
+        } else if (key.includes('compute')) {
+          progText.textContent = `Removing background...`;
+          progFill.style.width = `100%`;
+        }
+      }
+    };
+
+    // The Magic Function from @imgly/background-removal
+    const imageBlob = await imglyRemoveBackground(file, config);
+    
+    // Create URL for the result
+    resultBlobUrl = URL.createObjectURL(imageBlob);
+    imgResult.src = resultBlobUrl;
+
+    // Switch UI to results
+    loader.style.display = 'none';
+    results.style.display = 'block';
+
+  } catch (error) {
+    alert("Error processing image: " + error.message);
+    resetUI();
+  }
+}
+
+// Download Button
+btnDownload.addEventListener('click', () => {
+  if(!resultBlobUrl) return;
+  const a = document.createElement('a');
+  a.href = resultBlobUrl;
+  a.download = `no-bg-${Date.now()}.png`; // Always save as PNG to keep transparency
+  a.click();
+});
+
+// New Image Button
+btnNew.addEventListener('click', resetUI);
+
+function resetUI() {
+  fileInput.value = '';
+  dropZone.style.display = 'block';
+  loader.style.display = 'none';
+  results.style.display = 'none';
+  if(resultBlobUrl) URL.revokeObjectURL(resultBlobUrl);
+}
+</script>
+</body>
+</html>
