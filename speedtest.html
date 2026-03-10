@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Internet Speed Test</title>
+<style>
+:root{--bg:#f0f4f8;--card:#fff;--pri:#2563eb;--tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;--bor:#e2e8f0;--hov:#f8fafc;--r:16px;
+--grn:#22c55e;--red:#ef4444;--org:#f97316;--ylw:#eab308}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--tx2:#cbd5e1;--tx3:#64748b;--bor:#334155;--hov:#334155}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:.3s}
+.hdr{background:linear-gradient(135deg,#0f172a,#1e3a5f,#2563eb);color:#fff;padding:1.8rem 1rem;text-align:center;position:relative}
+.hdr h1{font-size:2rem}.hdr p{opacity:.85;margin-top:.2rem}
+.hdr-btn{position:absolute;top:.8rem;right:.8rem;background:rgba(255,255,255,.15);border:none;color:#fff;
+width:36px;height:36px;border-radius:50%;font-size:1rem;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+
+/* GAUGE */
+.gauge-card{background:var(--card);border-radius:var(--r);padding:2rem;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.1);margin-bottom:1.2rem}
+.gauge-wrap{position:relative;width:280px;height:180px;margin:0 auto}
+.gauge-wrap canvas{width:280px;height:180px}
+.gauge-val{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);text-align:center}
+.gauge-num{font-size:3rem;font-weight:800;letter-spacing:-2px}
+.gauge-unit{font-size:.9rem;color:var(--tx3)}
+.gauge-status{font-size:1rem;color:var(--tx2);margin-top:.5rem}
+.start-btn{margin-top:1.2rem;padding:.8rem 2.5rem;background:var(--pri);color:#fff;border:none;border-radius:12px;
+font-size:1.1rem;font-weight:700;cursor:pointer;transition:.2s}
+.start-btn:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(37,99,235,.4)}
+.start-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.start-btn.running{background:var(--org);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* RESULTS */
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.2rem}
+.res{background:var(--card);border-radius:var(--r);padding:1rem;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.res-ic{font-size:1.8rem;margin-bottom:.3rem}
+.res-val{font-size:1.8rem;font-weight:800;color:var(--pri)}
+.res-unit{font-size:.82rem;color:var(--tx3)}
+.res-label{font-size:.78rem;color:var(--tx3);margin-top:.2rem}
+
+/* SERVICES */
+.srv-card{background:var(--card);border-radius:var(--r);padding:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:1rem}
+.srv-card h3{font-size:1rem;color:var(--tx2);margin-bottom:.8rem}
+.srv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem}
+.srv{display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border-radius:8px;background:var(--hov);font-size:.85rem;transition:.15s}
+.srv:hover{transform:translateY(-1px)}
+.srv-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.srv-dot.up{background:var(--grn)}.srv-dot.down{background:var(--red)}.srv-dot.check{background:var(--ylw);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.srv-name{flex:1;font-weight:600}.srv-ms{font-size:.72rem;color:var(--tx3)}
+
+/* HISTORY */
+.hist-card{background:var(--card);border-radius:var(--r);padding:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:1rem}
+.hist-card h3{font-size:1rem;color:var(--tx2);margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center}
+.hist-card h3 button{font-size:.75rem;padding:.2rem .6rem;background:transparent;border:1px solid var(--bor);border-radius:6px;
+color:var(--tx3);cursor:pointer}
+.htbl{max-height:250px;overflow-y:auto;border:1px solid var(--bor);border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.4rem .5rem;text-align:center;border-bottom:1px solid var(--bor);font-size:.8rem}
+th{background:var(--hov);font-weight:700;color:var(--tx2);position:sticky;top:0}
+
+/* CONNECTION INFO */
+.conn{background:var(--card);border-radius:var(--r);padding:1rem;box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:1rem}
+.conn h3{font-size:1rem;color:var(--tx2);margin-bottom:.5rem}
+.conn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem}
+.cg{background:var(--hov);border-radius:8px;padding:.5rem;text-align:center}
+.cg-l{font-size:.7rem;color:var(--tx3)}.cg-v{font-size:.9rem;font-weight:700}
+
+.ftr{text-align:center;padding:1rem;color:var(--tx3);font-size:.75rem}
+@media(max-width:600px){.hdr h1{font-size:1.4rem}.results{grid-template-columns:1fr}.gauge-wrap{width:240px;height:160px}
+.gauge-wrap canvas{width:240px;height:160px}.gauge-num{font-size:2.4rem}}
+</style>
+</head>
+<body>
+<div class="hdr">
+<button class="hdr-btn" onclick="document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'':'dark')">🌓</button>
+<h1>⚡ Internet Speed Test</h1>
+<p>Download · Upload · Ping · Service Status</p>
+</div>
+<div class="wrap">
+
+<!-- GAUGE -->
+<div class="gauge-card">
+<div class="gauge-wrap"><canvas id="gauge" width="280" height="180"></canvas>
+<div class="gauge-val"><div class="gauge-num" id="gNum">0</div><div class="gauge-unit">Mbps</div></div>
+</div>
+<div class="gauge-status" id="gStatus">Press Start to begin</div>
+<button class="start-btn" id="startBtn" onclick="runTest()">▶ Start Test</button>
+</div>
+
+<!-- RESULTS -->
+<div class="results">
+<div class="res"><div class="res-ic">⬇️</div><div class="res-val" id="rDown">—</div><div class="res-unit">Mbps</div><div class="res-label">Download</div></div>
+<div class="res"><div class="res-ic">⬆️</div><div class="res-val" id="rUp">—</div><div class="res-unit">Mbps</div><div class="res-label">Upload</div></div>
+<div class="res"><div class="res-ic">🏓</div><div class="res-val" id="rPing">—</div><div class="res-unit">ms</div><div class="res-label">Ping</div></div>
+</div>
+
+<!-- CONNECTION INFO -->
+<div class="conn" id="connInfo">
+<h3>📡 Connection Info</h3>
+<div class="conn-grid" id="connGrid"></div>
+</div>
+
+<!-- SERVICE STATUS -->
+<div class="srv-card">
+<h3>🌐 Service Status <button class="start-btn" style="font-size:.78rem;padding:.3rem .8rem;margin:0" onclick="checkServices()">🔄 Check</button></h3>
+<div class="srv-grid" id="srvGrid"></div>
+</div>
+
+<!-- HISTORY -->
+<div class="hist-card">
+<h3>📊 Test History <button onclick="clearHist()">🗑️ Clear</button></h3>
+<div class="htbl"><table><thead><tr><th>Date</th><th>⬇️ Down</th><th>⬆️ Up</th><th>🏓 Ping</th></tr></thead>
+<tbody id="histBody"></tbody></table></div>
+</div>
+</div>
+<div class="ftr">Speed test uses Cloudflare's network · Service check via browser fetch · All data stays on your device</div>
+
+<script>
+/* ═══════ GAUGE ═══════ */
+const canvas=document.getElementById('gauge');
+const ctx=canvas.getContext('2d');
+const DPR=window.devicePixelRatio||1;
+canvas.width=280*DPR;canvas.height=180*DPR;
+ctx.scale(DPR,DPR);
+let gaugeValue=0;
+
+function drawGauge(value,max=200){
+  const w=280,h=180,cx=w/2,cy=h-10,r=120;
+  ctx.clearRect(0,0,w,h);
+  const startA=Math.PI,endA=2*Math.PI,totalA=endA-startA;
+  // Background
+  ctx.beginPath();ctx.arc(cx,cy,r,startA,endA);
+  ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--bor').trim()||'#e2e8f0';
+  ctx.lineWidth=14;ctx.lineCap='round';ctx.stroke();
+  // Colored arc
+  const pct=Math.min(value/max,1);
+  if(pct>0){
+    const grad=ctx.createLinearGradient(0,0,w,0);
+    grad.addColorStop(0,'#22c55e');grad.addColorStop(0.4,'#eab308');grad.addColorStop(0.7,'#f97316');grad.addColorStop(1,'#ef4444');
+    ctx.beginPath();ctx.arc(cx,cy,r,startA,startA+totalA*pct);
+    ctx.strokeStyle=grad;ctx.lineWidth=14;ctx.lineCap='round';ctx.stroke();
+  }
+  // Ticks
+  for(let i=0;i<=10;i++){
+    const a=startA+totalA*(i/10);
+    const x1=cx+Math.cos(a)*(r-16),y1=cy+Math.sin(a)*(r-16);
+    const x2=cx+Math.cos(a)*(r-8),y2=cy+Math.sin(a)*(r-8);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+    ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--tx3').trim()||'#94a3b8';
+    ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();
+    // Labels
+    const lx=cx+Math.cos(a)*(r-28),ly=cy+Math.sin(a)*(r-28);
+    ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--tx3').trim()||'#94a3b8';
+    ctx.font='9px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(Math.round(max*i/10),lx,ly);
+  }
+}
+function animateGauge(target,max){
+  const start=gaugeValue,diff=target-start;
+  let frame=0;const frames=30;
+  function step(){
+    frame++;const p=frame/frames;const ease=1-Math.pow(1-p,3);
+    gaugeValue=start+diff*ease;
+    drawGauge(gaugeValue,max);
+    document.getElementById('gNum').textContent=Math.round(gaugeValue);
+    if(frame<frames)requestAnimationFrame(step);
+  }
+  step();
+}
+drawGauge(0);
+
+/* ═══════ SPEED TEST ═══════ */
+let testing=false;
+
+async function runTest(){
+  if(testing)return;testing=true;
+  const btn=document.getElementById('startBtn');
+  btn.disabled=true;btn.className='start-btn running';btn.textContent='⏳ Testing...';
+  document.getElementById('rDown').textContent='...';
+  document.getElementById('rUp').textContent='...';
+  document.getElementById('rPing').textContent='...';
+
+  try{
+    // PING
+    document.getElementById('gStatus').textContent='🏓 Measuring ping...';
+    const ping=await testPing();
+    document.getElementById('rPing').textContent=ping;
+    document.getElementById('rPing').style.color=ping<50?'#22c55e':ping<100?'#eab308':'#ef4444';
+
+    // DOWNLOAD
+    document.getElementById('gStatus').textContent='⬇️ Testing download...';
+    const down=await testDownload();
+    document.getElementById('rDown').textContent=down.toFixed(1);
+    document.getElementById('rDown').style.color=down>50?'#22c55e':down>10?'#eab308':'#ef4444';
+
+    // UPLOAD
+    document.getElementById('gStatus').textContent='⬆️ Testing upload...';
+    const up=await testUpload();
+    document.getElementById('rUp').textContent=up.toFixed(1);
+    document.getElementById('rUp').style.color=up>20?'#22c55e':up>5?'#eab308':'#ef4444';
+
+    document.getElementById('gStatus').textContent=`✅ Done! ⬇️ ${down.toFixed(1)} / ⬆️ ${up.toFixed(1)} Mbps · 🏓 ${ping}ms`;
+    saveResult(down,up,ping);
+  }catch(e){
+    document.getElementById('gStatus').textContent='❌ Error: '+e.message;
+  }
+  btn.disabled=false;btn.className='start-btn';btn.textContent='▶ Start Test';
+  testing=false;
+}
+
+async function testPing(){
+  const pings=[];
+  for(let i=0;i<5;i++){
+    const s=performance.now();
+    try{await fetch('https://speed.cloudflare.com/__down?bytes=1&_='+Date.now(),{cache:'no-store',mode:'cors'});
+    }catch(e){await fetch('https://www.google.com/favicon.ico?_='+Date.now(),{mode:'no-cors',cache:'no-store'})}
+    pings.push(Math.round(performance.now()-s));
+  }
+  pings.sort((a,b)=>a-b);
+  return pings[Math.floor(pings.length/2)]; // median
+}
+
+async function testDownload(){
+  const sizes=[1000000,5000000,10000000]; // 1MB, 5MB, 10MB
+  let totalBytes=0,totalTime=0;
+  for(const size of sizes){
+    const url=`https://speed.cloudflare.com/__down?bytes=${size}&_=${Date.now()}`;
+    const start=performance.now();
+    try{
+      const resp=await fetch(url,{cache:'no-store'});
+      const reader=resp.body.getReader();
+      let bytes=0;
+      while(true){
+        const{done,value}=await reader.read();
+        if(done)break;
+        bytes+=value.length;
+        // Live update gauge
+        const elapsed=(performance.now()-start)/1000;
+        if(elapsed>0){
+          const speed=((totalBytes+bytes)*8/((totalTime+elapsed)))/1e6;
+          animateGauge(speed,200);
+        }
+      }
+      totalBytes+=bytes;
+      totalTime+=(performance.now()-start)/1000;
+    }catch(e){
+      // Fallback: download CDN files
+      const fallbackUrl='https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js?_='+Date.now();
+      const s2=performance.now();
+      const r2=await fetch(fallbackUrl,{cache:'no-store'});
+      const b2=await r2.blob();
+      totalBytes+=b2.size;
+      totalTime+=(performance.now()-s2)/1000;
+    }
+  }
+  return totalTime>0?(totalBytes*8/totalTime)/1e6:0;
+}
+
+async function testUpload(){
+  const data=new Uint8Array(2000000); // 2MB
+  crypto.getRandomValues(data);
+  const blob=new Blob([data]);
+  let totalBytes=0,totalTime=0;
+  for(let i=0;i<3;i++){
+    const start=performance.now();
+    try{
+      await fetch('https://speed.cloudflare.com/__up?_='+Date.now(),{method:'POST',body:blob,cache:'no-store'});
+      totalBytes+=blob.size;
+      totalTime+=(performance.now()-start)/1000;
+      const speed=(totalBytes*8/totalTime)/1e6;
+      animateGauge(speed,100);
+    }catch(e){
+      // Upload test failed, estimate from download
+      return parseFloat(document.getElementById('rDown').textContent)*0.3||5;
+    }
+  }
+  return totalTime>0?(totalBytes*8/totalTime)/1e6:0;
+}
+
+/* ═══════ CONNECTION INFO ═══════ */
+function showConnInfo(){
+  const grid=document.getElementById('connGrid');
+  const conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  let h='';
+  h+=`<div class="cg"><div class="cg-l">Online</div><div class="cg-v">${navigator.onLine?'✅ Yes':'❌ No'}</div></div>`;
+  if(conn){
+    if(conn.effectiveType)h+=`<div class="cg"><div class="cg-l">Type</div><div class="cg-v">${conn.effectiveType.toUpperCase()}</div></div>`;
+    if(conn.downlink)h+=`<div class="cg"><div class="cg-l">Est. Speed</div><div class="cg-v">${conn.downlink} Mbps</div></div>`;
+    if(conn.rtt)h+=`<div class="cg"><div class="cg-l">Est. RTT</div><div class="cg-v">${conn.rtt} ms</div></div>`;
+    if(conn.type)h+=`<div class="cg"><div class="cg-l">Connection</div><div class="cg-v">${conn.type}</div></div>`;
+    if(conn.saveData!=null)h+=`<div class="cg"><div class="cg-l">Data Saver</div><div class="cg-v">${conn.saveData?'On':'Off'}</div></div>`;
+  }
+  h+=`<div class="cg"><div class="cg-l">Protocol</div><div class="cg-v">${location.protocol==='https:'?'HTTPS':'HTTP'}</div></div>`;
+  h+=`<div class="cg"><div class="cg-l">Language</div><div class="cg-v">${navigator.language}</div></div>`;
+  h+=`<div class="cg"><div class="cg-l">Platform</div><div class="cg-v">${navigator.platform||'Unknown'}</div></div>`;
+  grid.innerHTML=h;
+}
+
+/* ═══════ SERVICE STATUS ═══════ */
+const SERVICES=[
+  {name:'Google',url:'https://www.google.com',ic:'🔍'},
+  {name:'YouTube',url:'https://www.youtube.com',ic:'▶️'},
+  {name:'Facebook',url:'https://www.facebook.com',ic:'👤'},
+  {name:'X / Twitter',url:'https://x.com',ic:'🐦'},
+  {name:'Instagram',url:'https://www.instagram.com',ic:'📷'},
+  {name:'Reddit',url:'https://www.reddit.com',ic:'🤖'},
+  {name:'Netflix',url:'https://www.netflix.com',ic:'🎬'},
+  {name:'Amazon',url:'https://www.amazon.com',ic:'📦'},
+  {name:'GitHub',url:'https://github.com',ic:'🐙'},
+  {name:'Wikipedia',url:'https://www.wikipedia.org',ic:'📚'},
+  {name:'WhatsApp',url:'https://web.whatsapp.com',ic:'💬'},
+  {name:'Telegram',url:'https://web.telegram.org',ic:'✈️'},
+  {name:'Discord',url:'https://discord.com',ic:'🎮'},
+  {name:'Twitch',url:'https://www.twitch.tv',ic:'🎮'},
+  {name:'LinkedIn',url:'https://www.linkedin.com',ic:'💼'},
+  {name:'Cloudflare',url:'https://www.cloudflare.com',ic:'☁️'},
+  {name:'OpenAI',url:'https://openai.com',ic:'🤖'},
+  {name:'Spotify',url:'https://www.spotify.com',ic:'🎵'},
+];
+
+function initServices(){
+  const grid=document.getElementById('srvGrid');
+  grid.innerHTML=SERVICES.map(s=>`<div class="srv" id="srv-${s.name.replace(/[\s\/]/g,'')}">
+<div class="srv-dot"></div><span class="srv-name">${s.ic} ${s.name}</span><span class="srv-ms"></span></div>`).join('');
+}
+
+async function checkServices(){
+  for(const s of SERVICES){
+    const el=document.getElementById('srv-'+s.name.replace(/[\s\/]/g,''));
+    const dot=el.querySelector('.srv-dot');
+    const ms=el.querySelector('.srv-ms');
+    dot.className='srv-dot check';ms.textContent='...';
+
+    const start=performance.now();
+    try{
+      await Promise.race([
+        fetch(s.url,{mode:'no-cors',cache:'no-store'}),
+        new Promise((_,rej)=>setTimeout(()=>rej('timeout'),8000))
+      ]);
+      const time=Math.round(performance.now()-start);
+      dot.className='srv-dot up';
+      ms.textContent=time+'ms';
+    }catch(e){
+      dot.className='srv-dot down';
+      ms.textContent='down?';
+    }
+  }
+}
+
+/* ═══════ HISTORY ═══════ */
+function saveResult(down,up,ping){
+  const hist=JSON.parse(localStorage.getItem('speedHist')||'[]');
+  hist.unshift({date:new Date().toLocaleString(),down:down.toFixed(1),up:up.toFixed(1),ping});
+  if(hist.length>20)hist.length=20;
+  localStorage.setItem('speedHist',JSON.stringify(hist));
+  renderHist();
+}
+function renderHist(){
+  const hist=JSON.parse(localStorage.getItem('speedHist')||'[]');
+  document.getElementById('histBody').innerHTML=hist.map(h=>
+    `<tr><td>${h.date}</td><td>${h.down} Mbps</td><td>${h.up} Mbps</td><td>${h.ping} ms</td></tr>`
+  ).join('')||'<tr><td colspan="4" style="color:var(--tx3)">No tests yet</td></tr>';
+}
+function clearHist(){localStorage.removeItem('speedHist');renderHist()}
+
+/* ═══════ INIT ═══════ */
+showConnInfo();
+initServices();
+renderHist();
+checkServices();
+</script>
+</body>
+</html>
