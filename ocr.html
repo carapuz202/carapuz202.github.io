@@ -1,1 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📝 Image to Text — OCR</title>
+<style>
+:root{--bg:#f0f4f8;--card:#fff;--pri:#7c3aed;--prid:#6d28d9;--tx:#1e293b;--tx2:#475569;--tx3:#94a3b8;--bor:#e2e8f0;--hov:#f8fafc;--r:16px}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--tx2:#cbd5e1;--tx3:#64748b;--bor:#334155;--hov:#334155}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;transition:.3s}
+.hdr{background:linear-gradient(135deg,#4c1d95,#7c3aed,#a78bfa);color:#fff;padding:1.8rem 1rem;text-align:center;position:relative}
+.hdr h1{font-size:2rem}.hdr p{opacity:.85;margin-top:.3rem}
+.hdr-btn{position:absolute;top:.8rem;right:.8rem;background:rgba(255,255,255,.15);border:none;color:#fff;
+width:36px;height:36px;border-radius:50%;font-size:1rem;cursor:pointer}
+.wrap{max-width:800px;margin:0 auto;padding:1.5rem 1rem}
+/* DROP ZONE */
+.drop{border:3px dashed var(--bor);border-radius:var(--r);padding:3rem 2rem;text-align:center;cursor:pointer;
+transition:.3s;background:var(--card);position:relative}
+.drop:hover,.drop.over{border-color:var(--pri);background:#f5f3ff}
+[data-theme="dark"] .drop:hover,[data-theme="dark"] .drop.over{background:#1e1b4b}
+.drop-ic{font-size:4rem;margin-bottom:.5rem}
+.drop h3{color:var(--tx2);margin-bottom:.3rem;font-size:1.1rem}
+.drop p{color:var(--tx3);font-size:.88rem}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+/* CONTROLS */
+.ctrls{display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap;align-items:center}
+.ctrls select{padding:.5rem .7rem;border:2px solid var(--bor);border-radius:10px;font-size:.9rem;
+background:var(--hov);color:var(--tx);cursor:pointer;min-width:160px}
+.ctrls select:focus{outline:none;border-color:var(--pri)}
+.btn{padding:.55rem 1.3rem;background:var(--pri);color:#fff;border:none;border-radius:10px;font-size:.9rem;
+font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{background:var(--prid);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-out{background:transparent;border:2px solid var(--bor);color:var(--tx2)}
+.btn-out:hover{border-color:var(--pri);color:var(--pri);background:transparent}
+/* PREVIEW */
+.preview{margin-top:1rem;border-radius:var(--r);overflow:hidden;background:var(--card);border:1px solid var(--bor);display:none}
+.preview img{max-width:100%;max-height:400px;display:block;margin:0 auto}
+.preview-info{padding:.5rem .8rem;font-size:.78rem;color:var(--tx3);text-align:center;border-top:1px solid var(--bor)}
+/* PROGRESS */
+.prog-wrap{margin-top:1rem;display:none}
+.prog-bar{height:8px;background:var(--bor);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--pri),#a78bfa);width:0%;transition:width .3s;border-radius:4px}
+.prog-txt{font-size:.82rem;color:var(--tx3);margin-top:.3rem;text-align:center}
+/* RESULT */
+.result{margin-top:1rem;display:none}
+.result-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;gap:.4rem}
+.result-head h3{font-size:1rem;color:var(--tx2)}
+.result-stats{font-size:.78rem;color:var(--tx3)}
+.result-btns{display:flex;gap:.4rem}
+.result textarea{width:100%;min-height:200px;padding:1rem;border:2px solid var(--bor);border-radius:12px;
+font-size:.95rem;font-family:inherit;resize:vertical;background:var(--hov);color:var(--tx);line-height:1.6}
+.result textarea:focus{outline:none;border-color:var(--pri)}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;
+padding:.6rem 1.5rem;border-radius:10px;font-size:.88rem;font-weight:600;opacity:0;transition:.3s;z-index:999;pointer-events:none}
+.toast.show{opacity:1}
+.ftr{text-align:center;padding:1.5rem;color:var(--tx3);font-size:.78rem}
+.ftr a{color:var(--pri);text-decoration:none}
+@media(max-width:600px){.hdr h1{font-size:1.4rem}.drop{padding:2rem 1rem}.ctrls{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="hdr">
+<button class="hdr-btn" onclick="document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'':'dark')">🌓</button>
+<h1>📝 Image to Text</h1>
+<p>OCR — Optical Character Recognition · 60+ languages</p>
+</div>
+<div class="wrap">
+<div class="drop" id="dropZone">
+<div class="drop-ic">📸</div>
+<h3>Drop image here or click to upload</h3>
+<p>Supports JPG, PNG, GIF, BMP, WebP · Paste with Ctrl+V</p>
+<input type="file" id="fileInput" accept="image/*">
+</div>
+<div class="ctrls">
+<select id="langSel">
+<option value="eng">🇬🇧 English</option>
+<option value="ukr">🇺🇦 Українська</option>
+<option value="rus">🇷🇺 Русский</option>
+<option value="deu">🇩🇪 Deutsch</option>
+<option value="fra">🇫🇷 Français</option>
+<option value="spa">🇪🇸 Español</option>
+<option value="ita">🇮🇹 Italiano</option>
+<option value="pol">🇵🇱 Polski</option>
+<option value="por">🇵🇹 Português</option>
+<option value="nld">🇳🇱 Nederlands</option>
+<option value="ron">🇷🇴 Română</option>
+<option value="ces">🇨🇿 Čeština</option>
+<option value="swe">🇸🇪 Svenska</option>
+<option value="hun">🇭🇺 Magyar</option>
+<option value="ell">🇬🇷 Ελληνικά</option>
+<option value="bul">🇧🇬 Български</option>
+<option value="hrv">🇭🇷 Hrvatski</option>
+<option value="dan">🇩🇰 Dansk</option>
+<option value="fin">🇫🇮 Suomi</option>
+<option value="lit">🇱🇹 Lietuvių</option>
+<option value="lav">🇱🇻 Latviešu</option>
+<option value="est">🇪🇪 Eesti</option>
+<option value="slk">🇸🇰 Slovenčina</option>
+<option value="slv">🇸🇮 Slovenščina</option>
+<option value="jpn">🇯🇵 日本語</option>
+<option value="chi_sim">🇨🇳 中文简体</option>
+<option value="chi_tra">🇹🇼 中文繁體</option>
+<option value="kor">🇰🇷 한국어</option>
+<option value="ara">🇸🇦 العربية</option>
+<option value="hin">🇮🇳 हिन्दी</option>
+<option value="tha">🇹🇭 ไทย</option>
+<option value="tur">🇹🇷 Türkçe</option>
+<option value="vie">🇻🇳 Tiếng Việt</option>
+</select>
+<button class="btn" id="btnOCR" disabled>🔍 Recognize Text</button>
+<button class="btn btn-out" id="btnClear" style="display:none">🗑️ Clear</button>
+</div>
+<div class="preview" id="preview">
+<img id="previewImg">
+<div class="preview-info" id="previewInfo"></div>
+</div>
+<div class="prog-wrap" id="progWrap">
+<div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+<div class="prog-txt" id="progTxt">Initializing...</div>
+</div>
+<div class="result" id="result">
+<div class="result-head">
+<h3>📄 Extracted Text</h3>
+<div class="result-stats" id="stats"></div>
+<div class="result-btns">
+<button class="btn" onclick="copyText()" style="font-size:.82rem;padding:.4rem .8rem">📋 Copy</button>
+<button class="btn btn-out" onclick="downloadText()" style="font-size:.82rem;padding:.4rem .8rem">💾 Download</button>
+</div>
+</div>
+<textarea id="textOut" readonly></textarea>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="ftr">Powered by <a href="https://github.com/naptha/tesseract.js" target="_blank">Tesseract.js</a> — runs entirely in your browser, no data sent to servers</div>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const dropZone=document.getElementById('dropZone');
+const fileInput=document.getElementById('fileInput');
+const preview=document.getElementById('preview');
+const previewImg=document.getElementById('previewImg');
+const previewInfo=document.getElementById('previewInfo');
+const btnOCR=document.getElementById('btnOCR');
+const btnClear=document.getElementById('btnClear');
+const progWrap=document.getElementById('progWrap');
+const progFill=document.getElementById('progFill');
+const progTxt=document.getElementById('progTxt');
+const result=document.getElementById('result');
+const textOut=document.getElementById('textOut');
+const stats=document.getElementById('stats');
+const langSel=document.getElementById('langSel');
+let currentFile=null;
+
+// Drag & Drop
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('over')});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('over'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('over');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0])});
+fileInput.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
+
+// Paste
+document.addEventListener('paste',e=>{
+  const items=e.clipboardData.items;
+  for(let i=0;i<items.length;i++){
+    if(items[i].type.startsWith('image/')){loadFile(items[i].getAsFile());break}
+  }
+});
+
+function loadFile(file){
+  if(!file.type.startsWith('image/')){showToast('⚠️ Please select an image file');return}
+  currentFile=file;
+  const url=URL.createObjectURL(file);
+  previewImg.src=url;
+  const sizeMB=(file.size/1024/1024).toFixed(2);
+  previewInfo.textContent=`${file.name} · ${sizeMB} MB · ${file.type}`;
+  preview.style.display='block';
+  btnOCR.disabled=false;
+  btnClear.style.display='inline-block';
+  result.style.display='none';
+  progWrap.style.display='none';
+}
+
+// OCR
+btnOCR.addEventListener('click',async()=>{
+  if(!currentFile)return;
+  const selectedLang=langSel.value;
+  btnOCR.disabled=true;
+  btnOCR.textContent='⏳ Processing...';
+  progWrap.style.display='block';
+  result.style.display='none';
+  progFill.style.width='0%';
+  progTxt.textContent='Initializing OCR engine...';
+
+  try{
+    const worker=await Tesseract.createWorker(selectedLang,1,{
+      logger:m=>{
+        if(m.status==='recognizing text'){
+          const pct=Math.round(m.progress*100);
+          progFill.style.width=pct+'%';
+          progTxt.textContent=`Recognizing text... ${pct}%`;
+        }else{
+          progTxt.textContent=m.status.charAt(0).toUpperCase()+m.status.slice(1)+'...';
+        }
+      }
+    });
+
+    progTxt.textContent='Recognizing text...';
+    const{data}=await worker.recognize(currentFile);
+    await worker.terminate();
+
+    textOut.value=data.text.trim();
+    const words=data.text.trim().split(/\s+/).filter(w=>w.length>0).length;
+    const chars=data.text.trim().length;
+    const conf=Math.round(data.confidence);
+    stats.textContent=`${words} words · ${chars} chars · ${conf}% confidence`;
+    result.style.display='block';
+    progWrap.style.display='none';
+    textOut.removeAttribute('readonly');
+  }catch(err){
+    progTxt.textContent='❌ Error: '+err.message;
+    progFill.style.width='100%';
+    progFill.style.background='#ef4444';
+  }
+  btnOCR.disabled=false;
+  btnOCR.textContent='🔍 Recognize Text';
+});
+
+// Clear
+btnClear.addEventListener('click',()=>{
+  currentFile=null;preview.style.display='none';result.style.display='none';
+  progWrap.style.display='none';btnOCR.disabled=true;btnClear.style.display='none';
+  fileInput.value='';
+});
+
+// Copy & Download
+function copyText(){
+  navigator.clipboard.writeText(textOut.value).then(()=>showToast('📋 Copied!')).catch(()=>{textOut.select();document.execCommand('copy');showToast('📋 Copied!')});
+}
+function downloadText(){
+  const blob=new Blob([textOut.value],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='extracted-text.txt';a.click();showToast('💾 Downloaded!');
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+</script>
+</body>
+</html>
